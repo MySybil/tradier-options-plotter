@@ -6,16 +6,23 @@
 # not parsing (for now):
 #  exch / type / average_volume / last_volume / week_52_low / week_52_high / bid_date / bidexch / ask_date / askexch / root_symbols
 
+# Takes API Response from Tradier /quotes? with multiple quotes then substrings down to a single quote and parses them individually
+def parse_multi_quote(data):
+    while data.find("</quote>") != -1:
+        single_quote = parse_target(data, "quote") #substrings down to a full single quote
+        parse_single_quote(single_quote)
+        index = data.find("</quote>")
+        data = data[index+len("</quote>"):]
+
+
 # Takes API Response from Tradier /quotes? endpoint and formats the desired data.
 # Currently only works for a single quote (options work)
-def parse_quote(data):
+def parse_single_quote(data):
     #print(type(data))
     #print(data)
     
-    targetList = ["symbol", "description", "last", "change", "change_percentage", "volume", "trade_date", "open", "high", "low", "close", "prevclose", "bid", "bidsize", "ask", "asksize"]
-    
-    # need to set up looping so that it works for multiple quotes.
-    
+    targetList = ["symbol", "description", "last", "change", "change_percentage", "volume", "trade_date", "open", "high", "low", "close", "prevclose", "bid", "bidsize", "ask", "asksize"]    
+
     for x in targetList:
       value = parse_target(data, x)   
       print(x + ": " + value)
