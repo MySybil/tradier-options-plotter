@@ -13,6 +13,7 @@ import TradierParser
 my_headers = {'Authorization': 'Bearer 5f1ga0KR0Ys1YlQhWtRAQAPKW8Iy'}
 #url = "https://sandbox.tradier.com/v1/markets/quotes?symbols=MU"
 url = "https://sandbox.tradier.com/v1/markets/quotes?symbols=SPY190118C00300000,MU,AAPL"
+#url = "https://sandbox.tradier.com/v1/markets/quotes?symbols=AAPL"
 r = requests.get(url, headers=my_headers)
 
 

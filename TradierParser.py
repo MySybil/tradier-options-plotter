@@ -1,32 +1,38 @@
-# need to create a class and then import it and save this to it.
+class TradierQuote():
+  symbol = "" # can't have empty classes
 
-# parsing:
-#  symbol / description / last / change / change_percentage / volume / trade_date / open / high / low / close / prevclose / bid / bidsize / ask / asksize
-
-# not parsing (for now):
-#  exch / type / average_volume / last_volume / week_52_low / week_52_high / bid_date / bidexch / ask_date / askexch / root_symbols
 
 # Takes API Response from Tradier /quotes? with multiple quotes then substrings down to a single quote and parses them individually
 def parse_multi_quote(data):
     while data.find("</quote>") != -1:
         single_quote = parse_target(data, "quote") #substrings down to a full single quote
-        parse_single_quote(single_quote)
+        quote = parse_single_quote(single_quote) #
+        print(vars(quote)) # print the variables
+
+        # once the data is grabbed, move on to the next quote
         index = data.find("</quote>")
         data = data[index+len("</quote>"):]
+        
 
-
-# Takes API Response from Tradier /quotes? endpoint and formats the desired data.
-# Currently only works for a single quote (options work)
+# Takes API Response from Tradier /quotes? endpoint and formats the desired data. Returns a TradierQuote() object with the data
 def parse_single_quote(data):
+    quote = TradierQuote()
     #print(type(data))
     #print(data)
     
-    targetList = ["symbol", "description", "last", "change", "change_percentage", "volume", "trade_date", "open", "high", "low", "close", "prevclose", "bid", "bidsize", "ask", "asksize"]    
+    targetList = ["symbol", "description", "last", "change", "change_percentage", "volume", "trade_date", "open", "high", "low", "close", "prevclose", "bid", "bidsize", "ask", "asksize"]
+    # not parsing (for now):
+    #  exch / type / average_volume / last_volume / week_52_low / week_52_high / bid_date / bidexch / ask_date / askexch / root_symbols
+    
+    for target in targetList:
+        y = parse_target(data, target)
+        if is_number(y):
+            setattr(quote, target, float(y))
+        else:
+            setattr(quote, target, y)
+    
+    return quote
 
-    for x in targetList:
-      value = parse_target(data, x)   
-      print(x + ": " + value)
-      #print(type(value))
     
     
 # Takes in the source download from the Tradier API and searches + parses it for the target and returns the target as a string.
