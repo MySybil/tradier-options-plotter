@@ -2,6 +2,9 @@ import requests
 import TradierParser
 #runs with python3
 
+#import pandas
+#import numpy
+
 # NEWS API works.
 #r = requests.get("https://newsapi.org/v2/everything?q=Apple&from=2018-09-25&sortBy=popularity&apiKey=4583ba3bea6c4524b08aa8eed9479b07")
 #print (r.status_code)
