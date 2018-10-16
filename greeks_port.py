@@ -72,14 +72,14 @@ def calculateIV(spotPrice, strike, years, div, midpoint, RFR, isCall):
 # Calculation of first order and selected greeks in BS-Model
 # Parameter Notes: [IV in decimal], [years in decimal: 6 months = 0.5], [RFR and div in decimal], [isCall = 1 for calls, 0 for puts]
 #   [Midpoint can be replaced by whatever you're using as your basis but should match with IV calculation]
+# Output: None. Not sure how you're storing your data
 def calculateGreeks(IV, spotPrice, strike, years, div, midpoint, RFR, isCall):
     T = 365.242199 # days in a year
     
     d1 = (math.log(spotPrice/strike) + years*(RFR-div+(IV*IV)/2))/(IV*math.sqrt(years))
-    d2 = d1 - IVGuess*math.sqrt(years)
+    d2 = d1 - IV*math.sqrt(years)
         
     if isCall:
-        #print("Is A Call Option")
         delta = math.exp(-div*years)*norm.cdf(d1)
         rho = 0.01*strike*years*math.exp(-RFR*years)*norm.cdf(d2)
         lambda2 = (spotPrice/midpoint)*math.exp(-div*years)*norm.cdf(d1)
@@ -87,16 +87,8 @@ def calculateGreeks(IV, spotPrice, strike, years, div, midpoint, RFR, isCall):
         gamma = math.exp(-div*years)/(spotPrice*IV*math.sqrt(years))*(1/math.sqrt(2*math.pi)*math.exp(-d1*d1/2))
         vega = 0.01*spotPrice*math.exp(-div*years)*math.sqrt(years)*(1/math.sqrt(2*math.pi)*math.exp(-d1*d1/2))
         dual_delta = -math.exp(-RFR*years)*norm.cdf(d2)
-        
-        #print("Delta: " + str(delta))
-        #print("Rho: " + str(rho))
-        #print("Lambda: " + str(lambda2))
-        #print("Theta: " + str(theta))
-        #print("Gamma: " + str(gamma))
-        #print("Vega: " + str(vega))
-        #print("Dual-Delta: " + str(dual_delta))
+        print("Is A Call Option")        
     else:
-        #print("Is A Put Option")  
         delta = math.exp(-div*years)*(norm.cdf(d1)-1);
         gamma = math.exp(-div*years)/(spotPrice*IV*math.sqrt(years))*(1/math.sqrt(2*math.pi)*math.exp(-d1*d1/2));
         vega = 0.01*spotPrice*math.exp(-div*years)*math.sqrt(years)*(1/math.sqrt(2*math.pi)*math.exp(-d1*d1/2));
@@ -104,15 +96,15 @@ def calculateGreeks(IV, spotPrice, strike, years, div, midpoint, RFR, isCall):
         theta = 1/T*(-(spotPrice*IV*math.exp(-div*years)/(2*math.sqrt(years))*(1/math.sqrt(2*math.pi)*math.exp(-d1*d1/2))) - RFR*strike*math.exp(-RFR*years)*norm.cdf(-d2) + div*spotPrice*math.exp(-div*years)*norm.cdf(-d1));
         dual_delta = math.exp(-RFR*years)*norm.cdf(-d2);
         lambda2 = -math.exp(-div*years)*norm.cdf(-d1)*spotPrice/midpoint;  
-
-        #print("Delta: " + str(delta))
-        #print("Rho: " + str(rho))
-        #print("Lambda: " + str(lambda2))
-        #print("Theta: " + str(theta))
-        #print("Gamma: " + str(gamma))
-        #print("Vega: " + str(vega))
-        #print("Dual-Delta: " + str(dual_delta))
+        print("Is A Put Option")  
     
+    print("Delta: " + str(delta))
+    print("Rho: " + str(rho))
+    print("Lambda: " + str(lambda2))
+    print("Theta: " + str(theta))
+    print("Gamma: " + str(gamma))
+    print("Vega: " + str(vega))
+    print("Dual-Delta: " + str(dual_delta))
 
 
 start_time = time.time()
