@@ -1,5 +1,6 @@
 import math
 from scipy.stats import norm
+import time
 
 # swap to brent root finding or newton's method. 
 # start with initial guess. 
@@ -67,7 +68,53 @@ def calculateIV(spotPrice, strike, years, div, midpoint, RFR, isCall):
     return IVGuess
 
 
-import time
+
+# Calculation of first order and selected greeks in BS-Model
+# Parameter Notes: [IV in decimal], [years in decimal: 6 months = 0.5], [RFR and div in decimal], [isCall = 1 for calls, 0 for puts]
+#   [Midpoint can be replaced by whatever you're using as your basis but should match with IV calculation]
+def calculateGreeks(IV, spotPrice, strike, years, div, midpoint, RFR, isCall):
+    T = 365.242199 # days in a year
+    
+    d1 = (math.log(spotPrice/strike) + years*(RFR-div+(IV*IV)/2))/(IV*math.sqrt(years))
+    d2 = d1 - IVGuess*math.sqrt(years)
+        
+    if isCall:
+        #print("Is A Call Option")
+        delta = math.exp(-div*years)*norm.cdf(d1)
+        rho = 0.01*strike*years*math.exp(-RFR*years)*norm.cdf(d2)
+        lambda2 = (spotPrice/midpoint)*math.exp(-div*years)*norm.cdf(d1)
+        theta = 1/T*(-(spotPrice*IV*math.exp(-div*years)/(2*math.sqrt(years))*(1/math.sqrt(2*math.pi)*math.exp(-d1*d1/2))) - RFR*strike*math.exp(-RFR*years)*norm.cdf(d2) + div*spotPrice*math.exp(-div*years)*norm.cdf(d1))
+        gamma = math.exp(-div*years)/(spotPrice*IV*math.sqrt(years))*(1/math.sqrt(2*math.pi)*math.exp(-d1*d1/2))
+        vega = 0.01*spotPrice*math.exp(-div*years)*math.sqrt(years)*(1/math.sqrt(2*math.pi)*math.exp(-d1*d1/2))
+        dual_delta = -math.exp(-RFR*years)*norm.cdf(d2)
+        
+        #print("Delta: " + str(delta))
+        #print("Rho: " + str(rho))
+        #print("Lambda: " + str(lambda2))
+        #print("Theta: " + str(theta))
+        #print("Gamma: " + str(gamma))
+        #print("Vega: " + str(vega))
+        #print("Dual-Delta: " + str(dual_delta))
+    else:
+        #print("Is A Put Option")  
+        delta = math.exp(-div*years)*(norm.cdf(d1)-1);
+        gamma = math.exp(-div*years)/(spotPrice*IV*math.sqrt(years))*(1/math.sqrt(2*math.pi)*math.exp(-d1*d1/2));
+        vega = 0.01*spotPrice*math.exp(-div*years)*math.sqrt(years)*(1/math.sqrt(2*math.pi)*math.exp(-d1*d1/2));
+        rho = -0.01*strike*years*math.exp(-RFR*years)*norm.cdf(-d2);
+        theta = 1/T*(-(spotPrice*IV*math.exp(-div*years)/(2*math.sqrt(years))*(1/math.sqrt(2*math.pi)*math.exp(-d1*d1/2))) - RFR*strike*math.exp(-RFR*years)*norm.cdf(-d2) + div*spotPrice*math.exp(-div*years)*norm.cdf(-d1));
+        dual_delta = math.exp(-RFR*years)*norm.cdf(-d2);
+        lambda2 = -math.exp(-div*years)*norm.cdf(-d1)*spotPrice/midpoint;  
+
+        #print("Delta: " + str(delta))
+        #print("Rho: " + str(rho))
+        #print("Lambda: " + str(lambda2))
+        #print("Theta: " + str(theta))
+        #print("Gamma: " + str(gamma))
+        #print("Vega: " + str(vega))
+        #print("Dual-Delta: " + str(dual_delta))
+    
+
+
 start_time = time.time()
 
 # def calculateIV(spotPrice, strike, years, div, midpoint, RFR, isCall):
@@ -85,3 +132,9 @@ print("Test1 Call IV: %s %%. Expected output: 20.0%%" % str(aa*100))
 print("Test1 Put IV: %s %%. Expected output: 20.0%%" % str(bb*100))
 print("Test2 Call IV: %s %%. Expected output: 81.15%%" % str(aa2*100))
 print("Test2 Put IV: %s %%. Expected output: 81.15%%" % str(bb2*100))
+
+# def calculateGreeks(IV, spotPrice, strike, years, div, midpoint, RFR, isCall):
+calculateGreeks(0.8563, 56.89, 35, 94/365.24, 0, 23.80, 0.02, 1) # all greeks as expected. This is a CGC 35C expiring Jan 18, 2019
+calculateGreeks(0.1737, 2750.79, 2750, 94/365.24, 0, 89.15, 0.02, 0) # all greeks as expected. This is a SPX 2750P expiring Jan 18, 2019
+
+print("--- %s seconds ---" % (time.time() - start_time))
