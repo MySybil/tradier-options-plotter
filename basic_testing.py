@@ -12,11 +12,15 @@ import TradierParser
 #print (r.content)
 
 
+# Want to try to figure out how to get quotes for Berkshire.
+#url = "https://sandbox.tradier.com/v1/markets/quotes?symbols=BRK.B"
+# Response: unmatched_symbol
+
 # Dictionaries are now done with colons not commas.
 my_headers = {'Authorization': 'Bearer 5f1ga0KR0Ys1YlQhWtRAQAPKW8Iy'}
 #url = "https://sandbox.tradier.com/v1/markets/quotes?symbols=MU"
 url = "https://sandbox.tradier.com/v1/markets/quotes?symbols=SPY190118C00300000,MU,AAPL"
-#url = "https://sandbox.tradier.com/v1/markets/quotes?symbols=AAPL"
+
 r = requests.get(url, headers=my_headers)
 
 
