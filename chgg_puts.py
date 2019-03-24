@@ -5,20 +5,10 @@ import TradierParser
 #import pandas
 #import numpy
 
-# NEWS API works.
-#r = requests.get("https://newsapi.org/v2/everything?q=Apple&from=2018-09-25&sortBy=popularity&apiKey=4583ba3bea6c4524b08aa8eed9479b07")
-#print (r.status_code)
-#print (r.headers)
-#print (r.content)
-
-
-# Want to try to figure out how to get quotes for Berkshire.
-#url = "https://sandbox.tradier.com/v1/markets/quotes?symbols=BRK.B"
-# Response: unmatched_symbol
 
 # Dictionaries are now done with colons not commas.
 my_headers = {'Authorization': 'Bearer 5f1ga0KR0Ys1YlQhWtRAQAPKW8Iy'}
-url = "https://sandbox.tradier.com/v1/markets/quotes?symbols=SPX"
+url = "https://sandbox.tradier.com/v1/markets/quotes?symbols=CHGG"
 #url = "https://sandbox.tradier.com/v1/markets/quotes?symbols=SPY190118C00300000,MU,AAPL"
 
 r = requests.get(url, headers=my_headers)
