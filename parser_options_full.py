@@ -4,14 +4,14 @@ class TradierQuote():
 
 # Takes API Response from Tradier /quotes? with multiple quotes then substrings down to a single quote and parses them individually
 def parse_multi_quote(data):
-    while data.find("</day>") != -1:
-        single_quote = parse_target(data, "day") #substrings down to a full single quote
+    while data.find("</data>") != -1:
+        single_quote = parse_target(data, "data") #substrings down to a full single quote
         quote = parse_single_quote(single_quote) #
         print(vars(quote)) # print the variables
 
         # once the data is grabbed, move on to the next quote
-        index = data.find("</day>")
-        data = data[index+len("</day>"):]
+        index = data.find("</data>")
+        data = data[index+len("</data>"):]
         
 
 # Takes API Response from Tradier /quotes? endpoint and formats the desired data. Returns a TradierQuote() object with the data
@@ -20,11 +20,7 @@ def parse_single_quote(data):
     #print(type(data))
     #print(data)
     
-    #targetList = ["time", "volume", "vwap"]
-    targetList = ["date", "volume", "close"]
-    #targetList = ["symbol", "description", "last", "change", "change_percentage", "volume", "trade_date", "open", "high", "low", "close", "prevclose", "bid", "bidsize", "ask", "asksize"]
-    # not parsing (for now):
-    #  exch / type / average_volume / last_volume / week_52_low / week_52_high / bid_date / bidexch / ask_date / askexch / root_symbols
+    targetList = ["time", "timestamp", "volume", "vwap"]
     
     for target in targetList:
         y = parse_target(data, target)

@@ -4,6 +4,16 @@ import time
 
 #runs with python3
 
+#idea is to get the user to input symbol, calls / puts, and potentially date range / dates and then print out all the options trades for that period 
+
+# idk why the fuck this doesn't work but I need to fix that. 
+name = raw_input("What is your name? ")
+type(name)
+
+print(name)
+
+
+#return
 
 # Dictionaries are now done with colons not commas.
 my_headers = {'Authorization': 'Bearer 5f1ga0KR0Ys1YlQhWtRAQAPKW8Iy'}

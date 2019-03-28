@@ -18,20 +18,22 @@ import TradierParser
 
 # Dictionaries are now done with colons not commas.
 my_headers = {'Authorization': 'Bearer 5f1ga0KR0Ys1YlQhWtRAQAPKW8Iy'}
-url = "https://sandbox.tradier.com/v1/markets/quotes?symbols=SPX"
-#url = "https://sandbox.tradier.com/v1/markets/quotes?symbols=SPY190118C00300000,MU,AAPL"
+#url = "https://sandbox.tradier.com/v1/markets/quotes?symbols=SPX"
+#url = "https://sandbox.tradier.com/v1/markets/timesales?symbol=CHGG&interval=15min&start=2019-03-18"
+#url = "https://sandbox.tradier.com/v1/markets/history?symbol=CHGG&start=2019-03-10"
+url = "https://sandbox.tradier.com/v1/markets/history?symbol=SPY&start=2019-03-10"
 
 r = requests.get(url, headers=my_headers)
 
 
 # this doesn't handle timeouts or errors at all. deal with that.
 
-print(r.text)
+#print(r.text)
 #print (r.status_code)
 #print (r.headers)
 #print (r.content)
 
 # need to decode the data from bytes into a string.
 #TradierParser.parse_single_quote(r.content.decode("utf-8")) # file name + function name
-#TradierParser.parse_multi_quote(r.content.decode("utf-8")) # file name + function name
+TradierParser.parse_multi_quote(r.content.decode("utf-8")) # file name + function name
 
