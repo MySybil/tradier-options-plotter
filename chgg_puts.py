@@ -32,10 +32,10 @@ date = "190418"
 
 
 for price in pricelist:
-    url = "https://sandbox.tradier.com/v1/markets/timesales?symbol=CHGG" + date + "C" + price + "&interval=15min&start=2019-03-28"
+    url = "https://sandbox.tradier.com/v1/markets/timesales?symbol=CHGG" + date + "P" + price + "&interval=15min&start=2019-03-28"
 #    url = "https://sandbox.tradier.com/v1/markets/history?symbol=CHGG" + date + "P" + price + "&start=2019-03-12"
-    #print("Now grabbing CHGG puts dated: " + date + " w/ price: " + price)
-    print("Now grabbing CHGG calls dated: " + date + " w/ price: " + price)
+    print("Now grabbing CHGG puts dated: " + date + " w/ price: " + price)
+    #print("Now grabbing CHGG calls dated: " + date + " w/ price: " + price)
     r = requests.get(url, headers=my_headers)
     chgg_parser.parse_multi_quote(r.content.decode("utf-8")) # file name + function name
     time.sleep(1) #was getting shit out of order. 

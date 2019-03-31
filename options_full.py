@@ -4,19 +4,27 @@ import time
 
 #runs with python3
 
-#idea is to get the user to input symbol, calls / puts, and potentially date range / dates and then print out all the options trades for that period 
-
-# idk why the fuck this doesn't work but I need to fix that. 
-name = raw_input("What is your name? ")
-type(name)
-
-print(name)
-
-
-#return
-
 # Dictionaries are now done with colons not commas.
 my_headers = {'Authorization': 'Bearer 5f1ga0KR0Ys1YlQhWtRAQAPKW8Iy'}
+
+
+
+#idea is to get the user to input symbol, calls / puts, and potentially date range / dates and then print out all the options trades for that period 
+
+# prompts user for input about the symbol. good works.
+symbol = input("Select an underlying symbol: ")
+type(symbol)
+
+# ask user if he wants calls or puts
+
+
+# now grab the dates and prompt user for date
+
+
+# now grab the options and download the data.
+
+
+
 
 #Time and Sales -- no good on past dates? need to go through /history?
 #https://api.tradier.com/v1/markets/timesales?symbol=AAPL
@@ -42,10 +50,10 @@ date = "190418"
 
 
 for price in pricelist:
-    url = "https://sandbox.tradier.com/v1/markets/timesales?symbol=CHGG" + date + "C" + price + "&interval=15min&start=2019-03-28"
+    url = "https://sandbox.tradier.com/v1/markets/timesales?symbol=" + symbol + date + "C" + price + "&interval=15min&start=2019-03-28"
 #    url = "https://sandbox.tradier.com/v1/markets/history?symbol=CHGG" + date + "P" + price + "&start=2019-03-12"
     #print("Now grabbing CHGG puts dated: " + date + " w/ price: " + price)
-    print("Now grabbing CHGG calls dated: " + date + " w/ price: " + price)
+    print("Now grabbing " + symbol + " calls dated: " + date + " w/ price: " + price)
     r = requests.get(url, headers=my_headers)
     chgg_parser.parse_multi_quote(r.content.decode("utf-8")) # file name + function name
     time.sleep(1) #was getting shit out of order. 
