@@ -19,6 +19,12 @@ type(symbol)
 
 
 # now grab the dates and prompt user for date
+url_dates = "https://sandbox.tradier.com/v1/markets/options/expirations?symbol=" + symbol
+rDates = requests.get(url_dates, headers=my_headers)
+#print(rDates.text)
+
+# need to parse this. then print out the dates and get the user to choose one.
+#<expirations><date>2019-04-05</date><date>2019-04-12</date><date>2019-04-18</date><date>2019-04-26</date><date>2019-05-03</date><date>2019-05-10</date><date>2019-05-17</date><date>2019-07-19</date><date>2019-10-18</date><date>2019-11-15</date><date>2020-01-17</date><date>2020-06-19</date><date>2021-01-15</date></expirations>
 
 
 # now grab the options and download the data.
@@ -40,23 +46,23 @@ type(symbol)
 ### that would be 63 requests by hand if i didn't loop it
 ### let's just stick to one date then loop the prices
 
-pricelist = ["00015000", "00017500", "00020000", "00022500", "00025000", "00030000", "00035000", "00040000", "00045000"]
+#pricelist = ["00015000", "00017500", "00020000", "00022500", "00025000", "00030000", "00035000", "00040000", "00045000"]
 #pricelist = ["00035000"]
 
-date = "190418"
+#date = "190418"
 #date = "190517"
 #date = "190719"
 #date = "210115"
 
 
-for price in pricelist:
-    url = "https://sandbox.tradier.com/v1/markets/timesales?symbol=" + symbol + date + "C" + price + "&interval=15min&start=2019-03-28"
+#for price in pricelist:
+#    url = "https://sandbox.tradier.com/v1/markets/timesales?symbol=" + symbol + date + "C" + price + "&interval=15min&start=2019-03-28"
 #    url = "https://sandbox.tradier.com/v1/markets/history?symbol=CHGG" + date + "P" + price + "&start=2019-03-12"
     #print("Now grabbing CHGG puts dated: " + date + " w/ price: " + price)
-    print("Now grabbing " + symbol + " calls dated: " + date + " w/ price: " + price)
-    r = requests.get(url, headers=my_headers)
-    chgg_parser.parse_multi_quote(r.content.decode("utf-8")) # file name + function name
-    time.sleep(1) #was getting shit out of order. 
+#    print("Now grabbing " + symbol + " calls dated: " + date + " w/ price: " + price)
+#    r = requests.get(url, headers=my_headers)
+#    chgg_parser.parse_multi_quote(r.content.decode("utf-8")) # file name + function name
+#    time.sleep(1) #was getting shit out of order. 
 
 #print(r.text)
 #print (r.status_code)
