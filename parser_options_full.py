@@ -3,6 +3,7 @@ class TradierQuote():
 
 
 # Takes API Response from Tradier /quotes? with multiple quotes then substrings down to a single quote and parses them individually
+
 def parse_multi_quote(data):
     while data.find("</data>") != -1:
         single_quote = parse_target(data, "data") #substrings down to a full single quote
@@ -13,12 +14,23 @@ def parse_multi_quote(data):
         index = data.find("</data>")
         data = data[index+len("</data>"):]
         
+def parse_multi_quote(data, tag):
+    while data.find("</" + tag + ">") != -1:
+        single_quote = parse_target(data, tag) #substrings down to a full single quote
+        print(single_quote)
+        
+        # once the data is grabbed, move on to the next quote
+        index = data.find("</" + tag + ">")
+        data = data[index+len("</" + tag + ">"):]
+        
 
 # Takes API Response from Tradier /quotes? endpoint and formats the desired data. Returns a TradierQuote() object with the data
 def parse_single_quote(data):
     quote = TradierQuote()
     #print(type(data))
     #print(data)
+    
+    print(data)
     
     targetList = ["time", "timestamp", "volume", "vwap"]
     
@@ -31,7 +43,6 @@ def parse_single_quote(data):
     
     return quote
 
-    
     
 # Takes in the source download from the Tradier API and searches + parses it for the target and returns the target as a string.
 # Target demo: "symbol" to parse "<symbol>AAPL</symbol>"

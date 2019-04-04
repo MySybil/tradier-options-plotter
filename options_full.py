@@ -1,12 +1,11 @@
 import requests
-import chgg_parser
+import parser_options_full
 import time
 
 #runs with python3
 
 # Dictionaries are now done with colons not commas.
 my_headers = {'Authorization': 'Bearer 5f1ga0KR0Ys1YlQhWtRAQAPKW8Iy'}
-
 
 
 #idea is to get the user to input symbol, calls / puts, and potentially date range / dates and then print out all the options trades for that period 
@@ -18,13 +17,20 @@ type(symbol)
 # ask user if he wants calls or puts
 
 
-# now grab the dates and prompt user for date
+# grabs and prints all dates with available options
 url_dates = "https://sandbox.tradier.com/v1/markets/options/expirations?symbol=" + symbol
 rDates = requests.get(url_dates, headers=my_headers)
-#print(rDates.text)
+parser_options_full.parse_multi_quote(rDates.content.decode("utf-8"), "date")
 
-# need to parse this. then print out the dates and get the user to choose one.
-#<expirations><date>2019-04-05</date><date>2019-04-12</date><date>2019-04-18</date><date>2019-04-26</date><date>2019-05-03</date><date>2019-05-10</date><date>2019-05-17</date><date>2019-07-19</date><date>2019-10-18</date><date>2019-11-15</date><date>2020-01-17</date><date>2020-06-19</date><date>2021-01-15</date></expirations>
+date = input("Select an expiry date from the list above: ")
+type(date)
+
+
+# now grab the list of all the prices available.
+url_strikes = "https://sandbox.tradier.com/v1/markets/options/strikes?symbol=" + symbol + "&expiration=" + date
+rStrikes = requests.get(url_strikes, headers=my_headers)
+#print(rStrikes.text) # ok good list of strikes.
+# need to parse this, save all the strikes, then iterate through as I was doing with CHGG to grab the recent trades. ok cool.
 
 
 # now grab the options and download the data.
