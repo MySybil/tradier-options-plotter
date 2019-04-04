@@ -4,6 +4,8 @@ import time
 
 #runs with python3
 
+##### JUST NEED TO CONVERT THE STRIKES INTO HOW TRADIER TAKES STRIKE INPUTS. Need to go string to float multiply to string to append 0s in front of string. yikes.
+
 # Dictionaries are now done with colons not commas.
 my_headers = {'Authorization': 'Bearer 5f1ga0KR0Ys1YlQhWtRAQAPKW8Iy'}
 
@@ -15,6 +17,16 @@ symbol = input("Select an underlying symbol: ")
 type(symbol)
 
 # ask user if he wants calls or puts
+optionType = input("Type C for Calls or P for Puts: ")
+type(optionType)
+
+if (optionType == "C"):
+    print("Selected Call Options for " + symbol)
+else:
+    if (optionType == "P"):
+        print("Selected Put Options for " + symbol)
+    else:
+        print("Invalid input")
 
 
 # grabs and prints all dates with available options
@@ -31,9 +43,30 @@ url_strikes = "https://sandbox.tradier.com/v1/markets/options/strikes?symbol=" +
 rStrikes = requests.get(url_strikes, headers=my_headers)
 #print(rStrikes.text) # ok good list of strikes.
 # need to parse this, save all the strikes, then iterate through as I was doing with CHGG to grab the recent trades. ok cool.
+strikeList = parser_options_full.parse_strikes(rStrikes.content.decode("utf-8"))
+#print(strikeList) # perfect good.
+
+##### ALL DONE AFTER THIS ONE CONVERSION
+# need to convert strikeList to how they get displayed.
+#ie: 15.0 to 00015000
+##### ALL DONE AFTER THIS ONE CONVERSION
 
 
-# now grab the options and download the data.
+#ask the user how far back to go.
+startDate = input("Input a start date for the data range: ")
+type(startDate)
+
+# now need to iterate through strikeList and get the volume for all of it.
+for price in strikeList:
+    url = "https://sandbox.tradier.com/v1/markets/timesales?symbol=" + symbol + date + optionType + price + "&interval=15min&start=" + startDate
+    if (optionType == "C"):
+        print("Now grabbing " + symbol + " calls dated: " + date + " w/ price: " + price)
+    else:
+        print("Now grabbing " + symbol + " puts dated: " + date + " w/ price: " + price)
+    
+    rData = requests.get(url, headers=my_headers)
+    parser_options_full.parse_multi_quote(rData.content.decode("utf-8"), "data")
+    time.sleep(1) #maintain the order.
 
 
 

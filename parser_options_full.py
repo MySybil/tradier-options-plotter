@@ -23,6 +23,22 @@ def parse_multi_quote(data, tag):
         index = data.find("</" + tag + ">")
         data = data[index+len("</" + tag + ">"):]
         
+def parse_strikes(data):
+    tag = "strike"
+    targetList = [];
+    while data.find("</" + tag + ">") != -1:
+        single_quote = parse_target(data, tag) #substrings down to a full single quote
+        #print(single_quote)
+        
+        targetList.append(single_quote) # how to do this properly
+        
+        # once the data is grabbed, move on to the next quote
+        index = data.find("</" + tag + ">")
+        data = data[index+len("</" + tag + ">"):]
+
+    #print(targetList)
+    return targetList
+    
 
 # Takes API Response from Tradier /quotes? endpoint and formats the desired data. Returns a TradierQuote() object with the data
 def parse_single_quote(data):
