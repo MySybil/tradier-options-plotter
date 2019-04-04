@@ -46,26 +46,45 @@ rStrikes = requests.get(url_strikes, headers=my_headers)
 strikeList = parser_options_full.parse_strikes(rStrikes.content.decode("utf-8"))
 #print(strikeList) # perfect good.
 
-##### ALL DONE AFTER THIS ONE CONVERSION
-# need to convert strikeList to how they get displayed.
-#ie: 15.0 to 00015000
-##### ALL DONE AFTER THIS ONE CONVERSION
+
+# need to convert the price string for the contracts b/c tradier uses some weird formatting
+updatedList = []
+for price in strikeList:
+    new = int(float(price)*1000)
+    if (new < 10000):
+        updatedList.append("0000" + str(new))
+    elif (new < 100000):
+        updatedList.append("000" + str(new))
+    elif (new < 1000000):
+        updatedList.append("00" + str(new))
+    elif (new < 10000000):
+        updatedList.append("0" + str(new))
+    else:
+        updatedList.append(str(new))
 
 
 #ask the user how far back to go.
 startDate = input("Input a start date for the data range: ")
 type(startDate)
 
+
+# i need to strip out the dashes from the date selected that goes after the symbol
+format_date = date.replace("-", "")
+# also need to strip 20 off the front of 2019
+format_date = format_date[2:len(format_date)]
+
 # now need to iterate through strikeList and get the volume for all of it.
-for price in strikeList:
-    url = "https://sandbox.tradier.com/v1/markets/timesales?symbol=" + symbol + date + optionType + price + "&interval=15min&start=" + startDate
+for price in updatedList:
+    url = "https://sandbox.tradier.com/v1/markets/timesales?symbol=" + symbol + format_date + optionType + price + "&interval=15min&start=" + startDate
+    #print("url: " + url)
     if (optionType == "C"):
         print("Now grabbing " + symbol + " calls dated: " + date + " w/ price: " + price)
     else:
         print("Now grabbing " + symbol + " puts dated: " + date + " w/ price: " + price)
     
     rData = requests.get(url, headers=my_headers)
-    parser_options_full.parse_multi_quote(rData.content.decode("utf-8"), "data")
+    #print(rData.text)
+    parser_options_full.parse_data_quote(rData.content.decode("utf-8"))
     time.sleep(1) #maintain the order.
 
 
