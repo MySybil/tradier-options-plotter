@@ -16,12 +16,15 @@ def parse_data_quote(data):
     vTimestamp = []
     vVwap = []
     ohlc = []
+    t1 = 0 #first timestamp
     while data.find("</data>") != -1:
         single_quote = parse_target(data, "data") #substrings down to a full single quote
         quote = parse_single_quote(single_quote) #
         #print(vars(quote)) # print the variables # too much data now. makes no sense to print it all.
+        if (t1 == 0):
+            t1 = quote.timestamp
         
-        append_me = quote.timestamp, quote.open, quote.high, quote.low, quote.close, quote.volume
+        append_me = convert_timestamp(quote.timestamp, 15*60, t1), quote.open, quote.high, quote.low, quote.close, quote.volume
         ohlc.append(append_me)
         
         # once the data is grabbed, move on to the next quote
@@ -40,10 +43,25 @@ def parse_data_quote(data):
         ax1.xaxis.set_major_locator(mticker.MaxNLocator(10))
         ax1.grid(True)
         plt.ylabel("Option Price ($)")
-        plt.xlabel("Seconds Since 1970")
+        plt.xlabel("Binning Periods Since First Data Point (To Be Fixed)")
+        plt.subplots_adjust(left=0.10, bottom=0.20, right=0.95, top=0.90, wspace=0.2, hspace=0)
         plt.show()
     else:
         print("No option trades during period.")
+      
+# this should at least put it to 1 per then just need to scale and shit or something
+def convert_timestamp(timestamp, binning, t0):
+    # this will give the zero-origin binning period of the data point
+    tconvert = (timestamp-t0)/binning 
+    
+    # need to remove the after hours data points. so calculate how many first
+    tdays = (int)(tconvert/(24*60*60/binning))
+    
+    # now remove the appropriate number of after hours binnings
+    tadjust = tconvert - tdays*(17.5*60*60/binning)
+    
+    return tadjust # ok perfect (well perfectly awful)
+        
         
 def parse_multi_quote(data, tag):
     dateList = []
