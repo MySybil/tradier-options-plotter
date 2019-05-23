@@ -3,18 +3,18 @@ from mpl_finance import candlestick_ohlc
 import matplotlib.dates as mdates
 import matplotlib.ticker as mticker
 
+# Written by Teddy Rowan
+# This script accompanies single_plotter.py and does the parsing and the plotting for historic options data.
+
+
 class TradierQuote():
-  symbol = "" # can't have empty classes
-
-#timestamp is seconds since 1970
-# if you want the data parsed in text, in parse_data_quote uncomment print(vars(quote))
-
+  symbol = "" # can't have empty classes. what is python?
 
 # Takes API Response from Tradier /quotes? with multiple quotes then substrings down to a single quote and parses them individually
-def parse_data_quote(data, data_title):
-    vTimestamp = []
-    vVwap = []
-    ohlc = []
+def parse_timesales_quote(data, data_title):
+    vTimestamp = [] # time data for line plot
+    vVwap = [] # volume-weighted-average-price for line plot
+    ohlc = [] # candlestick chart data
     t1 = 0 #first timestamp
     data_min = 1000000
     data_max = 0
@@ -22,7 +22,7 @@ def parse_data_quote(data, data_title):
     
     while data.find("</data>") != -1:
         single_quote = parse_target(data, "data") #substrings down to a full single quote
-        quote = parse_single_quote(single_quote) #
+        quote = parse_single_timesales_quote(single_quote) #
         #print(vars(quote)) # print the variables # too much data now. makes no sense to print it all.
         if (t1 == 0):
             #print(quote.timestamp)
@@ -45,6 +45,7 @@ def parse_data_quote(data, data_title):
         if (quote.high > data_max):
             data_max = quote.high
         
+        #vVwap.append(quote.close) # testing with /history/
         vVwap.append(quote.vwap)
         vTimestamp.append(convert_timestamp(quote.timestamp, 15*60, t1))
         
@@ -87,6 +88,82 @@ def parse_data_quote(data, data_title):
         plt.show()
     else:
         print("No option trades during period.")
+     
+# parse /history/ quotes 
+def parse_history_quote(data, data_title):
+    vTimestamp = [] # time data for line plot
+    vClose = [] # closing price for line plot
+    
+    ohlc = [] # candlestick chart data
+    t1 = 0 #first timestamp
+    data_min = 1000000
+    data_max = 0
+    t_last = 0;
+    
+    while data.find("</day>") != -1:
+        single_quote = parse_target(data, "day") #substrings down to a full single quote
+        quote = parse_single_history_quote(single_quote) #
+        print(vars(quote)) # print the variables # too much data now. makes no sense to print it all.
+            
+        # i need to do a date conversion here from date string to datenumber, then can throw that into t_last and make ohlc        
+        #t_last = convert_timestamp(quote.timestamp, 15*60, t1)
+        
+        #append_me = t_last, quote.open, quote.high, quote.low, quote.close, quote.volume
+        #ohlc.append(append_me)
+        
+        if (quote.low < data_min):
+            data_min = quote.low
+        if (quote.high > data_max):
+            data_max = quote.high
+        
+        #vVwap.append(quote.close) # testing with /history/
+        #vVwap.append(quote.vwap)
+        #vTimestamp.append(convert_timestamp(quote.timestamp, 15*60, t1))
+        
+        
+        
+        # once the data is grabbed, move on to the next quote
+        index = data.find("</day>")
+        data = data[index+len("</day>"):]
+        
+    return;
+    
+    if (len(ohlc)):
+        fig = plt.figure()
+        ax1 = plt.subplot2grid((1,1), (0,0))
+        ax1.grid(False)
+        candlestick_ohlc(ax1, ohlc, width=0.4, colorup='#77d879', colordown='#db3f3f')
+        for label in ax1.xaxis.get_ticklabels():
+            label.set_rotation(45)
+
+        # need to figure out the conversion from time to mdates
+        #ax1.xaxis.set_major_formatter(mdates.DateFormatter('%Y-%m-%d'))
+        ax1.xaxis.set_major_locator(mticker.MaxNLocator(10))
+
+        plt.ylabel("Option Price ($)")
+        plt.xlabel("Binning Periods Since First Data Point (To Be Fixed)")
+        plt.title(data_title)
+        plt.subplots_adjust(left=0.10, bottom=0.20, right=0.95, top=0.90, wspace=0.2, hspace=0)
+        #plt.hold(True)
+        plt.plot(vTimestamp, vVwap, 'b--', alpha=0.25, Linewidth=1.0)
+        
+        plt.ylim(top=data_max*1.1)
+        plt.ylim(bottom=data_min*0.9)
+        
+        # get min/max of previous data. constrain boundaries. iterate from t1 to last and plot a vertical line from min to max for each one. 
+        ii = -0.5 # be inbetween data points.
+        while (ii < t_last):
+            plt.plot([ii, ii], [data_min*0.9, data_max*1.1], 'k-', Linewidth=1.0, alpha=0.35)
+            ii += 6.5*60*60/(15*60) + 1 #15*60 is the binning
+        # plot one more after the end.
+        plt.plot([ii, ii], [data_min*0.9, data_max*1.1], 'k-', Linewidth=1.0, alpha=0.35)
+        
+        plt.show()
+    else:
+        print("No option trades during period.")
+    
+    
+    
       
 # this should at least put it to 1 per then just need to scale and shit or something
 def convert_timestamp(timestamp, binning, t0):
@@ -133,12 +210,12 @@ def parse_strikes(data):
     
 
 # Takes API Response from Tradier /quotes? endpoint and formats the desired data. Returns a TradierQuote() object with the data
-def parse_single_quote(data):
+def parse_single_timesales_quote(data):
     quote = TradierQuote()
     #print(type(data))
     #print(data)
     
-    targetList = ["time", "timestamp", "volume", "vwap", "high", "low", "open", "close"]    
+    targetList = ["time", "timestamp", "volume", "vwap", "high", "low", "open", "close"]
     for target in targetList:
         y = parse_target(data, target)
         if is_number(y):
@@ -147,6 +224,23 @@ def parse_single_quote(data):
             setattr(quote, target, y)
     
     return quote
+    
+    
+def parse_single_history_quote(data):
+    quote = TradierQuote()
+
+    #targetList = ["volume", "vwap", "high", "low", "open", "close"]    
+    targetList = ["date", "volume", "high", "low", "open", "close"]    
+    for target in targetList:
+        y = parse_target(data, target)
+        if is_number(y):
+            setattr(quote, target, float(y))
+        else:
+            setattr(quote, target, y)
+
+    return quote
+    
+    
     
 # Takes in the source download from the Tradier API and searches + parses it for the target and returns the target as a string.
 # Target demo: "symbol" to parse "<symbol>AAPL</symbol>"
