@@ -1,7 +1,12 @@
 import matplotlib.pyplot as plt
+from mpl_finance import candlestick_ohlc
+import matplotlib.dates as mdates
+import matplotlib.ticker as mticker
 
 class TradierQuote():
   symbol = "" # can't have empty classes
+
+#timestamp is seconds since 1970
 
 
 # Takes API Response from Tradier /quotes? with multiple quotes then substrings down to a single quote and parses them individually
@@ -9,22 +14,32 @@ class TradierQuote():
 def parse_data_quote(data):
     vTimestamp = []
     vVwap = []
+    ohlc = []
     while data.find("</data>") != -1:
         single_quote = parse_target(data, "data") #substrings down to a full single quote
         quote = parse_single_quote(single_quote) #
         print(vars(quote)) # print the variables
-        vTimestamp.append(quote.timestamp)
-        vVwap.append(quote.vwap)
+        
+        append_me = quote.timestamp, quote.open, quote.high, quote.low, quote.close, quote.volume
+        ohlc.append(append_me)
         
         # once the data is grabbed, move on to the next quote
         index = data.find("</data>")
         data = data[index+len("</data>"):]
         
-    if (len(vTimestamp)):
-        plt.plot(vTimestamp, vVwap, 'ro')
-        plt.ylabel('VWAP ($)')
-        plt.xlabel('Time (a.u.)')
-        plt.grid(True)
+    if (len(ohlc)):
+        fig = plt.figure()
+        ax1 = plt.subplot2grid((1,1), (0,0))
+        candlestick_ohlc(ax1, ohlc, width=0.4, colorup='#77d879', colordown='#db3f3f')
+        for label in ax1.xaxis.get_ticklabels():
+            label.set_rotation(45)
+
+        # need to figure out the conversion from time to mdates
+        #ax1.xaxis.set_major_formatter(mdates.DateFormatter('%Y-%m-%d'))
+        ax1.xaxis.set_major_locator(mticker.MaxNLocator(10))
+        ax1.grid(True)
+        plt.ylabel("Option Price ($)")
+        plt.xlabel("Seconds Since 1970")
         plt.show()
     else:
         print("No option trades during period.")
@@ -61,10 +76,7 @@ def parse_single_quote(data):
     #print(type(data))
     #print(data)
     
-    #print(data)
-    
-    targetList = ["time", "timestamp", "volume", "vwap"]
-    
+    targetList = ["time", "timestamp", "volume", "vwap", "high", "low", "open", "close"]    
     for target in targetList:
         y = parse_target(data, target)
         if is_number(y):
