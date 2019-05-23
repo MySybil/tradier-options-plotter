@@ -1,6 +1,7 @@
 import requests
 import single_parser
 import time
+from datetime import datetime
 #runs with python3
 
 # Written by Teddy Rowan
@@ -9,7 +10,6 @@ import time
 API_KEY = 'Bearer 5f1ga0KR0Ys1YlQhWtRAQAPKW8Iy'
 
 # need to also make it support further back dates. using history endpoint instead of timesales
-
 
 # Prompt the user for the underlying symbol of interest
 symbol = input("Select an underlying symbol: ")
@@ -82,8 +82,16 @@ type(startDate)
 format_date = date.replace("-", "") # strip out the dashes from the selected date
 format_date = format_date[2:len(format_date)] # strip the 20 off the front of 2019
 
+# how far back from now is the start date
+datenum = datetime.strptime(startDate, "%Y-%m-%d")
+startDateTime = time.mktime(datenum.timetuple())
+nowTime = time.mktime(datetime.now().timetuple())
+
 
 history = 0
+if (nowTime - startDateTime > 35*24*60*60): # if it's been more than 35 days, plot daily data
+    history = 1
+
 
 # Iterate through the list of strikes and get the volume and vwap for each contract
 for price in updatedList:
@@ -103,9 +111,7 @@ for price in updatedList:
     rData = requests.get(url, headers=my_headers)
     
     if (history):
-        #print(rData.content.decode("utf-8"))
         single_parser.parse_history_quote(rData.content.decode("utf-8"), data_name)
-        print("Do nothing for now")
     else:
         single_parser.parse_timesales_quote(rData.content.decode("utf-8"), data_name)
 

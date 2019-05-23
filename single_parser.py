@@ -2,6 +2,8 @@ import matplotlib.pyplot as plt
 from mpl_finance import candlestick_ohlc
 import matplotlib.dates as mdates
 import matplotlib.ticker as mticker
+from datetime import datetime
+import time
 
 # Written by Teddy Rowan
 # This script accompanies single_plotter.py and does the parsing and the plotting for historic options data.
@@ -105,11 +107,18 @@ def parse_history_quote(data, data_title):
         quote = parse_single_history_quote(single_quote) #
         print(vars(quote)) # print the variables # too much data now. makes no sense to print it all.
             
-        # i need to do a date conversion here from date string to datenumber, then can throw that into t_last and make ohlc        
-        #t_last = convert_timestamp(quote.timestamp, 15*60, t1)
+        t_last = convert_string_to_date(quote.date)
+
+        if (t1 == 0):
+            t1 = t_last
+            t1diff = t1 % 24*60*60 # seconds into the day for first trade.
+            t1 = t1 - t1diff
+                    
+        t_last = convert_timestamp(t_last, 24*60*60, t1)
+
         
-        #append_me = t_last, quote.open, quote.high, quote.low, quote.close, quote.volume
-        #ohlc.append(append_me)
+        append_me = t_last, quote.open, quote.high, quote.low, quote.close, quote.volume
+        ohlc.append(append_me)
         
         if (quote.low < data_min):
             data_min = quote.low
@@ -126,7 +135,7 @@ def parse_history_quote(data, data_title):
         index = data.find("</day>")
         data = data[index+len("</day>"):]
         
-    return;
+    #return;
     
     if (len(ohlc)):
         fig = plt.figure()
@@ -145,6 +154,10 @@ def parse_history_quote(data, data_title):
         plt.title(data_title)
         plt.subplots_adjust(left=0.10, bottom=0.20, right=0.95, top=0.90, wspace=0.2, hspace=0)
         #plt.hold(True)
+        plt.show()
+        
+        return;
+        
         plt.plot(vTimestamp, vVwap, 'b--', alpha=0.25, Linewidth=1.0)
         
         plt.ylim(top=data_max*1.1)
@@ -164,7 +177,11 @@ def parse_history_quote(data, data_title):
     
     
     
-      
+# takes in the date string and converts to seconds since 1970
+def convert_string_to_date(datestr):
+    datenum = datetime.strptime(datestr, "%Y-%m-%d")
+    return time.mktime(datenum.timetuple())
+
 # this should at least put it to 1 per then just need to scale and shit or something
 def convert_timestamp(timestamp, binning, t0):
     # this will give the zero-origin binning period of the data point
