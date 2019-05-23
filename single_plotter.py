@@ -1,5 +1,5 @@
 import requests
-import parser_options_full
+import single_parser
 import time
 #runs with python3
 
@@ -30,7 +30,7 @@ my_headers = {'Authorization': 'Bearer 5f1ga0KR0Ys1YlQhWtRAQAPKW8Iy'}
 # Grab, parse, and print all the available expiry dates for the symbol.
 url_dates = "https://sandbox.tradier.com/v1/markets/options/expirations?symbol=" + symbol
 rDates = requests.get(url_dates, headers=my_headers)
-parser_options_full.parse_multi_quote(rDates.content.decode("utf-8"), "date")
+single_parser.parse_multi_quote(rDates.content.decode("utf-8"), "date")
 
 # Prompt the user to pick one of the expiry dates
 date = input("Select an expiry date from the list above: ")
@@ -40,14 +40,15 @@ type(date)
 # Grab a list of all the prices available, then parse and format them properly
 url_strikes = "https://sandbox.tradier.com/v1/markets/options/strikes?symbol=" + symbol + "&expiration=" + date
 rStrikes = requests.get(url_strikes, headers=my_headers)
-strikeList = parser_options_full.parse_strikes(rStrikes.content.decode("utf-8"))
+strikeList = single_parser.parse_strikes(rStrikes.content.decode("utf-8"))
 
 print("List of available strike prices: ")
 
 # Format the price strings to the standard Tradier price format
 updatedList = []
-for price in strikeList:
-    print(price)
+print(strikeList)
+#for price in strikeList:
+#    print(price)
 
 selectedPrice = input("Select a strike from the list above: ")
 type(selectedPrice)
@@ -85,7 +86,7 @@ for price in updatedList:
         print("Now grabbing " + symbol + " puts dated: " + date + " w/ price: " + price)
     
     rData = requests.get(url, headers=my_headers)
-    parser_options_full.parse_data_quote(rData.content.decode("utf-8"))
+    single_parser.parse_data_quote(rData.content.decode("utf-8"))
     time.sleep(1) #sleep for a second so that the requests come back in the proper order
 
 
