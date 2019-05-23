@@ -11,26 +11,48 @@ class TradierQuote():
 
 # going to need to timestamp swap it myself by calculating how many periods there are and backsolving that shit.
 
+# ughh there's some bug where data is showing up with negative binning. maybe time zone dependent?
+
+
 # Takes API Response from Tradier /quotes? with multiple quotes then substrings down to a single quote and parses them individually
 def parse_data_quote(data):
     vTimestamp = []
     vVwap = []
     ohlc = []
     t1 = 0 #first timestamp
+    data_min = 1000000
+    data_max = 0
+    t_last = 0;
+    
     while data.find("</data>") != -1:
         single_quote = parse_target(data, "data") #substrings down to a full single quote
         quote = parse_single_quote(single_quote) #
         #print(vars(quote)) # print the variables # too much data now. makes no sense to print it all.
         if (t1 == 0):
+            #print(quote.timestamp)
             t1 = quote.timestamp
             t1diff = t1 % 24*60*60 # seconds into the day for first trade.
-            t1 = t1 - t1diff + 9.5*60*60 # to get to 9.30am        
+            #print(t1diff)
+            #t1 = t1 - t1diff + 13.5*60*60 # to get to 9.30am. should this be 9.5 or 13.5?
+            #print(t1)
+            # why the fuck is the first time at 9.30am w/ mod. leaps day or some shit.
+            t1 = t1 - t1diff
+            
         
-        append_me = convert_timestamp(quote.timestamp, 15*60, t1), quote.open, quote.high, quote.low, quote.close, quote.volume
+        t_last = convert_timestamp(quote.timestamp, 15*60, t1)
+        
+        append_me = t_last, quote.open, quote.high, quote.low, quote.close, quote.volume
         ohlc.append(append_me)
+        
+        if (quote.low < data_min):
+            data_min = quote.low
+        if (quote.high > data_max):
+            data_max = quote.high
         
         vVwap.append(quote.vwap)
         vTimestamp.append(convert_timestamp(quote.timestamp, 15*60, t1))
+        
+        
         
         # once the data is grabbed, move on to the next quote
         index = data.find("</data>")
@@ -39,7 +61,7 @@ def parse_data_quote(data):
     if (len(ohlc)):
         fig = plt.figure()
         ax1 = plt.subplot2grid((1,1), (0,0))
-        ax1.grid(True)
+        ax1.grid(False)
         candlestick_ohlc(ax1, ohlc, width=0.4, colorup='#77d879', colordown='#db3f3f')
         for label in ax1.xaxis.get_ticklabels():
             label.set_rotation(45)
@@ -53,6 +75,16 @@ def parse_data_quote(data):
         plt.subplots_adjust(left=0.10, bottom=0.20, right=0.95, top=0.90, wspace=0.2, hspace=0)
         #plt.hold(True)
         plt.plot(vTimestamp, vVwap, 'b--', alpha=0.25, Linewidth=1.0)
+        
+        plt.ylim(top=data_max*1.1)
+        plt.ylim(bottom=data_min*0.9)
+        
+        # get min/max of previous data. constrain boundaries. iterate from t1 to last and plot a vertical line from min to max for each one. 
+        ii = -0.5 # be inbetween data points.
+        while (ii < t_last):
+            plt.plot([ii, ii], [data_min*0.9, data_max*1.1], 'k-', Linewidth=1.0, alpha=0.35)
+            ii += 6.5*60*60/(15*60) + 1 #15*60 is the binning
+        
         plt.show()
     else:
         print("No option trades during period.")
