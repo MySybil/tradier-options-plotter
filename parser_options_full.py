@@ -1,3 +1,5 @@
+import matplotlib.pyplot as plt
+
 class TradierQuote():
   symbol = "" # can't have empty classes
 
@@ -5,14 +7,27 @@ class TradierQuote():
 # Takes API Response from Tradier /quotes? with multiple quotes then substrings down to a single quote and parses them individually
 
 def parse_data_quote(data):
+    vTimestamp = []
+    vVwap = []
     while data.find("</data>") != -1:
         single_quote = parse_target(data, "data") #substrings down to a full single quote
         quote = parse_single_quote(single_quote) #
         print(vars(quote)) # print the variables
-
+        vTimestamp.append(quote.timestamp)
+        vVwap.append(quote.vwap)
+        
         # once the data is grabbed, move on to the next quote
         index = data.find("</data>")
         data = data[index+len("</data>"):]
+        
+    if (len(vTimestamp)):
+        plt.plot(vTimestamp, vVwap, 'ro')
+        plt.ylabel('VWAP ($)')
+        plt.xlabel('Time (a.u.)')
+        plt.grid(True)
+        plt.show()
+    else:
+        print("No option trades during period.")
         
 def parse_multi_quote(data, tag):
     while data.find("</" + tag + ">") != -1:
