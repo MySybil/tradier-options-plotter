@@ -5,14 +5,25 @@ from datetime import datetime
 #runs with python3
 
 # Written by Teddy Rowan
-# This script prompts the user for a symbol, expiry date, and history range of interest and prints out all the options trades for the underlying symbol for that expiry date. Useful for monitoring abnormal options activity and identifying large positions after the fact. 
+# READ ME!!!!!!
+# This script prompts the user for a symbol, expiry date, and history range of interest and plots the historic pricing for the selected option.
+# The candlestick binning is 15 minutes if you're going back less than 35 days, or 1 day if you're going back further than 35 days. 
+# There is no (?) error handling right now so be careful. 
 
-API_KEY = 'Bearer 5f1ga0KR0Ys1YlQhWtRAQAPKW8Iy'
+# If you're just going to run it once or whatever this key is fine to use, but if you're going to run it a lot go and sign up for your own key. IT'S FREE, it takes 30 seconds.
+# https://developer.tradier.com/user/sign_up
+API_KEY = 'Bearer UNAGUmPNt1GPXWwWUxUGi4ekynpj'
 
-# need to also make it support further back dates. using history endpoint instead of timesales
+print("-------")
+print("-------")
+print("HEY DOPE! There is no error-handling in this right now so try to be a grown-up and not fuck everything up.")
+print("-------")
+print("Also. If you're going to run this more than just to test it out, get your own API key. It's free for fucksake. And that way we don't hit rate-limiting.")
+print("-------")
+
 
 # Prompt the user for the underlying symbol of interest
-symbol = input("Select an underlying symbol: ")
+symbol = input("Select an underlying symbol (that's a stock ticker retard): ")
 type(symbol)
 
 # Does the user want to look at call options or put options
@@ -25,8 +36,9 @@ else:
     if (optionType == "P"):
         print("Selected Put Options for " + symbol)
     else:
-        print("Invalid input")
-
+        print("Invalid input you fucking retard. I guess we're looking at calls.")
+        optionType = "C"
+        
 
 # Tradier Authorization Header
 my_headers = {'Authorization': API_KEY}
@@ -57,7 +69,7 @@ print(strikeList)
 selectedPrice = input("Select a strike from the list above: ")
 type(selectedPrice)
 
-# Tradier Formatting
+# Tradier Formatting is lolz
 new = int(float(selectedPrice)*1000)
 if (new < 10000):
     updatedList.append("0000" + str(new))
@@ -76,24 +88,21 @@ startDate = input("Input a start date for the data range: ")
 type(startDate)
 
 
-# I need to do like a date difference to find out how long it's been then figure out whether it should be timesales or history as the endpoint
-
 # Format the date string for Tradier's API formatting
 format_date = date.replace("-", "") # strip out the dashes from the selected date
 format_date = format_date[2:len(format_date)] # strip the 20 off the front of 2019
 
-# how far back from now is the start date
+# Find out how far back the user wants to look and if it's more than 35 days, use the history endpoint insteal of the timesales endpoint
 datenum = datetime.strptime(startDate, "%Y-%m-%d")
 startDateTime = time.mktime(datenum.timetuple())
 nowTime = time.mktime(datetime.now().timetuple())
 
-
-history = 0
+history = 0 # should we use the history endpoint.
 if (nowTime - startDateTime > 35*24*60*60): # if it's been more than 35 days, plot daily data
     history = 1
 
 
-# Iterate through the list of strikes and get the volume and vwap for each contract
+# Too lazy to take this out of a for-loop. Legacy from when it did multiple options.
 for price in updatedList:
     if (history):
         url = "https://sandbox.tradier.com/v1/markets/history?symbol=" + symbol + format_date + optionType + price + "&start=" + startDate
@@ -115,6 +124,5 @@ for price in updatedList:
     else:
         single_parser.parse_timesales_quote(rData.content.decode("utf-8"), data_name)
 
-    time.sleep(1) #sleep for a second so that the requests come back in the proper order
 
 
