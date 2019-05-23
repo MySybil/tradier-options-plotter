@@ -9,13 +9,9 @@ class TradierQuote():
 #timestamp is seconds since 1970
 # if you want the data parsed in text, in parse_data_quote uncomment print(vars(quote))
 
-# going to need to timestamp swap it myself by calculating how many periods there are and backsolving that shit.
-
-# ughh there's some bug where data is showing up with negative binning. maybe time zone dependent?
-
 
 # Takes API Response from Tradier /quotes? with multiple quotes then substrings down to a single quote and parses them individually
-def parse_data_quote(data):
+def parse_data_quote(data, data_title):
     vTimestamp = []
     vVwap = []
     ohlc = []
@@ -72,6 +68,7 @@ def parse_data_quote(data):
 
         plt.ylabel("Option Price ($)")
         plt.xlabel("Binning Periods Since First Data Point (To Be Fixed)")
+        plt.title(data_title)
         plt.subplots_adjust(left=0.10, bottom=0.20, right=0.95, top=0.90, wspace=0.2, hspace=0)
         #plt.hold(True)
         plt.plot(vTimestamp, vVwap, 'b--', alpha=0.25, Linewidth=1.0)
@@ -84,6 +81,8 @@ def parse_data_quote(data):
         while (ii < t_last):
             plt.plot([ii, ii], [data_min*0.9, data_max*1.1], 'k-', Linewidth=1.0, alpha=0.35)
             ii += 6.5*60*60/(15*60) + 1 #15*60 is the binning
+        # plot one more after the end.
+        plt.plot([ii, ii], [data_min*0.9, data_max*1.1], 'k-', Linewidth=1.0, alpha=0.35)
         
         plt.show()
     else:

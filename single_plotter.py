@@ -85,13 +85,16 @@ format_date = format_date[2:len(format_date)] # strip the 20 off the front of 20
 # Iterate through the list of strikes and get the volume and vwap for each contract
 for price in updatedList:
     url = "https://sandbox.tradier.com/v1/markets/timesales?symbol=" + symbol + format_date + optionType + price + "&interval=15min&start=" + startDate
+    data_name = ""
     if (optionType == "C"):
-        print("Now grabbing " + symbol + " calls dated: " + date + " w/ price: " + price)
+        data_name = symbol + " Calls Expiring: " + date + " w/ Strike: $" + str(float(price)/1000)
+        print("Now grabbing " + data_name)
     else:
-        print("Now grabbing " + symbol + " puts dated: " + date + " w/ price: " + price)
+        data_name = symbol + " Puts Expiring: " + date + " w/ Strike: $" + str(float(price)/1000)
+        print("Now grabbing " + data_name)
     
     rData = requests.get(url, headers=my_headers)
-    single_parser.parse_data_quote(rData.content.decode("utf-8"))
+    single_parser.parse_data_quote(rData.content.decode("utf-8"), data_name)
     time.sleep(1) #sleep for a second so that the requests come back in the proper order
 
 
