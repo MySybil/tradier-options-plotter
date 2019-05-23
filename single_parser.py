@@ -27,6 +27,9 @@ def parse_data_quote(data):
         append_me = convert_timestamp(quote.timestamp, 15*60, t1), quote.open, quote.high, quote.low, quote.close, quote.volume
         ohlc.append(append_me)
         
+        vVwap.append(quote.vwap)
+        vTimestamp.append(convert_timestamp(quote.timestamp, 15*60, t1))
+        
         # once the data is grabbed, move on to the next quote
         index = data.find("</data>")
         data = data[index+len("</data>"):]
@@ -34,6 +37,7 @@ def parse_data_quote(data):
     if (len(ohlc)):
         fig = plt.figure()
         ax1 = plt.subplot2grid((1,1), (0,0))
+        ax1.grid(True)
         candlestick_ohlc(ax1, ohlc, width=0.4, colorup='#77d879', colordown='#db3f3f')
         for label in ax1.xaxis.get_ticklabels():
             label.set_rotation(45)
@@ -41,10 +45,12 @@ def parse_data_quote(data):
         # need to figure out the conversion from time to mdates
         #ax1.xaxis.set_major_formatter(mdates.DateFormatter('%Y-%m-%d'))
         ax1.xaxis.set_major_locator(mticker.MaxNLocator(10))
-        ax1.grid(True)
+
         plt.ylabel("Option Price ($)")
         plt.xlabel("Binning Periods Since First Data Point (To Be Fixed)")
         plt.subplots_adjust(left=0.10, bottom=0.20, right=0.95, top=0.90, wspace=0.2, hspace=0)
+        #plt.hold(True)
+        plt.plot(vTimestamp, vVwap, 'b--', alpha=0.35)
         plt.show()
     else:
         print("No option trades during period.")
@@ -58,7 +64,7 @@ def convert_timestamp(timestamp, binning, t0):
     tdays = (int)(tconvert/(24*60*60/binning))
     
     # now remove the appropriate number of after hours binnings
-    tadjust = tconvert - tdays*(17.5*60*60/binning)
+    tadjust = tconvert - tdays*(17.5*60*60/binning - 1) # w/out -1 it was doubling up a data point on the day crossover. double negative. 
     
     return tadjust # ok perfect (well perfectly awful)
         

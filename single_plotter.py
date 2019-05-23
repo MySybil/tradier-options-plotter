@@ -6,6 +6,8 @@ import time
 # Written by Teddy Rowan
 # This script prompts the user for a symbol, expiry date, and history range of interest and prints out all the options trades for the underlying symbol for that expiry date. Useful for monitoring abnormal options activity and identifying large positions after the fact. 
 
+# need to also make it support further back dates. using history endpoint instead of timesales
+
 
 # Prompt the user for the underlying symbol of interest
 symbol = input("Select an underlying symbol: ")
@@ -70,6 +72,9 @@ else:
 # Prompt the user for how long of a history they are interested in
 startDate = input("Input a start date for the data range: ")
 type(startDate)
+
+
+# I need to do like a date difference to find out how long it's been then figure out whether it should be timesales or history as the endpoint
 
 # Format the date string for Tradier's API formatting
 format_date = date.replace("-", "") # strip out the dashes from the selected date
