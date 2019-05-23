@@ -23,6 +23,8 @@ def parse_data_quote(data):
         #print(vars(quote)) # print the variables # too much data now. makes no sense to print it all.
         if (t1 == 0):
             t1 = quote.timestamp
+            t1diff = t1 % 24*60*60 # seconds into the day for first trade.
+            t1 = t1 - t1diff + 9.5*60*60 # to get to 9.30am        
         
         append_me = convert_timestamp(quote.timestamp, 15*60, t1), quote.open, quote.high, quote.low, quote.close, quote.volume
         ohlc.append(append_me)
@@ -50,7 +52,7 @@ def parse_data_quote(data):
         plt.xlabel("Binning Periods Since First Data Point (To Be Fixed)")
         plt.subplots_adjust(left=0.10, bottom=0.20, right=0.95, top=0.90, wspace=0.2, hspace=0)
         #plt.hold(True)
-        plt.plot(vTimestamp, vVwap, 'b--', alpha=0.35)
+        plt.plot(vTimestamp, vVwap, 'b--', alpha=0.25, Linewidth=1.0)
         plt.show()
     else:
         print("No option trades during period.")
