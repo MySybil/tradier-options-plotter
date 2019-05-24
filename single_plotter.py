@@ -71,16 +71,7 @@ type(selectedPrice)
 
 # Tradier Formatting is lolz
 new = int(float(selectedPrice)*1000)
-if (new < 10000):
-    updatedList.append("0000" + str(new))
-elif (new < 100000):
-    updatedList.append("000" + str(new))
-elif (new < 1000000):
-    updatedList.append("00" + str(new))
-elif (new < 10000000):
-    updatedList.append("0" + str(new))
-else:
-    updatedList.append(str(new))
+updatedList.append('{0:08d}'.format(new)) #edit courtesy: /u/Wallstreet_Fox
 
 
 # Prompt the user for how long of a history they are interested in

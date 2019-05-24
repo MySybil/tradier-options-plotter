@@ -32,7 +32,7 @@ def parse_timesales_quote(data, data_title):
             t1 = t1 - t1diff
             
         
-        t_last = convert_timestamp(quote.timestamp, 15*60, t1)
+        t_last = convert_timestamp_to_binning(quote.timestamp, 15*60, t1)
         
         append_me = t_last, quote.open, quote.high, quote.low, quote.close, quote.volume
         ohlc.append(append_me)
@@ -44,7 +44,7 @@ def parse_timesales_quote(data, data_title):
         
         #vVwap.append(quote.close) # testing with /history/
         vVwap.append(quote.vwap)
-        vTimestamp.append(convert_timestamp(quote.timestamp, 15*60, t1))
+        vTimestamp.append(convert_timestamp_to_binning(quote.timestamp, 15*60, t1))
         
         
         
@@ -89,12 +89,12 @@ def parse_timesales_quote(data, data_title):
 def parse_history_quote(data, data_title):    
     ohlc = [] # candlestick chart data
     t1 = 0 #first timestamp
-    t_last = 0;
+    t_last = 0; #data point that gets converted to binning. lolz naming conventions.
     
     while data.find("</day>") != -1:
         single_quote = parse_target(data, "day") #substrings down to a full single quote
         quote = parse_single_history_quote(single_quote) #
-        #print(vars(quote)) # print the variables # too much data now. makes no sense to print it all.
+        #print(vars(quote)) 
             
         t_last = convert_string_to_date(quote.date)
         if (t1 == 0):
@@ -102,7 +102,7 @@ def parse_history_quote(data, data_title):
             t1diff = t1 % 24*60*60 # seconds into the day for first trade.
             t1 = t1 - t1diff
                     
-        t_last = convert_timestamp(t_last, 24*60*60, t1)
+        t_last = convert_timestamp_to_binning(t_last, 24*60*60, t1)
         
         append_me = t_last, quote.open, quote.high, quote.low, quote.close, quote.volume
         ohlc.append(append_me)
@@ -121,9 +121,10 @@ def parse_history_quote(data, data_title):
             label.set_rotation(45)
 
         ax1.xaxis.set_major_locator(mticker.MaxNLocator(10))
-
+        ax1.set_xticklabels(convert_xticks_to_dates(ax1.get_xticks(), 24*60*60, t1))
+        
+        
         plt.ylabel("Option Price ($)")
-        plt.xlabel("Binning Periods Since First Data Point (Labels To Be Formatted...lolz)")
         plt.title(data_title)
         plt.subplots_adjust(left=0.10, bottom=0.20, right=0.95, top=0.90, wspace=0.2, hspace=0)
         plt.show()        
@@ -137,19 +138,32 @@ def convert_string_to_date(datestr):
     return time.mktime(datenum.timetuple())
 
 # this should at least put it to 1 per then just need to scale and shit or something
-def convert_timestamp(timestamp, binning, t0):
-    # this will give the zero-origin binning period of the data point
-    tconvert = (timestamp-t0)/binning 
-    
-    # need to remove the after hours data points. so calculate how many first
-    tdays = (int)(tconvert/(24*60*60/binning))
-    
-    # now remove the appropriate number of after hours binnings
-    tadjust = tconvert - tdays*(17.5*60*60/binning - 1) # w/out -1 it was doubling up a data point on the day crossover. double negative. 
+def convert_timestamp_to_binning(timestamp, binning, t0):
+    tconvert = (timestamp-t0)/binning #binning from first data point being 0
+    tdays = (int)(tconvert/(24*60*60/binning)) #how many days have passed.
+    #tadjust = tconvert - tdays*(17.5*60*60/binning - 1) #remove after hours binning
+    tadjust = tconvert - tdays*(17.5*60*60/binning - 1) #remove after hours binning
+    # w/out -1 it was doubling up a data point on the day crossover. double negative. 
     
     return tadjust # ok perfect (well perfectly awful)
         
+def convert_xticks_to_dates(xticks, binning, t0):
+    output = []
+    for x in xticks:
+            date_str = datetime.fromtimestamp(convert_binning_to_timestamp(x, binning, t0))
+            output.append(date_str.strftime("%m/%d/%Y"))
+
+    return output
+
+# just need to do the opposite of convert_timestamp_to_binning    
+# this is very close to right and just off by a little bit... I don't know why.
+def convert_binning_to_timestamp(bin_number, binning, t0):
+    tdays = (int)(bin_number*binning/(24*60*60)) # how many after-hours got pulled out.
+    tadjust = bin_number + tdays*(17.5*60*60/binning - 1) #restored to full bin since zero-point
+    return (tadjust*binning + t0)
         
+# Most of the code below this is legacy and tbh I don't know what's used and what isn't. I need to clean this up.  
+       
 def parse_multi_quote(data, tag):
     dateList = []
     while data.find("</" + tag + ">") != -1:
