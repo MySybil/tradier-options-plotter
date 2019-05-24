@@ -14,6 +14,11 @@ from datetime import datetime
 # https://developer.tradier.com/user/sign_up
 API_KEY = 'Bearer UNAGUmPNt1GPXWwWUxUGi4ekynpj'
 
+# TODO: Fix date labels on history plot (> 35 days of data)
+# TODO: Add date labels for timesales plot (< 35 days of data)
+# TODO: Validate user inputs
+# TODO: Check API response for error messages. 
+
 print("-------")
 print("-------")
 print("HEY DOPE! There is no error-handling in this right now so try to be a grown-up and not fuck everything up.")
@@ -48,9 +53,13 @@ url_dates = "https://sandbox.tradier.com/v1/markets/options/expirations?symbol="
 rDates = requests.get(url_dates, headers=my_headers)
 single_parser.parse_multi_quote(rDates.content.decode("utf-8"), "date")
 
+# TODO: Error Handling for no option dates. Should probably move the printing of the dates back into this script instead of having it in the parser.
+
 # Prompt the user to pick one of the expiry dates
 date = input("Select an expiry date from the list above: ")
 type(date)
+
+# TODO: Check whether the input date is in the list of dates.
 
 
 # Grab a list of all the prices available, then parse and format them properly
@@ -63,20 +72,26 @@ print("List of available strike prices: ")
 # Format the price strings to the standard Tradier price format
 updatedList = []
 print(strikeList)
-#for price in strikeList:
-#    print(price)
 
 selectedPrice = input("Select a strike from the list above: ")
 type(selectedPrice)
 
+# error handling for retards that can't pick a strike from the list
+if not (selectedPrice in strikeList or str(selectedPrice + ".0") in strikeList):
+    print("How hard is it to pick a strike from the list...? Fuck me.")
+    selectedPrice = strikeList[(int)(len(strikeList)/2)] #pick the middle strike.
+    print("I guess I'm choosing for you... Strike = $ " + selectedPrice)
+    
 # Tradier Formatting is lolz
 new = int(float(selectedPrice)*1000)
 updatedList.append('{0:08d}'.format(new)) #edit courtesy: /u/Wallstreet_Fox
 
 
 # Prompt the user for how long of a history they are interested in
-startDate = input("Input a start date for the data range: ")
+startDate = input("Input a start date for the data range (YYYY-mm-dd): ")
 type(startDate)
+
+# TODO: Error handling. Make sure that the start date is valid.
 
 
 # Format the date string for Tradier's API formatting
