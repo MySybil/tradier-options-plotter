@@ -120,9 +120,13 @@ def parse_history_quote(data, data_title):
         for label in ax1.xaxis.get_ticklabels():
             label.set_rotation(45)
 
+        # these are assigned so that we can use them when we re-grab the axes when xlims change
+        plt.t1 = t1
+        plt.binning = 24*60*60
+
         ax1.xaxis.set_major_locator(mticker.MaxNLocator(10))
-        ax1.set_xticklabels(convert_xticks_to_dates(ax1.get_xticks(), 24*60*60, t1))
-        
+        ax1.set_xticklabels(convert_xticks_to_dates(ax1.get_xticks(), plt.binning, plt.t1))
+        ax1.callbacks.connect('xlim_changed', on_xlims_change) #live update the xlabels
         
         plt.ylabel("Option Price ($)")
         plt.title(data_title)
@@ -131,6 +135,10 @@ def parse_history_quote(data, data_title):
     else:
         print("No option trades during period.")
     
+def on_xlims_change(axes):
+    ax1 = plt.gca()
+    ax1.set_xticklabels(convert_xticks_to_dates(ax1.get_xticks(), plt.binning, plt.t1))
+
     
 # takes in the date string and converts to seconds since 1970
 def convert_string_to_date(datestr):
@@ -141,9 +149,13 @@ def convert_string_to_date(datestr):
 def convert_timestamp_to_binning(timestamp, binning, t0):
     tconvert = (timestamp-t0)/binning #binning from first data point being 0
     tdays = (int)(tconvert/(24*60*60/binning)) #how many days have passed.
-    #tadjust = tconvert - tdays*(17.5*60*60/binning - 1) #remove after hours binning
     tadjust = tconvert - tdays*(17.5*60*60/binning - 1) #remove after hours binning
     # w/out -1 it was doubling up a data point on the day crossover. double negative. 
+
+    # i need to handle daily binning different than binning when we need to deal with after-hours
+    if (binning == 24*60*60):
+        tadjust = tconvert
+    
     
     return tadjust # ok perfect (well perfectly awful)
         
@@ -160,8 +172,14 @@ def convert_xticks_to_dates(xticks, binning, t0):
 def convert_binning_to_timestamp(bin_number, binning, t0):
     tdays = (int)(bin_number*binning/(24*60*60)) # how many after-hours got pulled out.
     tadjust = bin_number + tdays*(17.5*60*60/binning - 1) #restored to full bin since zero-point
+    
+    # i need to handle daily binning different than binning when we need to deal with after-hours
+    if (binning == 24*60*60):
+        tadjust = bin_number
+
     return (tadjust*binning + t0)
         
+    
 # Most of the code below this is legacy and tbh I don't know what's used and what isn't. I need to clean this up.  
        
 def parse_multi_quote(data, tag):

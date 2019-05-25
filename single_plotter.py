@@ -14,7 +14,6 @@ from datetime import datetime
 # https://developer.tradier.com/user/sign_up
 API_KEY = 'Bearer UNAGUmPNt1GPXWwWUxUGi4ekynpj'
 
-# TODO: Fix date labels on history plot (> 35 days of data)
 # TODO: Add date labels for timesales plot (< 35 days of data)
 # TODO: Validate user inputs
 # TODO: Check API response for error messages. 
