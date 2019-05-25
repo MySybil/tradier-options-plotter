@@ -60,12 +60,16 @@ def parse_timesales_quote(data, data_title):
         for label in ax1.xaxis.get_ticklabels():
             label.set_rotation(45)
 
+        plt.binning = 15*60
+        plt.t1 = t1
+        
         # need to figure out the conversion from time to mdates
         #ax1.xaxis.set_major_formatter(mdates.DateFormatter('%Y-%m-%d'))
         ax1.xaxis.set_major_locator(mticker.MaxNLocator(10))
+        ax1.set_xticklabels(convert_xticks_to_dates(ax1.get_xticks(), plt.binning, plt.t1))
+        ax1.callbacks.connect('xlim_changed', on_xlims_change) #live update the xlabels
 
         plt.ylabel("Option Price ($)")
-        plt.xlabel("Binning Periods Since First Data Point (Labels To Be Formatted...lolz)")
         plt.title(data_title)
         plt.subplots_adjust(left=0.10, bottom=0.20, right=0.95, top=0.90, wspace=0.2, hspace=0)
         plt.plot(vTimestamp, vVwap, 'b--', alpha=0.25, Linewidth=1.0)
@@ -163,7 +167,10 @@ def convert_xticks_to_dates(xticks, binning, t0):
     output = []
     for x in xticks:
             date_str = datetime.fromtimestamp(convert_binning_to_timestamp(x, binning, t0))
-            output.append(date_str.strftime("%m/%d/%Y"))
+            if (binning < 24*60*60):
+                output.append(date_str.strftime("%m/%d, %H:%M"))
+            else:
+                output.append(date_str.strftime("%m/%d/%Y"))
 
     return output
 

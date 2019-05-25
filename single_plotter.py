@@ -16,7 +16,8 @@ API_KEY = 'Bearer UNAGUmPNt1GPXWwWUxUGi4ekynpj'
 
 my_headers = {'Authorization': API_KEY} # Tradier Authorization Header
 
-# TODO: Add date labels for timesales plot (< 35 days of data)
+# TODO: Fix date labels for timesales plots.
+
 # TODO: Validate user inputs
 # TODO: Check API response for error messages. 
 # TODO: Add volume line plot below candles
