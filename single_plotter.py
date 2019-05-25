@@ -14,17 +14,27 @@ from datetime import datetime
 # https://developer.tradier.com/user/sign_up
 API_KEY = 'Bearer UNAGUmPNt1GPXWwWUxUGi4ekynpj'
 
+my_headers = {'Authorization': API_KEY} # Tradier Authorization Header
+
 # TODO: Add date labels for timesales plot (< 35 days of data)
 # TODO: Validate user inputs
 # TODO: Check API response for error messages. 
+# TODO: Add volume line plot below candles
+# TODO: Add technical indicators like moving averages, etc. 
 
-print("-------")
-print("-------")
-print("HEY DOPE! There is no error-handling in this right now so try to be a grown-up and not fuck everything up.")
-print("-------")
+print(" ")
+print(" ")
+print("*********************************************************")
+print("*********************************************************")
+print("****** WELCOME TO A HISTORIC OPTIONS DATA PLOTTER *******")
+print("*********************************************************")
+print("*********************************************************")
+print(" ")
+print("There is no error-handling in this right now so try to be a grown-up and not fuck everything up.")
+print("--")
 print("Also. If you're going to run this more than just to test it out, get your own API key. It's free for fucksake. And that way we don't hit rate-limiting.")
-print("-------")
-
+print("--")
+print(" ")
 
 # Prompt the user for the underlying symbol of interest
 symbol = input("Select an underlying symbol (that's a stock ticker retard): ")
@@ -40,12 +50,11 @@ else:
     if (optionType == "P"):
         print("Selected Put Options for " + symbol)
     else:
+        #exit() #let's try to keep the user going a bit.
         print("Invalid input you fucking retard. I guess we're looking at calls.")
         optionType = "C"
         
 
-# Tradier Authorization Header
-my_headers = {'Authorization': API_KEY}
 
 # Grab, parse, and print all the available expiry dates for the symbol.
 url_dates = "https://sandbox.tradier.com/v1/markets/options/expirations?symbol=" + symbol
@@ -81,9 +90,9 @@ if not (selectedPrice in strikeList or str(selectedPrice + ".0") in strikeList):
     selectedPrice = strikeList[(int)(len(strikeList)/2)] #pick the middle strike.
     print("I guess I'm choosing for you... Strike = $ " + selectedPrice)
     
-# Tradier Formatting is lolz
-new = int(float(selectedPrice)*1000)
-updatedList.append('{0:08d}'.format(new)) #edit courtesy: /u/Wallstreet_Fox
+# Tradier Formatting is lolz and terrible
+tmp = int(float(selectedPrice)*1000)
+selectedPrice = '{0:08d}'.format(tmp) #edit courtesy: /u/Wallstreet_Fox
 
 
 # Prompt the user for how long of a history they are interested in
@@ -107,27 +116,27 @@ if (nowTime - startDateTime > 35*24*60*60): # if it's been more than 35 days, pl
     history = 1
 
 
-# Too lazy to take this out of a for-loop. Legacy from when it did multiple options.
-for price in updatedList:
-    if (history):
-        url = "https://sandbox.tradier.com/v1/markets/history?symbol=" + symbol + format_date + optionType + price + "&start=" + startDate
-    else:
-        url = "https://sandbox.tradier.com/v1/markets/timesales?symbol=" + symbol + format_date + optionType + price + "&interval=15min&start=" + startDate
+# Set either a /history/ or a /timesales/ url
+if (history):
+    url = "https://sandbox.tradier.com/v1/markets/history?symbol=" + symbol + format_date + optionType + selectedPrice + "&start=" + startDate
+else:
+    url = "https://sandbox.tradier.com/v1/markets/timesales?symbol=" + symbol + format_date + optionType + selectedPrice + "&interval=15min&start=" + startDate
 
-    data_name = ""
-    if (optionType == "C"):
-        data_name = symbol + " Calls Expiring: " + date + " w/ Strike: $" + str(float(price)/1000)
-        print("Now grabbing " + data_name)
-    else:
-        data_name = symbol + " Puts Expiring: " + date + " w/ Strike: $" + str(float(price)/1000)
-        print("Now grabbing " + data_name)
-    
-    rData = requests.get(url, headers=my_headers)
-    
-    if (history):
-        single_parser.parse_history_quote(rData.content.decode("utf-8"), data_name)
-    else:
-        single_parser.parse_timesales_quote(rData.content.decode("utf-8"), data_name)
+data_name = "" # for plot titles
+if (optionType == "C"):
+    data_name = symbol + " Calls Expiring: " + date + " w/ Strike: $" + str(float(selectedPrice)/1000)
+    print("Now grabbing " + data_name)
+else:
+    data_name = symbol + " Puts Expiring: " + date + " w/ Strike: $" + str(float(selectedPrice)/1000)
+    print("Now grabbing " + data_name)
+
+rData = requests.get(url, headers=my_headers) #actually download the data
+
+# parse and plot the data
+if (history):
+    single_parser.parse_history_quote(rData.content.decode("utf-8"), data_name)
+else:
+    single_parser.parse_timesales_quote(rData.content.decode("utf-8"), data_name)
 
 
 
