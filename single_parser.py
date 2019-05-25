@@ -175,9 +175,8 @@ def convert_xticks_to_dates(xticks, binning, t0):
     return output
 
 # just need to do the opposite of convert_timestamp_to_binning    
-# this is very close to right and just off by a little bit... I don't know why.
 def convert_binning_to_timestamp(bin_number, binning, t0):
-    tdays = (int)(bin_number*binning/(24*60*60)) # how many after-hours got pulled out.
+    tdays = (int)((bin_number*binning)/(6.5*60*60 + binning)) # + binning b/c of the -1.
     tadjust = bin_number + tdays*(17.5*60*60/binning - 1) #restored to full bin since zero-point
     
     # i need to handle daily binning different than binning when we need to deal with after-hours
