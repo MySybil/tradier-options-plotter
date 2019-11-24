@@ -10,18 +10,15 @@ from datetime import datetime
 # The candlestick binning is 15 minutes if you're going back less than 35 days, or 1 day if you're going back further than 35 days. 
 # There is no (?) error handling right now so be careful. 
 
-# If you're just going to run it once or whatever this key is fine to use, but if you're going to run it a lot go and sign up for your own key. IT'S FREE, it takes 30 seconds.
-# https://developer.tradier.com/user/sign_up
-API_KEY = 'Bearer UNAGUmPNt1GPXWwWUxUGi4ekynpj'
+API_KEY = 'Bearer UNAGUmPNt1GPXWwWUxUGi4ekynpj' # public key.
 
 my_headers = {'Authorization': API_KEY} # Tradier Authorization Header
-
-# TODO: Fix date labels for timesales plots.
 
 # TODO: Validate user inputs
 # TODO: Check API response for error messages. 
 # TODO: Add volume line plot below candles
 # TODO: Add technical indicators like moving averages, etc. 
+
 
 print(" ")
 print(" ")
@@ -32,8 +29,6 @@ print("*********************************************************")
 print("*********************************************************")
 print(" ")
 print("There is no error-handling in this right now so try to be a grown-up and not fuck everything up.")
-print("--")
-print("Also. If you're going to run this more than just to test it out, get your own API key. It's free for fucksake. And that way we don't hit rate-limiting.")
 print("--")
 print(" ")
 
@@ -52,7 +47,6 @@ else:
         print("Selected Put Options for " + symbol)
     else:
         #exit() #let's try to keep the user going a bit.
-        print("Invalid input you fucking retard. I guess we're looking at calls.")
         optionType = "C"
         
 
@@ -85,7 +79,6 @@ print(strikeList)
 selectedPrice = input("Select a strike from the list above: ")
 type(selectedPrice)
 
-# error handling for retards that can't pick a strike from the list
 if not (selectedPrice in strikeList or str(selectedPrice + ".0") in strikeList):
     print("How hard is it to pick a strike from the list...? Fuck me.")
     selectedPrice = strikeList[(int)(len(strikeList)/2)] #pick the middle strike.
@@ -93,7 +86,7 @@ if not (selectedPrice in strikeList or str(selectedPrice + ".0") in strikeList):
     
 # Tradier Formatting is lolz and terrible
 tmp = int(float(selectedPrice)*1000)
-selectedPrice = '{0:08d}'.format(tmp) #edit courtesy: /u/Wallstreet_Fox
+selectedPrice = '{0:08d}'.format(tmp)
 
 
 # Prompt the user for how long of a history they are interested in
@@ -132,6 +125,7 @@ else:
     print("Now grabbing " + data_name)
 
 rData = requests.get(url, headers=my_headers) #actually download the data
+print(rData.text)
 
 # parse and plot the data
 if (history):
