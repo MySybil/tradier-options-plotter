@@ -286,6 +286,12 @@ def parse_target(source, target):
     #    return(value)
     
 
+def check_input_for_sentinel(input):
+    if (input == "exit"):
+        print("User Requested Program Termination.")
+        exit()
+
+
 # Returns true if the input is a number, false if not. Used to differentiate between string and floats that get parsed b/c the floats that get parsed end up stored as strings    
 def is_number(s):
     try:
@@ -302,3 +308,6 @@ def is_number(s):
         pass
  
     return False
+    
+    
+    

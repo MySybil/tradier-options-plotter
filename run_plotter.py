@@ -22,26 +22,52 @@ my_headers = {'Authorization': API_KEY} # Tradier Authorization Header
 # TODO: Add volume line plot below candles
 # TODO: Add technical indicators like moving averages, etc. 
 
-
-print(" ")
-print(" ")
+print("*")
+print("*")
+print("*")
+print("*")
+print("*")
+print("*")
+print("*")
+print("*")
+print("*")
+print("*")
 print("*********************************************************")
 print("*********************************************************")
 print("****** WELCOME TO A HISTORIC OPTIONS DATA PLOTTER *******")
 print("*********************************************************")
 print("*********************************************************")
-print(" ")
-print("There is no error-handling in this right now so try to be a grown-up and not fuck everything up.")
-print("--")
-print(" ")
+print("*")
+print("Created by Teddy Rowan for MySybil.com")
+print("*")
+print("*")
+print("*")
+print("*")
+print("*")
+print("*")
+print("*")
+print("*")
+print("*")
+print("*")
+print("*")
+print("*")
+print("Type 'exit' at any time to terminate program")
+print("*")
+print("*")
+print("*")
+print("*")
+
 
 # Prompt the user for the underlying symbol of interest
 symbol = input("Select an underlying symbol (that's a stock ticker retard): ")
 type(symbol)
+single_parser.check_input_for_sentinel(symbol)
+
 
 # Does the user want to look at call options or put options
 optionType = input("Type C for Calls or P for Puts: ")
 type(optionType)
+single_parser.check_input_for_sentinel(optionType)
 
 if (optionType == "C"):
     print("Selected Call Options for " + symbol)
@@ -64,6 +90,7 @@ single_parser.parse_multi_quote(rDates.content.decode("utf-8"), "date")
 # Prompt the user to pick one of the expiry dates
 date = input("Select an expiry date from the list above: ")
 type(date)
+single_parser.check_input_for_sentinel(date)
 
 # TODO: Check whether the input date is in the list of dates. issue is that parser doesn't return the list right now, just prints it.
 
@@ -77,6 +104,7 @@ print(strikeList)
 
 selectedPrice = input("Select a strike from the list above: ")
 type(selectedPrice)
+single_parser.check_input_for_sentinel(selectedPrice)
 
 if not (selectedPrice in strikeList or str(selectedPrice + ".0") in strikeList):
     print("How hard is it to pick a strike from the list...? Fuck me.")
@@ -91,6 +119,7 @@ selectedPrice = '{0:08d}'.format(tmp)
 # Prompt the user for how long of a history they are interested in
 startDate = input("Input a start date for the data range (YYYY-mm-dd): ")
 type(startDate)
+single_parser.check_input_for_sentinel(startDate)
 
 # TODO: Error handling. Make sure that the start date is valid.
 
@@ -131,6 +160,5 @@ if (history):
     single_parser.parse_history_quote(rData.content.decode("utf-8"), data_name)
 else:
     single_parser.parse_timesales_quote(rData.content.decode("utf-8"), data_name)
-
 
 
