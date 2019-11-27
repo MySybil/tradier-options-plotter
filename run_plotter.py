@@ -18,6 +18,7 @@ my_headers = {'Authorization': API_KEY} # Tradier Authorization Header
 
 # Settings
 shouldPrintData = False #True
+#darkfigures = True
 #binning = 15
 #settings = {shouldPrintData, binning}
 

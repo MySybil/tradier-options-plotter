@@ -58,6 +58,7 @@ def parse_timesales_quote(data, data_title):
         
     if (len(ohlc)):
         plt.rcParams['figure.figsize'] = (7.9, 4.6)
+        plt.rcParams['savefig.facecolor']=(0.08,0.08,0.08)
         fig = plt.figure()
         ax1 = plt.subplot2grid((1,1), (0,0))
         ax1.set_facecolor((0.05, 0.05, 0.05))
@@ -140,6 +141,7 @@ def parse_history_quote(data, data_title):
     
     if (len(ohlc)): #if there is any data
         plt.rcParams['figure.figsize'] = (7.9, 4.6)
+        plt.rcParams['savefig.facecolor']=(0.08,0.08,0.08)
         fig = plt.figure()
         ax1 = plt.subplot2grid((1,1), (0,0))
         ax1.set_facecolor((0.05, 0.05, 0.05))
