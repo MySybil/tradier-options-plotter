@@ -4,10 +4,9 @@ import time
 from datetime import datetime
 #runs with python3
 
-# The candlestick binning is 15 minutes if you're going back less than 35 days, or 1 day if you're going back further than 35 days. 
+# The candlestick binning is 15 minutes if you're going back less than 35 days, or 1 day if you're going back further than 35 days. Make this tuneable. 
 
-API_KEY = 'Bearer UNAGUmPNt1GPXWwWUxUGi4ekynpj' # public key.
-
+#API_KEY = 'Bearer UNAGUmPNt1GPXWwWUxUGi4ekynpj' # public key.
 my_headers = {'Authorization': API_KEY} # Tradier Authorization Header
 
 # TODO: Check API response for error messages. 
@@ -19,17 +18,17 @@ my_headers = {'Authorization': API_KEY} # Tradier Authorization Header
 
 # Settings
 shouldPrintData = False #True
-
+#binning = 15
+#settings = {shouldPrintData, binning}
 
 print("*\n*"); time.sleep(0.05)
 print("*\n*"); time.sleep(0.05)
-print("*********************************************************")
-print("*********************************************************")
-print("****** WELCOME TO A HISTORIC OPTIONS DATA PLOTTER *******")
-print("*********************************************************")
-print("*********************************************************")
-print(" \n ")
-print("Created by Teddy Rowan for MySybil.com")
+print("*****************************************************************")
+print(" ")
+print("      Welcome To MySybil's Historic Options Data Plotter")
+print(" ")
+print("*****************************************************************")
+print("Created by Teddy Rowan at MySybil.com")
 print("Type 'exit' at any time to terminate program.")
 print("*\n*"); time.sleep(0.05)
 print("*\n*"); time.sleep(0.05)
@@ -40,10 +39,23 @@ print("*\n*"); time.sleep(0.05)
 print("*\n*"); time.sleep(0.05)
 print("*\n*"); time.sleep(0.05)
 
+#TODO: let the user modify settings at runtime.
+#print("*\n*"); time.sleep(0.05)
+#shouldModifySettings = input("Type y/yes to modify program settings or enter to continue: ")
+#type(shouldModifySettings)
+#single_parser.check_input_for_sentinel(shouldModifySettings)
+#if (shouldModifySettings.lower() == "y" or shouldModifySettings.lower() == "yes"):
+    #print("user wants to modify settings.")
+#    print("The Following Settings Can Be Modified: ")
+#    print(settings)
+#else:
+#    print("Running with default settings.")
+
+
 
 # Prompt the user for the underlying symbol of interest
 print("*\n*"); time.sleep(0.05)
-symbol = input("Select an underlying symbol (that's a stock ticker retard): ")
+symbol = input("Select an underlying symbol: ")
 type(symbol)
 single_parser.check_input_for_sentinel(symbol)
 symbol = symbol.upper() #only for display on plots reasons.
