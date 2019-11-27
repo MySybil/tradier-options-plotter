@@ -37,7 +37,7 @@ print("*\n*"); time.sleep(0.05)
 print("*\n*"); time.sleep(0.05)
 print("*\n*"); time.sleep(0.05)
 print("*\n*"); time.sleep(0.05)
-print("*\n*"); time.sleep(0.05)
+
 
 #TODO: let the user modify settings at runtime.
 #print("*\n*"); time.sleep(0.05)
@@ -59,6 +59,12 @@ symbol = input("Select an underlying symbol: ")
 type(symbol)
 single_parser.check_input_for_sentinel(symbol)
 symbol = symbol.upper() #only for display on plots reasons.
+
+# Display the last trade price for the underlying.
+uPrice = "https://sandbox.tradier.com/v1/markets/quotes?symbols=" + symbol
+rPrice = requests.get(uPrice, headers=my_headers)
+lastPrice = single_parser.parse_multi_quote(rPrice.content.decode("utf-8"), "last")
+print("The last trade price for " + symbol + " was: $"+ lastPrice[0])
 
 # Does the user want to look at call options or put options
 print("*\n*"); time.sleep(0.05)
