@@ -56,21 +56,23 @@ def parse_timesales_quote(data, data_title):
         fig = plt.figure()
         ax1 = plt.subplot2grid((1,1), (0,0))
         ax1.grid(False)
-        candlestick_ohlc(ax1, ohlc, width=0.4, colorup='#77d879', colordown='#db3f3f')
+        candlestick_ohlc(ax1, ohlc, width=0.4, colorup='#57b859', colordown='#db3f3f')
         for label in ax1.xaxis.get_ticklabels():
             label.set_rotation(45)
 
         plt.binning = 15*60
         plt.t1 = t1
         
+        plotfont = {'fontname':'Futura'}
+        
         # need to figure out the conversion from time to mdates
         #ax1.xaxis.set_major_formatter(mdates.DateFormatter('%Y-%m-%d'))
         ax1.xaxis.set_major_locator(mticker.MaxNLocator(10))
-        ax1.set_xticklabels(convert_xticks_to_dates(ax1.get_xticks(), plt.binning, plt.t1))
+        ax1.set_xticklabels(convert_xticks_to_dates(ax1.get_xticks(), plt.binning, plt.t1), **plotfont)
         ax1.callbacks.connect('xlim_changed', on_xlims_change) #live update the xlabels
 
-        plt.ylabel("Option Price ($)")
-        plt.title(data_title)
+        plt.ylabel("Option Price ($)", **plotfont)
+        plt.title(data_title, **plotfont)
         plt.subplots_adjust(left=0.10, bottom=0.20, right=0.95, top=0.90, wspace=0.2, hspace=0)
         plt.plot(vTimestamp, vVwap, 'b--', alpha=0.25, Linewidth=1.0)
         
@@ -84,12 +86,19 @@ def parse_timesales_quote(data, data_title):
             ii += 6.5*60*60/(15*60) + 1 #15*60 is the binning
         # plot one more after the end.
         plt.plot([ii, ii], [data_min*0.9, data_max*1.1], 'k-', Linewidth=1.0, alpha=0.35)
+        plt.grid(linestyle='--', linewidth=0.5)
+        
+        # place a branding textbox in it
+        textstr = 'MySybil.com'
+        props = dict(boxstyle='square', facecolor='white', alpha=0.25, edgecolor='none')
+        ax1.text(0.87, 0.06, textstr, transform=ax1.transAxes, fontsize=10,
+                verticalalignment='top', bbox=props, **plotfont)
         
         plt.show()
     else:
         print("No option trades during period.")
      
-# parse /history/ quotes 
+# parse /history/ quotes ie: longer than 35 days
 def parse_history_quote(data, data_title):    
     ohlc = [] # candlestick chart data
     t1 = 0 #first timestamp
@@ -116,11 +125,11 @@ def parse_history_quote(data, data_title):
         index = data.find("</day>")
         data = data[index+len("</day>"):]        
     
-    if (len(ohlc)):
+    if (len(ohlc)): #if there is any data
         fig = plt.figure()
         ax1 = plt.subplot2grid((1,1), (0,0))
         ax1.grid(False)
-        candlestick_ohlc(ax1, ohlc, width=0.4, colorup='#77d879', colordown='#db3f3f')
+        candlestick_ohlc(ax1, ohlc, width=0.4, colorup='#57b859', colordown='#db3f3f')
         for label in ax1.xaxis.get_ticklabels():
             label.set_rotation(45)
 
@@ -128,14 +137,24 @@ def parse_history_quote(data, data_title):
         plt.t1 = t1
         plt.binning = 24*60*60
 
+        plotfont = {'fontname':'Futura'}
+
         ax1.xaxis.set_major_locator(mticker.MaxNLocator(10))
-        ax1.set_xticklabels(convert_xticks_to_dates(ax1.get_xticks(), plt.binning, plt.t1))
+        ax1.set_xticklabels(convert_xticks_to_dates(ax1.get_xticks(), plt.binning, plt.t1), **plotfont)
         ax1.callbacks.connect('xlim_changed', on_xlims_change) #live update the xlabels
         
-        plt.ylabel("Option Price ($)")
-        plt.title(data_title)
+        plt.ylabel("Option Price ($)", **plotfont)
+        plt.title(data_title, **plotfont)
         plt.subplots_adjust(left=0.10, bottom=0.20, right=0.95, top=0.90, wspace=0.2, hspace=0)
-        plt.show()        
+        plt.grid(linestyle='--', linewidth=0.5)
+        
+        # place a branding textbox in it
+        textstr = 'MySybil.com'
+        props = dict(boxstyle='square', facecolor='white', alpha=0.25, edgecolor='none')
+        ax1.text(0.87, 0.06, textstr, transform=ax1.transAxes, fontsize=10,
+                verticalalignment='top', bbox=props, **plotfont)
+        
+        plt.show()
     else:
         print("No option trades during period.")
     
