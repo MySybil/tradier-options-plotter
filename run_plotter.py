@@ -4,7 +4,7 @@ import time
 from datetime import datetime
 #runs with python3
 
-# Written by Teddy Rowan
+# Created by Teddy Rowan
 # READ ME!!!!!!
 # This script prompts the user for a symbol, expiry date, and history range of interest and plots the historic pricing for the selected option.
 # The candlestick binning is 15 minutes if you're going back less than 35 days, or 1 day if you're going back further than 35 days. 
@@ -16,6 +16,9 @@ my_headers = {'Authorization': API_KEY} # Tradier Authorization Header
 
 # TODO: Validate user inputs
 # TODO: Check API response for error messages. 
+# TODO: Verbose / Data print settings / binning settings. Just throw a prompt at the start asking if the user wants to run the standard version or a modified one.
+
+# For later
 # TODO: Add volume line plot below candles
 # TODO: Add technical indicators like moving averages, etc. 
 
@@ -62,8 +65,7 @@ single_parser.parse_multi_quote(rDates.content.decode("utf-8"), "date")
 date = input("Select an expiry date from the list above: ")
 type(date)
 
-# TODO: Check whether the input date is in the list of dates.
-
+# TODO: Check whether the input date is in the list of dates. issue is that parser doesn't return the list right now, just prints it.
 
 # Grab a list of all the prices available, then parse and format them properly
 url_strikes = "https://sandbox.tradier.com/v1/markets/options/strikes?symbol=" + symbol + "&expiration=" + date
@@ -71,9 +73,6 @@ rStrikes = requests.get(url_strikes, headers=my_headers)
 strikeList = single_parser.parse_strikes(rStrikes.content.decode("utf-8"))
 
 print("List of available strike prices: ")
-
-# Format the price strings to the standard Tradier price format
-updatedList = []
 print(strikeList)
 
 selectedPrice = input("Select a strike from the list above: ")
