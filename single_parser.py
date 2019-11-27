@@ -8,6 +8,10 @@ import time
 # Written by Teddy Rowan
 # This script accompanies single_plotter.py and does the parsing and the plotting for historic options data.
 
+# TODO: change color of vwap line on daily candles.
+# TODO: maybe lighten the candles a little
+# TODO: day break line color / width. 
+
 
 class TradierQuote():
   symbol = "" # can't have empty classes. what is python?
@@ -56,6 +60,11 @@ def parse_timesales_quote(data, data_title):
         plt.rcParams['figure.figsize'] = (7.9, 4.6)
         fig = plt.figure()
         ax1 = plt.subplot2grid((1,1), (0,0))
+        ax1.set_facecolor((0.05, 0.05, 0.05))
+        fig.set_facecolor((0.08, 0.08, 0.08))
+        ax1.tick_params(colors='white')
+        ax1.yaxis.label.set_color('white')
+        
         ax1.grid(False)
         candlestick_ohlc(ax1, ohlc, width=0.4, colorup='#57b859', colordown='#db3f3f')
         for label in ax1.xaxis.get_ticklabels():
@@ -65,17 +74,20 @@ def parse_timesales_quote(data, data_title):
         plt.t1 = t1
         
         plotfont = {'fontname':'Futura'}
+        labelfont = {'fontname':'Futura', 'fontsize':10}
+        tickfont = {'fontname':'Futura', 'fontsize':8}
         
         # need to figure out the conversion from time to mdates
         #ax1.xaxis.set_major_formatter(mdates.DateFormatter('%Y-%m-%d'))
         ax1.xaxis.set_major_locator(mticker.MaxNLocator(10))
-        ax1.set_xticklabels(convert_xticks_to_dates(ax1.get_xticks(), plt.binning, plt.t1), **plotfont)
+        ax1.set_xticklabels(convert_xticks_to_dates(ax1.get_xticks(), plt.binning, plt.t1), **tickfont)
         ax1.callbacks.connect('xlim_changed', on_xlims_change) #live update the xlabels
 
-        plt.ylabel("Option Price ($)", **plotfont)
-        plt.title(data_title, **plotfont)
+        plt.ylabel("Option Price ($)", **labelfont)
+        title_obj = plt.title(data_title, **plotfont)
         plt.subplots_adjust(left=0.10, bottom=0.20, right=0.95, top=0.90, wspace=0.2, hspace=0)
         plt.plot(vTimestamp, vVwap, 'b--', alpha=0.25, Linewidth=1.0)
+        plt.setp(title_obj, color='white')
         
         plt.ylim(top=data_max*1.1)
         plt.ylim(bottom=data_min*0.9)
@@ -89,12 +101,12 @@ def parse_timesales_quote(data, data_title):
         plt.plot([ii, ii], [data_min*0.9, data_max*1.1], 'k-', Linewidth=1.0, alpha=0.35)
         plt.grid(linestyle='--', linewidth=0.5)
         
+        
         # place a branding textbox in it
         textstr = 'MySybil.com'
-        props = dict(boxstyle='square', facecolor='white', alpha=0.25, edgecolor='none')
+        props = dict(boxstyle='square', facecolor='none', alpha=0, edgecolor='none')
         ax1.text(0.87, 0.06, textstr, transform=ax1.transAxes, fontsize=10,
-                verticalalignment='top', bbox=props, **plotfont)
-        
+                verticalalignment='top', bbox=props, **plotfont, color='white')
         plt.show()
     else:
         print("No option trades during period.")
@@ -129,8 +141,12 @@ def parse_history_quote(data, data_title):
     if (len(ohlc)): #if there is any data
         plt.rcParams['figure.figsize'] = (7.9, 4.6)
         fig = plt.figure()
-        print("ran this")
         ax1 = plt.subplot2grid((1,1), (0,0))
+        ax1.set_facecolor((0.05, 0.05, 0.05))
+        fig.set_facecolor((0.08, 0.08, 0.08))
+        ax1.tick_params(colors='white')
+        ax1.yaxis.label.set_color('white')
+
         
         ax1.grid(False)
         candlestick_ohlc(ax1, ohlc, width=0.4, colorup='#57b859', colordown='#db3f3f')
@@ -142,21 +158,24 @@ def parse_history_quote(data, data_title):
         plt.binning = 24*60*60
 
         plotfont = {'fontname':'Futura'}
-
+        labelfont = {'fontname':'Futura', 'fontsize':10}
+        tickfont = {'fontname':'Futura', 'fontsize':8}
         ax1.xaxis.set_major_locator(mticker.MaxNLocator(10))
-        ax1.set_xticklabels(convert_xticks_to_dates(ax1.get_xticks(), plt.binning, plt.t1), **plotfont)
+        ax1.set_xticklabels(convert_xticks_to_dates(ax1.get_xticks(), plt.binning, plt.t1), **tickfont)
         ax1.callbacks.connect('xlim_changed', on_xlims_change) #live update the xlabels
         
-        plt.ylabel("Option Price ($)", **plotfont)
-        plt.title(data_title, **plotfont)
+        plt.ylabel("Option Price ($)", **labelfont)
+        title_obj = plt.title(data_title, **plotfont)
         plt.subplots_adjust(left=0.10, bottom=0.20, right=0.95, top=0.90, wspace=0.2, hspace=0)
-        plt.grid(linestyle='--', linewidth=0.5)
+        plt.grid(linestyle='--', linewidth=0.5)        
+        plt.setp(title_obj, color='white')
+        
         
         # place a branding textbox in it
         textstr = 'MySybil.com'
-        props = dict(boxstyle='square', facecolor='white', alpha=0.25, edgecolor='none')
+        props = dict(boxstyle='square', facecolor='none', alpha=0, edgecolor='none')
         ax1.text(0.87, 0.06, textstr, transform=ax1.transAxes, fontsize=10,
-                verticalalignment='top', bbox=props, **plotfont)
+                verticalalignment='top', bbox=props, **plotfont, color='white')
         plt.show()
     else:
         print("No option trades during period.")
