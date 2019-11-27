@@ -218,7 +218,8 @@ def parse_multi_quote(data, tag):
         index = data.find("</" + tag + ">")
         data = data[index+len("</" + tag + ">"):]        
 
-    print(dateList)
+    #print(dateList)
+    return dateList
     
 def parse_strikes(data):
     tag = "strike"
