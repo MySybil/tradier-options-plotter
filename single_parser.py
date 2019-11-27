@@ -53,6 +53,7 @@ def parse_timesales_quote(data, data_title):
         data = data[index+len("</data>"):]
         
     if (len(ohlc)):
+        plt.rcParams['figure.figsize'] = (7.9, 4.6)
         fig = plt.figure()
         ax1 = plt.subplot2grid((1,1), (0,0))
         ax1.grid(False)
@@ -126,8 +127,11 @@ def parse_history_quote(data, data_title):
         data = data[index+len("</day>"):]        
     
     if (len(ohlc)): #if there is any data
+        plt.rcParams['figure.figsize'] = (7.9, 4.6)
         fig = plt.figure()
+        print("ran this")
         ax1 = plt.subplot2grid((1,1), (0,0))
+        
         ax1.grid(False)
         candlestick_ohlc(ax1, ohlc, width=0.4, colorup='#57b859', colordown='#db3f3f')
         for label in ax1.xaxis.get_ticklabels():
@@ -153,7 +157,6 @@ def parse_history_quote(data, data_title):
         props = dict(boxstyle='square', facecolor='white', alpha=0.25, edgecolor='none')
         ax1.text(0.87, 0.06, textstr, transform=ax1.transAxes, fontsize=10,
                 verticalalignment='top', bbox=props, **plotfont)
-        
         plt.show()
     else:
         print("No option trades during period.")
