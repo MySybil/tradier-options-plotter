@@ -6,7 +6,7 @@ from datetime import datetime
 
 # The candlestick binning is 15 minutes if you're going back less than 35 days, or 1 day if you're going back further than 35 days. Make this tuneable. 
 
-#API_KEY = 'Bearer UNAGUmPNt1GPXWwWUxUGi4ekynpj' # public key.
+API_KEY = 'Bearer UNAGUmPNt1GPXWwWUxUGi4ekynpj' # public key.
 my_headers = {'Authorization': API_KEY} # Tradier Authorization Header
 
 # TODO: Check API response for error messages. 
