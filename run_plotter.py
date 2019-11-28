@@ -15,6 +15,7 @@ my_headers = {'Authorization': API_KEY} # Tradier Authorization Header
 # TODO: Add volume line plot below candles
 # TODO: Add technical indicators like moving averages, etc. 
 # TODO: Add more info about selected stock symbol.
+# TODO: option for daily binning within 35 days. 
 
 settings = {'shouldPrintData' : False, 
             'darkMode'  : True, 
@@ -62,10 +63,24 @@ tradier_parser.check_input_for_sentinel(symbol)
 symbol = symbol.upper() #only for display on plots reasons.
 
 # Display the last trade price for the underlying.
-uPrice = "https://sandbox.tradier.com/v1/markets/quotes?symbols=" + symbol
-rPrice = requests.get(uPrice, headers=my_headers)
+uPrice = "https://sandbox.tradier.com/v1/markets/quotes?symbols=" + symbol #url for request
+rPrice = requests.get(uPrice, headers=my_headers) #make the request
+company_name = tradier_parser.parse_multi_quote(rPrice.content.decode("utf-8"), "description")
 lastPrice = tradier_parser.parse_multi_quote(rPrice.content.decode("utf-8"), "last")
-print("The last trade price for " + symbol + " was: $"+ lastPrice[0])
+lowPrice = tradier_parser.parse_multi_quote(rPrice.content.decode("utf-8"), "low")
+highPrice = tradier_parser.parse_multi_quote(rPrice.content.decode("utf-8"), "high")
+volume = tradier_parser.parse_multi_quote(rPrice.content.decode("utf-8"), "volume")
+volume[0] = '{:,.0f}'.format(int(volume[0])) #format w/ commas
+change_perc = tradier_parser.parse_multi_quote(rPrice.content.decode("utf-8"), "change_percentage")
+print("*"); time.sleep(0.05)
+print("You have selected " + company_name[0] + " (" + symbol + ").")
+print("The Daily Dow is: $" + lowPrice[0] + ". The Daily High is: $" + highPrice[0])
+print("The Last Trade Price was: $" + lastPrice[0] + " and Today's Volume is: " + volume[0])
+if (float(change_perc[0]) >= 0):
+    print("The stock price is up " + change_perc[0] + "% on the day.")
+else:
+    print("The stock price is down " + change_perc[0] + "% on the day.")
+
 
 # Does the user want to look at call options or put options
 print("*"); time.sleep(0.05)

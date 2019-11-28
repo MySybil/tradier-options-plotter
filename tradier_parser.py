@@ -11,7 +11,6 @@ import time
 
 # TODO: change color of vwap line on daily candles.
 # TODO: maybe lighten the candles a little (at least in darkMode)
-# TODO: change grid spacing / line style. 
 # TODO: day break line color / width. 
 # TODO: clean up parser. yikes.
 
