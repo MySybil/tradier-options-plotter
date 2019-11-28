@@ -1,5 +1,5 @@
 import requests
-import single_parser
+import tradier_parser
 import time
 from datetime import datetime
 #runs with python3
@@ -103,9 +103,9 @@ for price in updatedList:
     rData = requests.get(url, headers=my_headers)
     
     if (history):
-        single_parser.parse_history_quote(rData.content.decode("utf-8"), data_name)
+        tradier_parser.parse_history_quote(rData.content.decode("utf-8"), data_name)
     else:
-        single_parser.parse_timesales_quote(rData.content.decode("utf-8"), data_name)
+        tradier_parser.parse_timesales_quote(rData.content.decode("utf-8"), data_name)
 
 
 

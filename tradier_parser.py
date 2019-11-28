@@ -17,7 +17,7 @@ class TradierQuote():
   symbol = "" # can't have empty classes. what is python?
 
 # Takes API Response from Tradier /quotes? with multiple quotes then substrings down to a single quote and parses them individually
-def parse_timesales_quote(data, data_title):
+def parse_timesales_quote(data, data_title, settings):
     vTimestamp = [] # time data for line plot
     vVwap = [] # volume-weighted-average-price for line plot
     ohlc = [] # candlestick chart data
@@ -58,13 +58,15 @@ def parse_timesales_quote(data, data_title):
         
     if (len(ohlc)):
         plt.rcParams['figure.figsize'] = (7.9, 4.6)
-        plt.rcParams['savefig.facecolor']=(0.08,0.08,0.08)
+        if (settings['darkMode']):
+            plt.rcParams['savefig.facecolor']=(0.08,0.08,0.08)
         fig = plt.figure()
         ax1 = plt.subplot2grid((1,1), (0,0))
-        ax1.set_facecolor((0.05, 0.05, 0.05))
-        fig.set_facecolor((0.08, 0.08, 0.08))
-        ax1.tick_params(colors='white')
-        ax1.yaxis.label.set_color('white')
+        if (settings['darkMode']):
+            ax1.set_facecolor((0.05, 0.05, 0.05))
+            fig.set_facecolor((0.08, 0.08, 0.08))
+            ax1.tick_params(colors='white')
+            ax1.yaxis.label.set_color('white')
         
         ax1.grid(False)
         candlestick_ohlc(ax1, ohlc, width=0.4, colorup='#57b859', colordown='#db3f3f')
@@ -88,10 +90,12 @@ def parse_timesales_quote(data, data_title):
         title_obj = plt.title(data_title, **plotfont)
         plt.subplots_adjust(left=0.10, bottom=0.20, right=0.95, top=0.90, wspace=0.2, hspace=0)
         plt.plot(vTimestamp, vVwap, 'b--', alpha=0.25, Linewidth=1.0)
-        plt.setp(title_obj, color='white')
-        
         plt.ylim(top=data_max*1.1)
         plt.ylim(bottom=data_min*0.9)
+
+        if (settings['darkMode']):
+            plt.setp(title_obj, color='white')
+        
         
         # get min/max of previous data. constrain boundaries. iterate from t1 to last and plot a vertical line from min to max for each one. 
         ii = -0.5 # be inbetween data points.
@@ -103,17 +107,20 @@ def parse_timesales_quote(data, data_title):
         plt.grid(linestyle='--', linewidth=0.5)
         
         
-        # place a branding textbox in it
-        textstr = 'MySybil.com'
-        props = dict(boxstyle='square', facecolor='none', alpha=0, edgecolor='none')
-        ax1.text(0.87, 0.06, textstr, transform=ax1.transAxes, fontsize=10,
-                verticalalignment='top', bbox=props, **plotfont, color='white')
+        if (settings['branding']):
+            print("should show branding")
+            textstr = 'MySybil.com'
+            props = dict(boxstyle='square', facecolor='none', alpha=0, edgecolor='none')
+            brandColor = 'black'
+            if (settings['darkMode']):
+                brandColor = 'white'
+                ax1.text(0.87, 0.06, textstr, transform=ax1.transAxes, fontsize=10, verticalalignment='top', bbox=props, **plotfont, color=brandColor)
         plt.show()
     else:
         print("No option trades during period.")
      
 # parse /history/ quotes ie: longer than 35 days
-def parse_history_quote(data, data_title):    
+def parse_history_quote(data, data_title, settings):    
     ohlc = [] # candlestick chart data
     t1 = 0 #first timestamp
     t_last = 0; #data point that gets converted to binning. lolz naming conventions.
@@ -141,13 +148,15 @@ def parse_history_quote(data, data_title):
     
     if (len(ohlc)): #if there is any data
         plt.rcParams['figure.figsize'] = (7.9, 4.6)
-        plt.rcParams['savefig.facecolor']=(0.08,0.08,0.08)
+        if (settings['darkMode']):
+            plt.rcParams['savefig.facecolor']=(0.08,0.08,0.08)
         fig = plt.figure()
         ax1 = plt.subplot2grid((1,1), (0,0))
-        ax1.set_facecolor((0.05, 0.05, 0.05))
-        fig.set_facecolor((0.08, 0.08, 0.08))
-        ax1.tick_params(colors='white')
-        ax1.yaxis.label.set_color('white')
+        if (settings['darkMode']):
+            ax1.set_facecolor((0.05, 0.05, 0.05))
+            fig.set_facecolor((0.08, 0.08, 0.08))
+            ax1.tick_params(colors='white')
+            ax1.yaxis.label.set_color('white')
 
         
         ax1.grid(False)
@@ -170,14 +179,17 @@ def parse_history_quote(data, data_title):
         title_obj = plt.title(data_title, **plotfont)
         plt.subplots_adjust(left=0.10, bottom=0.20, right=0.95, top=0.90, wspace=0.2, hspace=0)
         plt.grid(linestyle='--', linewidth=0.5)        
-        plt.setp(title_obj, color='white')
+        if (settings['darkMode']):
+            plt.setp(title_obj, color='white')
         
         
-        # place a branding textbox in it
-        textstr = 'MySybil.com'
-        props = dict(boxstyle='square', facecolor='none', alpha=0, edgecolor='none')
-        ax1.text(0.87, 0.06, textstr, transform=ax1.transAxes, fontsize=10,
-                verticalalignment='top', bbox=props, **plotfont, color='white')
+        if (settings['branding']):
+            textstr = 'MySybil.com'
+            props = dict(boxstyle='square', facecolor='none', alpha=0, edgecolor='none')
+            brandColor = 'black'
+            if (settings['darkMode']):
+                brandColor = 'white'
+                ax1.text(0.87, 0.06, textstr, transform=ax1.transAxes, fontsize=10, verticalalignment='top', bbox=props, **plotfont, color=brandColor)
         plt.show()
     else:
         print("No option trades during period.")

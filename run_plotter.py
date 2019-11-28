@@ -1,5 +1,5 @@
 import requests
-import single_parser
+import tradier_parser
 import time
 from datetime import datetime
 #runs with python3
@@ -10,17 +10,15 @@ API_KEY = 'Bearer UNAGUmPNt1GPXWwWUxUGi4ekynpj' # public key.
 my_headers = {'Authorization': API_KEY} # Tradier Authorization Header
 
 # TODO: Check API response for error messages. 
-# TODO: Verbose / Data print settings / binning settings. Just throw a prompt at the start asking if the user wants to run the standard version or a modified one.
 
 # For later
 # TODO: Add volume line plot below candles
 # TODO: Add technical indicators like moving averages, etc. 
 
-# Settings
-shouldPrintData = False #True
-#darkfigures = True
-#binning = 15
-#settings = {shouldPrintData, binning}
+settings = {'shouldPrintData' : False, 
+            'darkMode' : True, 
+            'branding' : True, 
+            'binning' : 15} #need to implement binning options.
 
 print("*\n*"); time.sleep(0.05)
 print("*\n*"); time.sleep(0.05)
@@ -44,7 +42,7 @@ print("*\n*"); time.sleep(0.05)
 #print("*\n*"); time.sleep(0.05)
 #shouldModifySettings = input("Type y/yes to modify program settings or enter to continue: ")
 #type(shouldModifySettings)
-#single_parser.check_input_for_sentinel(shouldModifySettings)
+#tradier_parser.check_input_for_sentinel(shouldModifySettings)
 #if (shouldModifySettings.lower() == "y" or shouldModifySettings.lower() == "yes"):
     #print("user wants to modify settings.")
 #    print("The Following Settings Can Be Modified: ")
@@ -58,13 +56,13 @@ print("*\n*"); time.sleep(0.05)
 print("*\n*"); time.sleep(0.05)
 symbol = input("Select an underlying symbol: ")
 type(symbol)
-single_parser.check_input_for_sentinel(symbol)
+tradier_parser.check_input_for_sentinel(symbol)
 symbol = symbol.upper() #only for display on plots reasons.
 
 # Display the last trade price for the underlying.
 uPrice = "https://sandbox.tradier.com/v1/markets/quotes?symbols=" + symbol
 rPrice = requests.get(uPrice, headers=my_headers)
-lastPrice = single_parser.parse_multi_quote(rPrice.content.decode("utf-8"), "last")
+lastPrice = tradier_parser.parse_multi_quote(rPrice.content.decode("utf-8"), "last")
 print("The last trade price for " + symbol + " was: $"+ lastPrice[0])
 
 # Does the user want to look at call options or put options
@@ -72,7 +70,7 @@ print("*\n*"); time.sleep(0.05)
 optionType = input("Type C for Calls or P for Puts: ")
 type(optionType)
 optionType = optionType.upper()
-single_parser.check_input_for_sentinel(optionType)
+tradier_parser.check_input_for_sentinel(optionType)
 
 if (optionType == "C"):
     print("Selected Call Options for " + symbol)
@@ -88,7 +86,7 @@ else:
 # Grab, parse, and print all the available expiry dates for the symbol.
 url_dates = "https://sandbox.tradier.com/v1/markets/options/expirations?symbol=" + symbol
 rDates = requests.get(url_dates, headers=my_headers)
-dateList = single_parser.parse_multi_quote(rDates.content.decode("utf-8"), "date")
+dateList = tradier_parser.parse_multi_quote(rDates.content.decode("utf-8"), "date")
 
 if (len(dateList)):
     print(dateList)
@@ -101,7 +99,7 @@ else:
 print("*\n*"); time.sleep(0.05)
 date = input("Select an expiry date from the list above: ")
 type(date)
-single_parser.check_input_for_sentinel(date)
+tradier_parser.check_input_for_sentinel(date)
 
 if (date not in dateList):
     print("The date: " + date + " is not valid. Terminating Program.")
@@ -111,14 +109,14 @@ if (date not in dateList):
 # Grab a list of all the prices available, then parse and format them properly
 url_strikes = "https://sandbox.tradier.com/v1/markets/options/strikes?symbol=" + symbol + "&expiration=" + date
 rStrikes = requests.get(url_strikes, headers=my_headers)
-strikeList = single_parser.parse_strikes(rStrikes.content.decode("utf-8"))
+strikeList = tradier_parser.parse_strikes(rStrikes.content.decode("utf-8"))
 
 print("List of available strike prices: ")
 print(strikeList)
 
 selectedPrice = input("Select a strike from the list above: ")
 type(selectedPrice)
-single_parser.check_input_for_sentinel(selectedPrice)
+tradier_parser.check_input_for_sentinel(selectedPrice)
 
 if not (selectedPrice in strikeList or str(selectedPrice + ".0") in strikeList):
     print("No strike available for input price. Terminating Program.")
@@ -133,7 +131,7 @@ selectedPrice = '{0:08d}'.format(tmp)
 # Prompt the user for how long of a history they are interested in
 startDate = input("Input a start date for the data range (YYYY-mm-dd): ")
 type(startDate)
-single_parser.check_input_for_sentinel(startDate)
+tradier_parser.check_input_for_sentinel(startDate)
 
 
 # Format the date string for Tradier's API formatting
@@ -171,13 +169,13 @@ else:
 
 rData = requests.get(url, headers=my_headers) #actually download the data
 
-if (shouldPrintData):
+if (settings['shouldPrintData']):
     print(rData.text)
 
 # parse and plot the data
 if (shouldRunHistory):
-    single_parser.parse_history_quote(rData.content.decode("utf-8"), data_name)
+    tradier_parser.parse_history_quote(rData.content.decode("utf-8"), data_name, settings)
 else:
-    single_parser.parse_timesales_quote(rData.content.decode("utf-8"), data_name)
+    tradier_parser.parse_timesales_quote(rData.content.decode("utf-8"), data_name, settings)
 
 
