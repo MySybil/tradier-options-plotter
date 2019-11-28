@@ -4,21 +4,17 @@ import time
 from datetime import datetime
 #runs with python3
 
-# The candlestick binning is 15 minutes if you're going back less than 35 days, or 1 day if you're going back further than 35 days. Make this tuneable. 
-
 API_KEY = 'Bearer UNAGUmPNt1GPXWwWUxUGi4ekynpj' # public key.
 my_headers = {'Authorization': API_KEY} # Tradier Authorization Header
-
-# TODO: Check API response for error messages. 
 
 # For later
 # TODO: Add volume line plot below candles
 # TODO: Add technical indicators like moving averages, etc. 
 
 settings = {'shouldPrintData' : False, 
-            'darkMode' : True, 
+            'darkMode' : False, 
             'branding' : True, 
-            'binning' : 15} #need to implement binning options.
+            'binning' : 15} #1/5/15 for time/sales. (time/sales < 35 days.)
 
 print("*\n*"); time.sleep(0.05)
 print("*\n*"); time.sleep(0.05)
@@ -157,16 +153,15 @@ if (nowTime - startDateTime > 35*24*60*60): # if it's been more than 35 days, pl
 if (shouldRunHistory):
     url = "https://sandbox.tradier.com/v1/markets/history?symbol=" + symbol + format_date + optionType + selectedPrice + "&start=" + startDate
 else:
-    url = "https://sandbox.tradier.com/v1/markets/timesales?symbol=" + symbol + format_date + optionType + selectedPrice + "&interval=15min&start=" + startDate
+    url = "https://sandbox.tradier.com/v1/markets/timesales?symbol=" + symbol + format_date + optionType + selectedPrice + "&interval=" + str(int(settings['binning'])) + "min&start=" + startDate
 
 data_name = "" # for plot titles
 if (optionType == "C"):
-    data_name = symbol + " Calls Expiring: " + date + " w/ Strike: $" + str(float(selectedPrice)/1000)
-    print("Now grabbing " + data_name)
+    data_name = symbol + " $" + str(float(selectedPrice)/1000)  + " Strike Calls Expiring " + date
 else:
-    data_name = symbol + " Puts Expiring: " + date + " w/ Strike: $" + str(float(selectedPrice)/1000)
-    print("Now grabbing " + data_name)
+    data_name = symbol + " $" + str(float(selectedPrice)/1000)  + " Strike Puts Expiring " + date
 
+print("Now grabbing " + data_name)
 rData = requests.get(url, headers=my_headers) #actually download the data
 
 if (settings['shouldPrintData']):

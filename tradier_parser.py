@@ -6,7 +6,7 @@ from datetime import datetime
 import time
 
 # Written by Teddy Rowan
-# This script accompanies single_plotter.py and does the parsing and the plotting for historic options data.
+# This script accompanies run_plotter.py and does the parsing and the plotting for historic options data. Honestly, it's more than a bit of a mess.
 
 # TODO: change color of vwap line on daily candles.
 # TODO: maybe lighten the candles a little
@@ -26,6 +26,8 @@ def parse_timesales_quote(data, data_title, settings):
     data_max = 0
     t_last = 0;
     
+    plt_binning = settings['binning'] #in minutes
+    
     while data.find("</data>") != -1:
         single_quote = parse_target(data, "data") #substrings down to a full single quote
         quote = parse_single_timesales_quote(single_quote) #
@@ -36,7 +38,7 @@ def parse_timesales_quote(data, data_title, settings):
             t1 = t1 - t1diff
             
         
-        t_last = convert_timestamp_to_binning(quote.timestamp, 15*60, t1)
+        t_last = convert_timestamp_to_binning(quote.timestamp, plt_binning*60, t1)
         
         append_me = t_last, quote.open, quote.high, quote.low, quote.close, quote.volume
         ohlc.append(append_me)
@@ -48,8 +50,7 @@ def parse_timesales_quote(data, data_title, settings):
         
         #vVwap.append(quote.close) # testing with /history/
         vVwap.append(quote.vwap)
-        vTimestamp.append(convert_timestamp_to_binning(quote.timestamp, 15*60, t1))
-        
+        vTimestamp.append(convert_timestamp_to_binning(quote.timestamp, plt_binning*60, t1))
         
         
         # once the data is grabbed, move on to the next quote
@@ -73,7 +74,7 @@ def parse_timesales_quote(data, data_title, settings):
         for label in ax1.xaxis.get_ticklabels():
             label.set_rotation(45)
 
-        plt.binning = 15*60
+        plt.binning = plt_binning*60
         plt.t1 = t1
         
         plotfont = {'fontname':'Futura'}
@@ -96,25 +97,25 @@ def parse_timesales_quote(data, data_title, settings):
         if (settings['darkMode']):
             plt.setp(title_obj, color='white')
         
-        
+        ## hidden for now. vertical lines were just causing issues w/ variable binning. also they sort of just look bad.
         # get min/max of previous data. constrain boundaries. iterate from t1 to last and plot a vertical line from min to max for each one. 
-        ii = -0.5 # be inbetween data points.
-        while (ii < t_last):
-            plt.plot([ii, ii], [data_min*0.9, data_max*1.1], 'k-', Linewidth=1.0, alpha=0.35)
-            ii += 6.5*60*60/(15*60) + 1 #15*60 is the binning
-        # plot one more after the end.
-        plt.plot([ii, ii], [data_min*0.9, data_max*1.1], 'k-', Linewidth=1.0, alpha=0.35)
+        #ii = -0.5 # be inbetween data points.
+        #while (ii < t_last):
+        #    plt.plot([ii, ii], [data_min*0.9, data_max*1.1], 'k-', Linewidth=1.0, alpha=0.35)
+        #    ii += 6.5*60*60/(plt_binning*60) + 1 #15*60 is the binning
+        ## plot one more after the end.
+        #plt.plot([ii, ii], [data_min*0.9, data_max*1.1], 'k-', Linewidth=1.0, alpha=0.35)
+        
         plt.grid(linestyle='--', linewidth=0.5)
         
         
         if (settings['branding']):
-            print("should show branding")
             textstr = 'MySybil.com'
             props = dict(boxstyle='square', facecolor='none', alpha=0, edgecolor='none')
             brandColor = 'black'
             if (settings['darkMode']):
                 brandColor = 'white'
-                ax1.text(0.87, 0.06, textstr, transform=ax1.transAxes, fontsize=10, verticalalignment='top', bbox=props, **plotfont, color=brandColor)
+            ax1.text(0.87, 0.06, textstr, transform=ax1.transAxes, fontsize=10, verticalalignment='top', bbox=props, **plotfont, color=brandColor)
         plt.show()
     else:
         print("No option trades during period.")
@@ -189,7 +190,7 @@ def parse_history_quote(data, data_title, settings):
             brandColor = 'black'
             if (settings['darkMode']):
                 brandColor = 'white'
-                ax1.text(0.87, 0.06, textstr, transform=ax1.transAxes, fontsize=10, verticalalignment='top', bbox=props, **plotfont, color=brandColor)
+            ax1.text(0.87, 0.06, textstr, transform=ax1.transAxes, fontsize=10, verticalalignment='top', bbox=props, **plotfont, color=brandColor)
         plt.show()
     else:
         print("No option trades during period.")
@@ -322,7 +323,7 @@ def parse_target(source, target):
     #else:
     #    return(value)
     
-
+# Check all user inputs for "exit" to see if they want to terminate the program
 def check_input_for_sentinel(input):
     if (input == "exit"):
         print("User Requested Program Termination.")
