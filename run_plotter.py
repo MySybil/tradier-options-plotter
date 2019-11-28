@@ -4,17 +4,23 @@ import time
 from datetime import datetime
 #runs with python3
 
+# Script Created by Teddy Rowan for MySybil.com
+# Last Modified November 28, 2019
+
 API_KEY = 'Bearer UNAGUmPNt1GPXWwWUxUGi4ekynpj' # public key.
 my_headers = {'Authorization': API_KEY} # Tradier Authorization Header
 
-# For later
+# TODO: /history/ quote. support for daily/weekly/monthly binning.
+# TODO: update screens (throw in folder)
 # TODO: Add volume line plot below candles
 # TODO: Add technical indicators like moving averages, etc. 
+# TODO: Add more info about selected stock symbol.
 
 settings = {'shouldPrintData' : False, 
-            'darkMode' : False, 
-            'branding' : True, 
-            'binning' : 15} #1/5/15 for time/sales. (time/sales < 35 days.)
+            'darkMode'  : True, 
+            'watermark' : False, 
+            'branding'  : "MySybil.com",
+            'binning'   : 15} #1/5/15 for time/sales. (time/sales < 35 days.)
 
 print("*\n*"); time.sleep(0.05)
 print("*\n*"); time.sleep(0.05)
@@ -49,7 +55,7 @@ print("*\n*"); time.sleep(0.05)
 
 
 # Prompt the user for the underlying symbol of interest
-print("*\n*"); time.sleep(0.05)
+print("*"); time.sleep(0.05)
 symbol = input("Select an underlying symbol: ")
 type(symbol)
 tradier_parser.check_input_for_sentinel(symbol)
@@ -62,7 +68,7 @@ lastPrice = tradier_parser.parse_multi_quote(rPrice.content.decode("utf-8"), "la
 print("The last trade price for " + symbol + " was: $"+ lastPrice[0])
 
 # Does the user want to look at call options or put options
-print("*\n*"); time.sleep(0.05)
+print("*"); time.sleep(0.05)
 optionType = input("Type C for Calls or P for Puts: ")
 type(optionType)
 optionType = optionType.upper()
@@ -92,7 +98,7 @@ else:
     
 
 # Prompt the user to pick one of the expiry dates
-print("*\n*"); time.sleep(0.05)
+print("*"); time.sleep(0.05)
 date = input("Select an expiry date from the list above: ")
 type(date)
 tradier_parser.check_input_for_sentinel(date)
