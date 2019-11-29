@@ -61,12 +61,12 @@ def parse_timesales_quote(data, data_title, settings):
     if (len(ohlc)):
         plt.rcParams['figure.figsize'] = (7.9, 4.6)
         if (settings['darkMode']):
-            plt.rcParams['savefig.facecolor']=(0.08,0.08,0.08)
+            plt.rcParams['savefig.facecolor']=(0.04, 0.04, 0.04)
         fig = plt.figure()
         ax1 = plt.subplot2grid((1,1), (0,0))
         if (settings['darkMode']):
-            ax1.set_facecolor((0.05, 0.05, 0.05))
-            fig.set_facecolor((0.08, 0.08, 0.08))
+            ax1.set_facecolor((0.04, 0.04, 0.04))
+            fig.set_facecolor((0.04, 0.04, 0.04))
             ax1.tick_params(colors='white')
             ax1.yaxis.label.set_color('white')
         
@@ -88,12 +88,13 @@ def parse_timesales_quote(data, data_title, settings):
         ax1.set_xticklabels(convert_xticks_to_dates(ax1.get_xticks(), plt.binning, plt.t1), **tickfont)
         ax1.callbacks.connect('xlim_changed', on_xlims_change) #live update the xlabels
 
-        ax1.minorticks_on()
-        if (settings['darkMode']):
-            ax1.grid(which='major', color='#ffffff', linestyle='--', linewidth=0.75, alpha=0.35)
-        else:
-            ax1.grid(which='major', color='#000000', linestyle='--', linewidth=0.75, alpha=0.35)
-        ax1.grid(b=True, which='minor', color='#999999', linestyle='--', linewidth=0.5, alpha=0.15)
+        if (settings['grid']):
+            ax1.minorticks_on()
+            if (settings['darkMode']):
+                ax1.grid(which='major', color='#ffffff', linestyle='--', linewidth=0.75, alpha=0.35)
+            else:
+                ax1.grid(which='major', color='#000000', linestyle='--', linewidth=0.75, alpha=0.35)
+            ax1.grid(b=True, which='minor', color='#999999', linestyle='--', linewidth=0.5, alpha=0.15)
 
         plt.ylabel("Option Price ($)", **labelfont)
         title_obj = plt.title(data_title, **titlefont)
@@ -156,12 +157,12 @@ def parse_history_quote(data, data_title, settings):
     if (len(ohlc)): #if there is any data
         plt.rcParams['figure.figsize'] = (7.9, 4.6)
         if (settings['darkMode']):
-            plt.rcParams['savefig.facecolor']=(0.08,0.08,0.08)
+            plt.rcParams['savefig.facecolor']=(0.04, 0.04, 0.04)
         fig = plt.figure()
         ax1 = plt.subplot2grid((1,1), (0,0))
         if (settings['darkMode']):
-            ax1.set_facecolor((0.05, 0.05, 0.05))
-            fig.set_facecolor((0.08, 0.08, 0.08))
+            ax1.set_facecolor((0.04, 0.04, 0.04))
+            fig.set_facecolor((0.04, 0.04, 0.04))
             ax1.tick_params(colors='white')
             ax1.yaxis.label.set_color('white')
 
@@ -182,12 +183,13 @@ def parse_history_quote(data, data_title, settings):
         ax1.set_xticklabels(convert_xticks_to_dates(ax1.get_xticks(), plt.binning, plt.t1), **tickfont)
         ax1.callbacks.connect('xlim_changed', on_xlims_change) #live update the xlabels
         
-        ax1.minorticks_on()
-        if (settings['darkMode']):
-            ax1.grid(which='major', color='#ffffff', linestyle='--', linewidth=0.75, alpha=0.35)
-        else:
-            ax1.grid(which='major', color='#000000', linestyle='--', linewidth=0.75, alpha=0.35)
-        ax1.grid(b=True, which='minor', color='#999999', linestyle='--', linewidth=0.5, alpha=0.15)
+        if (settings['grid']):
+            ax1.minorticks_on()
+            if (settings['darkMode']):
+                ax1.grid(which='major', color='#ffffff', linestyle='--', linewidth=0.75, alpha=0.35)
+            else:
+                ax1.grid(which='major', color='#000000', linestyle='--', linewidth=0.75, alpha=0.35)
+            ax1.grid(b=True, which='minor', color='#999999', linestyle='--', linewidth=0.5, alpha=0.15)
         
         
         plt.ylabel("Option Price ($)", **labelfont)

@@ -18,10 +18,11 @@ my_headers = {'Authorization': API_KEY} # Tradier Authorization Header
 # TODO: option for daily binning within 35 days. 
 
 settings = {'shouldPrintData' : False, 
-            'darkMode'  : True, 
+            'darkMode'  : False, 
             'watermark' : False, 
             'branding'  : "MySybil.com",
-            'binning'   : 15} #1/5/15 for time/sales. (time/sales < 35 days.)
+            'grid'      : True,
+            'binning'   : 15}              #1/5/15 for time/sales. (time/sales < 35 days.)
 
 print("*\n*"); time.sleep(0.05)
 print("*\n*"); time.sleep(0.05)
@@ -77,9 +78,9 @@ print("You have selected " + company_name[0] + " (" + symbol + ").")
 print("The Daily Dow is: $" + lowPrice[0] + ". The Daily High is: $" + highPrice[0])
 print("The Last Trade Price was: $" + lastPrice[0] + " and Today's Volume is: " + volume[0])
 if (float(change_perc[0]) >= 0):
-    print("The stock price is up " + change_perc[0] + "% on the day.")
+    print("The Stock Price is UP +" + change_perc[0] + "% on the day.")
 else:
-    print("The stock price is down " + change_perc[0] + "% on the day.")
+    print("The Stock Price is DOWN " + change_perc[0] + "% on the day.")
 
 
 # Does the user want to look at call options or put options
