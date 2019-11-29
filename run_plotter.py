@@ -11,18 +11,17 @@ API_KEY = 'Bearer UNAGUmPNt1GPXWwWUxUGi4ekynpj' # public key.
 my_headers = {'Authorization': API_KEY} # Tradier Authorization Header
 
 # TODO: /history/ quote. support for daily/weekly/monthly binning.
-# TODO: update screens (throw in folder)
 # TODO: Add volume line plot below candles
 # TODO: Add technical indicators like moving averages, etc. 
-# TODO: Add more info about selected stock symbol.
-# TODO: option for daily binning within 35 days. 
+# TODO: make the day division pretty big. like linewidth 3. alpha 0.25. '--'
 
 settings = {'shouldPrintData' : False, 
             'darkMode'  : True, 
             'watermark' : False, 
             'branding'  : "MySybil.com",
             'grid'      : True,
-            'binning'   : 15}              #1/5/15 for time/sales. (time/sales < 35 days.)
+            'historyLimit' : 14,            #when we switch form time/sales to /history
+            'binning'   : 15}               #1/5/15 for time/sales. (time/sales < 35 days.)
 
 print("*\n*"); time.sleep(0.05)
 print("*\n*"); time.sleep(0.05)
@@ -75,7 +74,7 @@ volume[0] = '{:,.0f}'.format(int(volume[0])) #format w/ commas
 change_perc = tradier_parser.parse_multi_quote(rPrice.content.decode("utf-8"), "change_percentage")
 print("*"); time.sleep(0.05)
 print("You have selected " + company_name[0] + " (" + symbol + ").")
-print("The Daily Dow is: $" + lowPrice[0] + ". The Daily High is: $" + highPrice[0])
+print("The Daily Price Range [low/high] is: $ [" + lowPrice[0] + "," + highPrice[0] + "]")
 print("The Last Trade Price was: $" + lastPrice[0] + " and Today's Volume is: " + volume[0])
 if (float(change_perc[0]) >= 0):
     print("The Stock Price is UP +" + change_perc[0] + "% on the day.")
@@ -166,8 +165,8 @@ except ValueError:
 startDateTime = time.mktime(datenum.timetuple())
 nowTime = time.mktime(datetime.now().timetuple()) #seconds since the input date
 
-shouldRunHistory = False # should we use the history endpoint.
-if (nowTime - startDateTime > 35*24*60*60): # if it's been more than 35 days, plot daily data
+shouldRunHistory = False # should we use the /history/ or the /timesales/ endpoint
+if (nowTime - startDateTime > int(settings['historyLimit'])*24*60*60):
     shouldRunHistory = True
 
 
