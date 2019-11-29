@@ -18,7 +18,7 @@ my_headers = {'Authorization': API_KEY} # Tradier Authorization Header
 # TODO: option for daily binning within 35 days. 
 
 settings = {'shouldPrintData' : False, 
-            'darkMode'  : False, 
+            'darkMode'  : True, 
             'watermark' : False, 
             'branding'  : "MySybil.com",
             'grid'      : True,
@@ -179,9 +179,9 @@ else:
 
 data_name = "" # for plot titles
 if (optionType == "C"):
-    data_name = symbol + " $" + str(float(selectedPrice)/1000)  + " Strike Calls Expiring " + date
+    data_name = symbol + " $" + str(float(selectedPrice)/1000)  + " Strike Call Expiring " + date
 else:
-    data_name = symbol + " $" + str(float(selectedPrice)/1000)  + " Strike Puts Expiring " + date
+    data_name = symbol + " $" + str(float(selectedPrice)/1000)  + " Strike Put Expiring " + date
 
 print("Now grabbing " + data_name)
 rData = requests.get(url, headers=my_headers) #actually download the data
