@@ -20,7 +20,7 @@ settings = {'shouldPrintData' : False,
             'watermark' : False, 
             'branding'  : "MySybil.com",
             'grid'      : True,
-            'historyLimit' : 14,            #when we switch form time/sales to /history
+            'historyLimit' : 7,            #when we switch form time/sales to /history
             'binning'   : 15}               #1/5/15 for time/sales. (time/sales < 35 days.)
 
 print("*\n*"); time.sleep(0.05)
@@ -39,20 +39,6 @@ print("*\n*"); time.sleep(0.05)
 print("*\n*"); time.sleep(0.05)
 print("*\n*"); time.sleep(0.05)
 print("*\n*"); time.sleep(0.05)
-
-
-#TODO: let the user modify settings at runtime.
-#print("*\n*"); time.sleep(0.05)
-#shouldModifySettings = input("Type y/yes to modify program settings or enter to continue: ")
-#type(shouldModifySettings)
-#tradier_parser.check_input_for_sentinel(shouldModifySettings)
-#if (shouldModifySettings.lower() == "y" or shouldModifySettings.lower() == "yes"):
-    #print("user wants to modify settings.")
-#    print("The Following Settings Can Be Modified: ")
-#    print(settings)
-#else:
-#    print("Running with default settings.")
-
 
 
 # Prompt the user for the underlying symbol of interest
@@ -82,8 +68,31 @@ if (symbol.lower() == "settings"):
             settings['grid'] = not settings['grid'];
         if (status.lower() == "shouldprintdata"):
             settings['shouldPrintData'] = not settings['shouldPrintData'];
-            
+        
         # branding / historyLimit / binning need additional user inputs
+        if (status.lower() == "binning"):
+            new_bin = input("Please input your desired binning (1/5/15 min): ")
+            type(new_bin)
+            tradier_parser.check_input_for_sentinel(new_bin)
+            if (int(new_bin) == 1 or int(new_bin) == 5 or int(new_bin) == 15):
+                settings['binning'] = int(new_bin)
+            else:
+                print("Invalid input. Binning remains unmodified.")
+        
+        if (status.lower() == "historylimit"):
+            new_lim = input("Please input your desired day limit to transition to daily data (<35): ")
+            type(new_lim)
+            tradier_parser.check_input_for_sentinel(new_lim)
+            try:
+                settings['historyLimit'] = int(new_lim)
+            except ValueError:
+                print("Invalid input. History limit remains unmodified.")        
+        
+        if (status.lower() == "branding"):
+            new_brand = input("Please input your desired branding: ")
+            type(new_brand)
+            tradier_parser.check_input_for_sentinel(new_brand)
+            settings['branding'] = new_brand
         
         
         print("*"); time.sleep(0.05)
