@@ -57,9 +57,48 @@ print("*\n*"); time.sleep(0.05)
 
 # Prompt the user for the underlying symbol of interest
 print("*"); time.sleep(0.05)
-symbol = input("Select an underlying symbol: ")
+symbol = input("Type 'settings' or enter a symbol to proceed: ")
 type(symbol)
 tradier_parser.check_input_for_sentinel(symbol)
+
+if (symbol.lower() == "settings"):
+    print("*"); time.sleep(0.05)
+    print("*"); time.sleep(0.05)
+    print("*"); time.sleep(0.05)
+    print("The following runtime settings of this program can be modified.")
+    print(settings)
+    
+    status = ""
+    while (status.lower() != "done"):
+        print("Type 'done' to return to program execution.")
+        print("*"); time.sleep(0.05)
+        status = input("Which setting would you like to change: ")
+        tradier_parser.check_input_for_sentinel(status)
+        if (status.lower() == "darkmode"):
+            settings['darkMode'] = not settings['darkMode'];
+        if (status.lower() == "watermark"):
+            settings['watermark'] = not settings['watermark'];
+        if (status.lower() == "grid"):
+            settings['grid'] = not settings['grid'];
+        if (status.lower() == "shouldprintdata"):
+            settings['shouldPrintData'] = not settings['shouldPrintData'];
+            
+        # branding / historyLimit / binning need additional user inputs
+        
+        
+        print("*"); time.sleep(0.05)
+        print("*"); time.sleep(0.05)
+        print("*"); time.sleep(0.05)
+        print("The runtime settings are now currently:")
+        print(settings)
+
+    print("*"); time.sleep(0.05)
+    print("*"); time.sleep(0.05)
+    print("*"); time.sleep(0.05)
+    symbol = input("Enter a symbol to proceed: ") #need to get user to re-enter a symbol
+    type(symbol)
+    tradier_parser.check_input_for_sentinel(symbol)
+
 symbol = symbol.upper() #only for display on plots reasons.
 
 # Display the last trade price for the underlying.
