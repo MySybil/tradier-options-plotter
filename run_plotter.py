@@ -5,7 +5,9 @@ from datetime import datetime
 #runs with python3
 
 # Script Created by Teddy Rowan for MySybil.com
-# Last Modified November 28, 2019
+# Last Modified November 29, 2019
+
+# TODO: ReadME / write script summary.
 
 API_KEY = 'Bearer UNAGUmPNt1GPXWwWUxUGi4ekynpj' # public key.
 my_headers = {'Authorization': API_KEY} # Tradier Authorization Header
@@ -15,6 +17,9 @@ my_headers = {'Authorization': API_KEY} # Tradier Authorization Header
 # TODO: Add technical indicators like moving averages, etc. 
 # TODO: make the day division pretty big. like linewidth 3. alpha 0.25. '--'
 
+# TODO: I'm pretty sure the parser is set up to grab all the company info in one parse call but I need to actually look at it and remember how. 
+
+# You can modify the settings at runtime but the changes aren't persistent, so if you want to permanently change the settings you should do it here. 
 settings = {'shouldPrintData' : False, 
             'darkMode'  : True, 
             'watermark' : False, 
@@ -114,6 +119,10 @@ symbol = symbol.upper() #only for display on plots reasons.
 uPrice = "https://sandbox.tradier.com/v1/markets/quotes?symbols=" + symbol #url for request
 rPrice = requests.get(uPrice, headers=my_headers) #make the request
 company_name = tradier_parser.parse_multi_quote(rPrice.content.decode("utf-8"), "description")
+if (len(company_name) == 0): #check validity of symbol input
+    print("Unable to locate company info for symbol: (" + symbol + "). Terminating program.")
+    exit()
+    
 lastPrice = tradier_parser.parse_multi_quote(rPrice.content.decode("utf-8"), "last")
 lowPrice = tradier_parser.parse_multi_quote(rPrice.content.decode("utf-8"), "low")
 highPrice = tradier_parser.parse_multi_quote(rPrice.content.decode("utf-8"), "high")
