@@ -13,6 +13,7 @@ import sybil_data_ui_helper
 
 # TODO: ReadME / instructions on git for how to use/run the script
 # TODO: swap to built in xml parsing, why wasn't i just doing that at the start!?
+# xml from data_match (in crush) or json from risk
 
 # TODO: /history/ quote. support for daily/weekly/monthly binning.
 # TODO: Add volume line plot below candles
@@ -22,7 +23,7 @@ import sybil_data_ui_helper
 API_KEY = 'Bearer UNAGUmPNt1GPXWwWUxUGi4ekynpj' # public key.
 my_headers = {'Authorization': API_KEY} # Tradier Authorization Header
 
-# You can modify the settings at runtime but the changes aren't persistent, so if you want to permanently change the settings you should do it here. 
+# Settings can also be modified at runtime (non-persistent)
 settings = {'shouldPrintData' : False, 
             'darkMode'  : True, 
             'watermark' : False, 
@@ -92,28 +93,23 @@ if (symbol.lower() == "settings"):
 
 symbol = symbol.upper() #only for display on plots reasons.
 
-# Display the last trade price for the underlying.
-uPrice = "https://sandbox.tradier.com/v1/markets/quotes?symbols=" + symbol #url for request
-rPrice = requests.get(uPrice, headers=my_headers) #make the request
-company_name = tradier_parser.parse_multi_quote(rPrice.content.decode("utf-8"), "description")
-if (len(company_name) == 0): #check validity of symbol input
-    print("Unable to locate company info for symbol: (" + symbol + "). Terminating program.")
-    exit()
-    
-lastPrice = tradier_parser.parse_multi_quote(rPrice.content.decode("utf-8"), "last")
-lowPrice = tradier_parser.parse_multi_quote(rPrice.content.decode("utf-8"), "low")
-highPrice = tradier_parser.parse_multi_quote(rPrice.content.decode("utf-8"), "high")
-volume = tradier_parser.parse_multi_quote(rPrice.content.decode("utf-8"), "volume")
-volume[0] = '{:,.0f}'.format(int(volume[0])) #format w/ commas
-change_perc = tradier_parser.parse_multi_quote(rPrice.content.decode("utf-8"), "change_percentage")
-print("*"); time.sleep(0.05)
-print("You have selected " + company_name[0] + " (" + symbol + ").")
-print("The Daily Price Range [low/high] is: $ [" + lowPrice[0] + "," + highPrice[0] + "]")
-print("The Last Trade Price was: $" + lastPrice[0] + " and Today's Volume is: " + volume[0])
-if (float(change_perc[0]) >= 0):
-    print("The Stock Price is UP +" + change_perc[0] + "% on the day.")
+
+# Display some info about the underlying
+price_response = requests.get('https://sandbox.tradier.com/v1/markets/quotes',
+    params={'symbols': symbol},
+    headers={'Authorization': API_KEY, 'Accept': 'application/json'}
+)
+price_json = price_response.json()
+quote = price_json['quotes']['quote']
+sybil_data_ui_helper.print_sleep(1)
+print("You have selected " + quote['description'] + " (" + quote['symbol'] + ").")
+print("The Daily Price Range [low/high] is: $ [" + str(quote['low']) + " / " + str(quote['high']) + "]")
+print("The Last Trade Price was: $" + str(quote['last']) + " and Today's Volume is: " + '{:,.0f}'.format(quote['volume']))
+if (float(quote['change_percentage']) >= 0):
+    print("The Stock Price is UP +" + str(quote['change_percentage']) + "% on the day.")
 else:
-    print("The Stock Price is DOWN " + change_perc[0] + "% on the day.")
+    print("The Stock Price is DOWN " + str(quote['change_percentage']) + "% on the day.")
+
 
 
 # Does the user want to look at call options or put options
