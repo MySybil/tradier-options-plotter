@@ -9,7 +9,7 @@ from datetime import datetime
 
 import tradier_parser # to be phased out by xml parsing
 import sybil_data_ui_helper
-
+import sybil_data_grab
 
 # TODO: ReadME / instructions on git for how to use/run the script
 # TODO: swap to built in xml parsing, why wasn't i just doing that at the start!?
@@ -100,7 +100,10 @@ price_response = requests.get('https://sandbox.tradier.com/v1/markets/quotes',
     headers={'Authorization': API_KEY, 'Accept': 'application/json'}
 )
 price_json = price_response.json()
-quote = price_json['quotes']['quote']
+try:
+    quote = price_json['quotes']['quote']
+except KeyError:
+    print("Could not find data for symbol: (" + symbol + "). Terminating program."); exit()
 sybil_data_ui_helper.print_sleep(1)
 print("You have selected " + quote['description'] + " (" + quote['symbol'] + ").")
 print("The Daily Price Range [low/high] is: $ [" + str(quote['low']) + " / " + str(quote['high']) + "]")
@@ -111,22 +114,7 @@ else:
     print("The Stock Price is DOWN " + str(quote['change_percentage']) + "% on the day.")
 
 
-
-# Does the user want to look at call options or put options
-sybil_data_ui_helper.print_sleep(1)
-optionType = input("Type C for Calls or P for Puts: ")
-optionType = optionType.upper()
-tradier_parser.check_input_for_sentinel(optionType)
-
-if (optionType == "C"):
-    print("Selected Call Options for " + symbol)
-else:
-    if (optionType == "P"):
-        print("Selected Put Options for " + symbol)
-    else:
-        print("Invalid selection. Terminating program.")
-        exit()
-        
+optionType = sybil_data_grab.option_type(symbol) # Does the user want to look at call options or put options
 
 
 # Grab, parse, and print all the available expiry dates for the symbol.
