@@ -1,23 +1,26 @@
-import requests
-import tradier_parser
-import time
-from datetime import datetime
-#runs with python3
-
+# run_plotter.py
 # Script Created by Teddy Rowan for MySybil.com
 # Last Modified November 29, 2019
+# Description: This script is designed as a free and open-source tool to help retail investors get and analyze historic options data.
 
-# TODO: ReadME / write script summary.
+import requests
+import time
+from datetime import datetime
 
-API_KEY = 'Bearer UNAGUmPNt1GPXWwWUxUGi4ekynpj' # public key.
-my_headers = {'Authorization': API_KEY} # Tradier Authorization Header
+import tradier_parser # to be phased out by xml parsing
+import sybil_data_ui_helper
+
+
+# TODO: ReadME / instructions on git for how to use/run the script
+# TODO: swap to built in xml parsing, why wasn't i just doing that at the start!?
 
 # TODO: /history/ quote. support for daily/weekly/monthly binning.
 # TODO: Add volume line plot below candles
 # TODO: Add technical indicators like moving averages, etc. 
-# TODO: make the day division pretty big. like linewidth 3. alpha 0.25. '--'
 
-# TODO: I'm pretty sure the parser is set up to grab all the company info in one parse call but I need to actually look at it and remember how. 
+
+API_KEY = 'Bearer UNAGUmPNt1GPXWwWUxUGi4ekynpj' # public key.
+my_headers = {'Authorization': API_KEY} # Tradier Authorization Header
 
 # You can modify the settings at runtime but the changes aren't persistent, so if you want to permanently change the settings you should do it here. 
 settings = {'shouldPrintData' : False, 
@@ -25,37 +28,19 @@ settings = {'shouldPrintData' : False,
             'watermark' : False, 
             'branding'  : "MySybil.com",
             'grid'      : True,
-            'historyLimit' : 7,            #when we switch form time/sales to /history
+            'historyLimit' : 1,            #when we switch form time/sales to /history
             'binning'   : 15}               #1/5/15 for time/sales. (time/sales < 35 days.)
 
-print("*\n*"); time.sleep(0.05)
-print("*\n*"); time.sleep(0.05)
-print("*****************************************************************")
-print(" ")
-print("      Welcome To MySybil's Historic Options Data Plotter")
-print(" ")
-print("*****************************************************************")
-print("* Created by Teddy Rowan at MySybil.com")
-print("* Type 'exit' at any time to terminate program.")
-print("*\n*"); time.sleep(0.05)
-print("*\n*"); time.sleep(0.05)
-print("*\n*"); time.sleep(0.05)
-print("*\n*"); time.sleep(0.05)
-print("*\n*"); time.sleep(0.05)
-print("*\n*"); time.sleep(0.05)
-print("*\n*"); time.sleep(0.05)
+sybil_data_ui_helper.intro_screen(); # just some printing / instructions to introduce the program
 
 
 # Prompt the user for the underlying symbol of interest
-print("*"); time.sleep(0.05)
+sybil_data_ui_helper.print_sleep(1)
 symbol = input("Type 'settings' or enter a symbol to proceed: ")
-type(symbol)
 tradier_parser.check_input_for_sentinel(symbol)
 
 if (symbol.lower() == "settings"):
-    print("*"); time.sleep(0.05)
-    print("*"); time.sleep(0.05)
-    print("*"); time.sleep(0.05)
+    sybil_data_ui_helper.print_sleep(3)
     print("The following runtime settings of this program can be modified.")
     print(settings)
     
@@ -77,7 +62,6 @@ if (symbol.lower() == "settings"):
         # branding / historyLimit / binning need additional user inputs
         if (status.lower() == "binning"):
             new_bin = input("Please input your desired binning (1/5/15 min): ")
-            type(new_bin)
             tradier_parser.check_input_for_sentinel(new_bin)
             if (int(new_bin) == 1 or int(new_bin) == 5 or int(new_bin) == 15):
                 settings['binning'] = int(new_bin)
@@ -86,7 +70,6 @@ if (symbol.lower() == "settings"):
         
         if (status.lower() == "historylimit"):
             new_lim = input("Please input your desired day limit to transition to daily data (<35): ")
-            type(new_lim)
             tradier_parser.check_input_for_sentinel(new_lim)
             try:
                 settings['historyLimit'] = int(new_lim)
@@ -95,22 +78,16 @@ if (symbol.lower() == "settings"):
         
         if (status.lower() == "branding"):
             new_brand = input("Please input your desired branding: ")
-            type(new_brand)
             tradier_parser.check_input_for_sentinel(new_brand)
             settings['branding'] = new_brand
         
         
-        print("*"); time.sleep(0.05)
-        print("*"); time.sleep(0.05)
-        print("*"); time.sleep(0.05)
+        sybil_data_ui_helper.print_sleep(3)
         print("The runtime settings are now currently:")
         print(settings)
 
-    print("*"); time.sleep(0.05)
-    print("*"); time.sleep(0.05)
-    print("*"); time.sleep(0.05)
+    sybil_data_ui_helper.print_sleep(3)
     symbol = input("Enter a symbol to proceed: ") #need to get user to re-enter a symbol
-    type(symbol)
     tradier_parser.check_input_for_sentinel(symbol)
 
 symbol = symbol.upper() #only for display on plots reasons.
@@ -140,9 +117,8 @@ else:
 
 
 # Does the user want to look at call options or put options
-print("*"); time.sleep(0.05)
+sybil_data_ui_helper.print_sleep(1)
 optionType = input("Type C for Calls or P for Puts: ")
-type(optionType)
 optionType = optionType.upper()
 tradier_parser.check_input_for_sentinel(optionType)
 
@@ -170,9 +146,8 @@ else:
     
 
 # Prompt the user to pick one of the expiry dates
-print("*"); time.sleep(0.05)
+sybil_data_ui_helper.print_sleep(1)
 date = input("Select an expiry date from the list above: ")
-type(date)
 tradier_parser.check_input_for_sentinel(date)
 
 if (date not in dateList):
@@ -189,7 +164,6 @@ print("List of available strike prices: ")
 print(strikeList)
 
 selectedPrice = input("Select a strike from the list above: ")
-type(selectedPrice)
 tradier_parser.check_input_for_sentinel(selectedPrice)
 
 if not (selectedPrice in strikeList or str(selectedPrice + ".0") in strikeList):
@@ -204,7 +178,6 @@ selectedPrice = '{0:08d}'.format(tmp)
 
 # Prompt the user for how long of a history they are interested in
 startDate = input("Input a start date for the data range (YYYY-mm-dd): ")
-type(startDate)
 tradier_parser.check_input_for_sentinel(startDate)
 
 
@@ -248,7 +221,7 @@ if (settings['shouldPrintData']):
 # parse and plot the data
 if (shouldRunHistory):
     tradier_parser.parse_history_quote(rData.content.decode("utf-8"), data_name, settings)
-else:
+else: #timesales instead
     tradier_parser.parse_timesales_quote(rData.content.decode("utf-8"), data_name, settings)
 
 

@@ -9,6 +9,10 @@ import time
 # Last Modified November 28, 2019
 # This script accompanies run_plotter.py and does the parsing and the plotting for historic options data. Honestly, it's more than a bit of a mess.
 
+# Why is all the plotting in a script called parser?
+# TODO: abstract plot code.
+# TODO: proper xml / json parsing.
+
 # TODO: change color of vwap line on daily candles.
 # TODO: maybe lighten the candles a little (at least in darkMode)
 # TODO: day break line color / width. 
@@ -104,17 +108,7 @@ def parse_timesales_quote(data, data_title, settings):
         plt.ylim(bottom=data_min*0.9)
 
         if (settings['darkMode']):
-            plt.setp(title_obj, color='white')
-        
-        ## hidden for now. vertical lines were just causing issues w/ variable binning. also they sort of just look bad.
-        # get min/max of previous data. constrain boundaries. iterate from t1 to last and plot a vertical line from min to max for each one. 
-        #ii = -0.5 # be inbetween data points.
-        #while (ii < t_last):
-        #    plt.plot([ii, ii], [data_min*0.9, data_max*1.1], 'k-', Linewidth=1.0, alpha=0.35)
-        #    ii += 6.5*60*60/(plt_binning*60) + 1 #15*60 is the binning
-        ## plot one more after the end.
-        #plt.plot([ii, ii], [data_min*0.9, data_max*1.1], 'k-', Linewidth=1.0, alpha=0.35)
-        
+            plt.setp(title_obj, color='white')        
         
         if (settings['watermark']):
             textstr = settings['branding']
@@ -331,12 +325,6 @@ def parse_target(source, target):
     value = source[start:end]
     
     return(value)
-    ## this works but is a bit annoying b/c of types when printing after the value is returned.
-    ## prefer to just leave it as a string for now
-    #if is_number(value):
-    #    return float(value)
-    #else:
-    #    return(value)
     
 # Check all user inputs for "exit" to see if they want to terminate the program
 def check_input_for_sentinel(input):
