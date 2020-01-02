@@ -5,6 +5,11 @@ import matplotlib.ticker as mticker
 from datetime import datetime
 import time
 
+# THIS CODE IS DEPRECATED AS OF JANUARY 2, 2020. IT IS NO LONGER USED IN ANY FORM IN THE MAIN CODEBASE.
+# ONCE closed_option_plotter.py IS UPDATED IT WILL BE DELETED PERMANENTLY.
+
+
+
 # Script Created by Teddy Rowan for MySybil.com
 # Last Modified November 28, 2019
 # This script accompanies run_plotter.py and does the parsing and the plotting for historic options data. Honestly, it's more than a bit of a mess.
@@ -40,6 +45,7 @@ def parse_timesales_quote(data, data_title, settings):
             t1 = quote.timestamp
             t1diff = t1 % 24*60*60 # seconds into the day for first trade.
             # why the fuck is the first time at 9.30am w/ mod. leaps day or some shit.
+            # read more into that comment, not sure what the current status is or should be. it shouldn't always be 9.30am
             t1 = t1 - t1diff
             
         

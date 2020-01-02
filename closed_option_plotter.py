@@ -1,8 +1,16 @@
 import requests
-import tradier_parser
+#import tradier_parser
 import time
 from datetime import datetime
 #runs with python3
+
+# TODO: this needs a giant refactor to match up with the updated version of run_plotter.py
+# In fact, I'm about to delete tradier_parser so it will soon be unable to run in its current state.
+
+print("This code is deprecated as of January 2, 2020 commit #82.")
+print("Now terminating program."); exit()
+return # just in case ...?
+
 
 API_KEY = 'Bearer UNAGUmPNt1GPXWwWUxUGi4ekynpj'
 my_headers = {'Authorization': API_KEY}
@@ -11,6 +19,7 @@ settings = {'shouldPrintData' : False,
             'darkMode' : True, 
             'branding' : True, 
             'binning' : 15} #need to implement binning options.
+
 
 
 print("*\n*"); time.sleep(0.05)

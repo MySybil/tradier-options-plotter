@@ -13,19 +13,16 @@ import time
 # TODO: change color of vwap line on daily candles.
 # TODO: maybe lighten the candles a little (at least in darkMode)
 # TODO: day break line color / width. 
-# TODO: clean up parser. yikes.
 
 class TradierQuote():
   symbol = "" # can't have empty classes. what is python?
 
-# This will be the actual plot code. How will data be formatted? List w/ dict entries w/ timestamp, ohlc, vwap, date?
+# Should we plot /timesales/ or /history/
 def plot_data(data, should_use_history_endpoint, data_title, settings):
     if (should_use_history_endpoint):
         plot_history(data, data_title, settings)
     else:
-        print("TimeSales plotting is being updated and is temporarily unavailable. (01/02/2020).")
-        #print("Terminating Program."); exit()
-        #plot_timesales(data, data_title, settings)
+        plot_timesales(data, data_title, settings)
     return 0
 
 # Shared default plot settings between /history/ and /timesales/ plots.
@@ -108,93 +105,82 @@ def plot_history(data, data_title, settings):
         print("No option trades during period.")
     
     return
+
+# Take in the formatted data and settings, and plot the corresponding time/sales chart.
+# Need to clean this up a bit, but it works now, so yay!
+def plot_timesales(data, data_title, settings):
+    vTimestamp = [] # time data for line plot
+    vVwap = [] # volume-weighted-average-price for line plot
     
-def plot_timesales(data, name, settings):
-    return 0;
-     
-# Port this into plot_history but get rid of the parsing of the data.
-def parse_history_quote(data, data_title, settings):    
     ohlc = [] # candlestick chart data
     t1 = 0 #first timestamp
-    t_last = 0; #data point that gets converted to binning. lolz naming conventions.
+    data_min = 1000000
+    data_max = 0
+    t_current = 0;
     
-    while data.find("</day>") != -1:
-        single_quote = parse_target(data, "day") #substrings down to a full single quote
-        quote = parse_single_history_quote(single_quote) #
-        #print(vars(quote)) 
-            
-        t_last = convert_string_to_date(quote.date)
+    plt_binning = settings['binning'] #in minutes
+    
+    # quote is a dict w/ keys: time, timestamp, price, ohlc, volume, vwap
+    for quote in data:                        
+        # i need to look this if-statement over a bit. not totally sure it is behaving as desired (need to look into conversions with binning / timestamp)
         if (t1 == 0):
-            t1 = t_last
+            t1 = quote['timestamp']
             t1diff = t1 % 24*60*60 # seconds into the day for first trade.
             t1 = t1 - t1diff
-                    
-        t_last = convert_timestamp_to_binning(t_last, 24*60*60, t1)
+            
+        t_current = convert_timestamp_to_binning(quote['timestamp'], plt_binning*60, t1)
         
-        append_me = t_last, quote.open, quote.high, quote.low, quote.close, quote.volume
-        ohlc.append(append_me)
+        quote_data = t_current, quote['open'], quote['high'], quote['low'], quote['close'], quote['volume']
+        ohlc.append(quote_data)
+        
+        # Find the min/max data in the set.
+        if (quote['low'] < data_min):
+            data_min = quote['low']
+        if (quote['high'] > data_max):
+            data_max = quote['high']
+        
+        # Also save the timestamp/vwap data to plot the line
+        vVwap.append(quote['vwap'])
+        vTimestamp.append(convert_timestamp_to_binning(quote['timestamp'], plt_binning*60, t1))
+                
+        
+    if (len(ohlc)):
+        plt, fig, ax1 = default_plot_settings(settings)
         
         
-        # once the data is grabbed, move on to the next quote
-        index = data.find("</day>")
-        data = data[index+len("</day>"):]        
-    
-    if (len(ohlc)): #if there is any data
-        plt.rcParams['figure.figsize'] = (7.9, 4.6)
-        if (settings['darkMode']):
-            plt.rcParams['savefig.facecolor']=(0.04, 0.04, 0.04)
-        fig = plt.figure()
-        ax1 = plt.subplot2grid((1,1), (0,0))
-        if (settings['darkMode']):
-            ax1.set_facecolor((0.04, 0.04, 0.04))
-            fig.set_facecolor((0.04, 0.04, 0.04))
-            ax1.tick_params(colors='white')
-            ax1.yaxis.label.set_color('white')
-
-        
-        ax1.grid(False)
         candlestick_ohlc(ax1, ohlc, width=0.4, colorup='#57b859', colordown='#db3f3f')
         for label in ax1.xaxis.get_ticklabels():
             label.set_rotation(45)
 
-        # these are assigned so that we can use them when we re-grab the axes when xlims change
+        plt.binning = plt_binning*60
         plt.t1 = t1
-        plt.binning = 24*60*60
-
-        titlefont = {'fontname':'Futura', 'fontsize':11}
-        labelfont = {'fontname':'Futura', 'fontsize':10}
-        tickfont = {'fontname':'Futura', 'fontsize':8}
+        
+        
+        # need to figure out the conversion from time to mdates. what does this comment mean?
+        #ax1.xaxis.set_major_formatter(mdates.DateFormatter('%Y-%m-%d'))
         ax1.xaxis.set_major_locator(mticker.MaxNLocator(10))
+        tickfont = {'fontname':'Futura', 'fontsize':8}
         ax1.set_xticklabels(convert_xticks_to_dates(ax1.get_xticks(), plt.binning, plt.t1), **tickfont)
         ax1.callbacks.connect('xlim_changed', on_xlims_change) #live update the xlabels
-        
-        if (settings['grid']):
-            ax1.minorticks_on()
-            if (settings['darkMode']):
-                ax1.grid(which='major', color='#ffffff', linestyle='--', linewidth=0.75, alpha=0.35)
-            else:
-                ax1.grid(which='major', color='#000000', linestyle='--', linewidth=0.75, alpha=0.35)
-            ax1.grid(b=True, which='minor', color='#999999', linestyle='--', linewidth=0.5, alpha=0.15)
-        
-        
-        plt.ylabel("Option Price ($)", **labelfont)
+
+
+        plt.plot(vTimestamp, vVwap, 'b--', alpha=0.25, Linewidth=1.0)
+        plt.ylim(top=data_max*1.1)
+        plt.ylim(bottom=data_min*0.9)
+
+        titlefont = {'fontname':'Futura', 'fontsize':11}
         title_obj = plt.title(data_title, **titlefont)
-        plt.subplots_adjust(left=0.10, bottom=0.20, right=0.95, top=0.90, wspace=0.2, hspace=0)
         if (settings['darkMode']):
-            plt.setp(title_obj, color='white')
+            plt.setp(title_obj, color='white')        
         
-        
-        if (settings['watermark']):
-            textstr = settings['branding']
-            props = dict(boxstyle='square', facecolor='none', alpha=0, edgecolor='none')
-            brandColor = 'black'
-            if (settings['darkMode']):
-                brandColor = 'white'
-            ax1.text(0.87, 0.06, textstr, transform=ax1.transAxes, verticalalignment='top', bbox=props, **labelfont, color=brandColor)
         plt.show()
     else:
         print("No option trades during period.")
     
+    return 0;
+
+
+####### Clean up everything below me.     
 def on_xlims_change(axes):
     ax1 = plt.gca()
     ax1.set_xticklabels(convert_xticks_to_dates(ax1.get_xticks(), plt.binning, plt.t1))
