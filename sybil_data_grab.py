@@ -7,6 +7,7 @@
 import sybil_data_ui_helper
 import tradier_parser # for sentinel check.
 import requests
+import time
 
 # Verify that the ticker is valid and grab/print some daily trade info for the underlying.
 def background_info(ticker, api_key):
@@ -42,7 +43,56 @@ def option_type(symbol):
     
     return input_str
     
+
+def modify_settings(settings):
+    sybil_data_ui_helper.print_sleep(3)
+    print("The following runtime settings of this program can be modified.")
+    print(settings)
     
+    status = ""
+    while (status.lower() != "done"):
+        print("Type 'done' to return to program execution.")
+        print("*"); time.sleep(0.05)
+        status = input("Which setting would you like to change: ")
+        tradier_parser.check_input_for_sentinel(status)
+        if (status.lower() == "darkmode"):
+            settings['darkMode'] = not settings['darkMode'];
+        if (status.lower() == "watermark"):
+            settings['watermark'] = not settings['watermark'];
+        if (status.lower() == "grid"):
+            settings['grid'] = not settings['grid'];
+        if (status.lower() == "shouldprintdata"):
+            settings['shouldPrintData'] = not settings['shouldPrintData'];
+        
+        # branding / historyLimit / binning need additional user inputs
+        if (status.lower() == "binning"):
+            new_bin = input("Please input your desired binning (1/5/15 min): ")
+            tradier_parser.check_input_for_sentinel(new_bin)
+            if (int(new_bin) == 1 or int(new_bin) == 5 or int(new_bin) == 15):
+                settings['binning'] = int(new_bin)
+            else:
+                print("Invalid input. Binning remains unmodified.")
+        
+        if (status.lower() == "historylimit"):
+            new_lim = input("Please input your desired day limit to transition to daily data (<35): ")
+            tradier_parser.check_input_for_sentinel(new_lim)
+            try:
+                settings['historyLimit'] = int(new_lim)
+            except ValueError:
+                print("Invalid input. History limit remains unmodified.")        
+        
+        if (status.lower() == "branding"):
+            new_brand = input("Please input your desired branding: ")
+            tradier_parser.check_input_for_sentinel(new_brand)
+            settings['branding'] = new_brand
+        
+        
+        sybil_data_ui_helper.print_sleep(3)
+        print("The runtime settings are now currently:")
+        print(settings)
+        
+    sybil_data_ui_helper.print_sleep(3)
+    return settings
     
 # Check all user inputs for "exit" to see if they want to terminate the program
 def check_input_for_sentinel(input):

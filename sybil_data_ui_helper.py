@@ -1,13 +1,9 @@
 #sybil_data_ui_helper()
-
 # Script Created by Teddy Rowan for MySybil.com
 # Last Modified January 1, 2020
 # Description: This script is just used to abstract uninteresting UI code that I don't want in the main codebase
 
-
 import time
-
-
 
 # just some printing / instructions to introduce the program
 def intro_screen():
