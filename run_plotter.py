@@ -114,6 +114,7 @@ else:
     print("The Stock Price is DOWN " + str(quote['change_percentage']) + "% on the day.")
 
 
+sybil_data_grab.background_info(symbol, API_KEY)
 optionType = sybil_data_grab.option_type(symbol) # Does the user want to look at call options or put options
 
 
