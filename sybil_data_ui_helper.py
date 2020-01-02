@@ -15,7 +15,7 @@ def intro_screen():
     print("*****************************************************************")
     print("* Created by Teddy Rowan at MySybil.com")
     print("* Type 'exit' at any time to terminate program.")
-    print_sleep(10)
+    print_sleep(11)
     
 def print_sleep(times):
     for i in range(times):

@@ -42,7 +42,22 @@ def option_type(symbol):
         print("Invalid option type input. Terminating program."); exit()
     
     return input_str
+
+# Download and print a list of all available expiry dates for options for the symbol
+def get_expiry_dates(ticker, api_key):
+    dates_response = requests.get('https://sandbox.tradier.com/v1/markets/options/expirations?',
+        params={'symbol': ticker},
+        headers={'Authorization': api_key, 'Accept': 'application/json'}
+    )
+    dates_json = dates_response.json()
+    dates_list = dates_json['expirations']['date']
     
+    if (len(dates_list)):
+        print(dates_list)
+    else:
+        print("No options available for symbol: " +  ticker + ". Terminating Program."); exit()
+    
+    return dates_list
 
 def modify_settings(settings):
     sybil_data_ui_helper.print_sleep(3)

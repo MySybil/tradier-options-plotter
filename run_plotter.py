@@ -7,14 +7,13 @@ import requests
 import time
 from datetime import datetime
 
-import tradier_parser # to be phased out by xml parsing
+import tradier_parser
 import sybil_data_ui_helper
 import sybil_data_grab
 
 # TODO: ReadME / instructions on git for how to use/run the script
 
-# Check if the user wants to exit the program everytime they input anything
-def check_sentinel(input):
+def check_sentinel(input): # Check if the user wants to exit the program everytime they input anything
     if (input == "exit"): print("User Requested Program Termination."); exit()
 
 
@@ -27,11 +26,11 @@ settings = {'shouldPrintData' : False,
             'watermark' : False, 
             'branding'  : "MySybil.com",
             'grid'      : True,
-            'historyLimit' : 1,            #when we switch form time/sales to /history
+            'historyLimit' : 1,             #when we switch form /timesales to /history endpoint(days)
             'binning'   : 15}               #1/5/15 for time/sales. (time/sales < 35 days.)
 
+# Start of code.
 sybil_data_ui_helper.intro_screen(); # just some printing / instructions to introduce the program
-sybil_data_ui_helper.print_sleep(1)
 
 symbol = input("Type 'settings' or enter a symbol to proceed: "); check_sentinel(symbol)
 if (symbol.lower() == "settings"): # Does the user want to change the settings
@@ -43,18 +42,8 @@ symbol = symbol.upper() # Formatting for plot titles and co.
 
 sybil_data_grab.background_info(symbol, API_KEY) # Display some info about the underlying
 optionType = sybil_data_grab.option_type(symbol) # Does the user want to look at call options or put options
+dateList = sybil_data_grab.get_expiry_dates(symbol, API_KEY)
 
-
-# Grab, parse, and print all the available expiry dates for the symbol.
-url_dates = "https://sandbox.tradier.com/v1/markets/options/expirations?symbol=" + symbol
-rDates = requests.get(url_dates, headers=my_headers)
-dateList = tradier_parser.parse_multi_quote(rDates.content.decode("utf-8"), "date")
-
-if (len(dateList)):
-    print(dateList)
-else:
-    print("No options available for symbol: " +  symbol + ". Terminating Program."); exit()
-    
 
 # Prompt the user to pick one of the expiry dates
 sybil_data_ui_helper.print_sleep(1)
