@@ -3,7 +3,6 @@
 # Last Modified January 1, 2020
 # Description: This script handles all the data grabbing for run_plotter.py 
 
-
 import sybil_data_ui_helper
 import tradier_parser # for sentinel check.
 import requests
@@ -28,6 +27,8 @@ def background_info(ticker, api_key):
         print("The Stock Price is UP +" + str(quote['change_percentage']) + "% on the day.")
     else:
         print("The Stock Price is DOWN " + str(quote['change_percentage']) + "% on the day.")
+        
+    return quote['description'] # return the full name of the company for plots and whatnot
 
 # Does the user want to look at call options or put options.
 def option_type(symbol):
@@ -57,8 +58,23 @@ def get_expiry_dates(ticker, api_key):
     else:
         print("No options available for symbol: " +  ticker + ". Terminating Program."); exit()
     
+    sybil_data_ui_helper.print_sleep(1)
     return dates_list
 
+# Download and print a list of all available strikes for the expiry date.
+def get_strike_list(ticker, expiry, api_key):
+    strike_list_response = requests.get('https://sandbox.tradier.com/v1/markets/options/strikes?',
+        params={'symbol': ticker, 'expiration': expiry},
+        headers={'Authorization': api_key, 'Accept': 'application/json'}
+    )
+    strikes_json = strike_list_response.json()
+    strikeList = strikes_json['strikes']['strike']
+    print("List of available strike prices: ")
+    print(strikeList)
+    
+    return strikeList
+
+# Allow the user to modify the settings for the program at runtime.
 def modify_settings(settings):
     sybil_data_ui_helper.print_sleep(3)
     print("The following runtime settings of this program can be modified.")

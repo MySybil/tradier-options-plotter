@@ -40,36 +40,22 @@ if (symbol.lower() == "settings"): # Does the user want to change the settings
 symbol = symbol.upper() # Formatting for plot titles and co.
 
 
-sybil_data_grab.background_info(symbol, API_KEY) # Display some info about the underlying
+description = sybil_data_grab.background_info(symbol, API_KEY) # Display some info about the underlying
 optionType = sybil_data_grab.option_type(symbol) # Does the user want to look at call options or put options
 dateList = sybil_data_grab.get_expiry_dates(symbol, API_KEY)
 
-
 # Prompt the user to pick one of the expiry dates
-sybil_data_ui_helper.print_sleep(1)
 date = input("Select an expiry date from the list above: "); check_sentinel(date)
-
 if (date not in dateList):
     print("The date: " + date + " is not valid. Terminating Program."); exit()
 
 
-# Grab a list of all the prices available, then parse and format them properly
-url_strikes = "https://sandbox.tradier.com/v1/markets/options/strikes?symbol=" + symbol + "&expiration=" + date
-rStrikes = requests.get(url_strikes, headers=my_headers)
-strikeList = tradier_parser.parse_strikes(rStrikes.content.decode("utf-8"))
-
-print("List of available strike prices: ")
-print(strikeList)
-
+strikeList = sybil_data_grab.get_strike_list(symbol, date, API_KEY)
 selectedPrice = input("Select a strike from the list above: "); check_sentinel(selectedPrice)
-
-if not (selectedPrice in strikeList or str(selectedPrice + ".0") in strikeList):
+if not (float(selectedPrice) in strikeList):
     print("No strike available for input price. Terminating Program."); exit()
-    
-        
-# Tradier Formatting is lolz and terrible
-tmp = int(float(selectedPrice)*1000)
-selectedPrice = '{0:08d}'.format(tmp)
+
+selectedPrice = '{0:08d}'.format(int(float(selectedPrice)*1000)) #format the price string for Tradier
 
 
 # Prompt the user for how long of a history they are interested in
