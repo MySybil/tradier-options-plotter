@@ -168,6 +168,6 @@ def modify_settings(settings):
     
 # Check all user inputs for "exit" to see if they want to terminate the program
 def check_sentinel(input):
-    if (input == "exit"):
+    if (input.lower() == "exit"):
         print("User Requested Program Termination.")
         exit()

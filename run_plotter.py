@@ -3,11 +3,6 @@
 # Last Modified: January 1, 2020
 # Description: This script is designed as a free and open-source tool to help retail investors get and analyze historic options data.
 
-import requests
-import time
-from datetime import datetime
-
-import tradier_parser
 import sybil_data_ui_helper
 import sybil_data_grab
 import sybil_data_plot_master
@@ -15,7 +10,7 @@ import sybil_data_plot_master
 # TODO: ReadME / instructions on git for how to use/run the script
 
 def check_sentinel(input): # Check if the user wants to exit the program everytime they input anything
-    if (input == "exit"): print("User Requested Program Termination."); exit()
+    if (input.lower() == "exit"): print("User Requested Program Termination."); exit()
 
 
 API_KEY = 'Bearer UNAGUmPNt1GPXWwWUxUGi4ekynpj' # public key.
@@ -33,17 +28,14 @@ settings = {'shouldPrintData' : False,
 # Start of code.
 sybil_data_ui_helper.intro_screen(); # just some printing / instructions to introduce the program
 
-symbol = input("Type 'settings' or enter a symbol to proceed: "); check_sentinel(symbol)
+symbol = input("Type 'settings' or enter a symbol to proceed: ").upper(); check_sentinel(symbol)
 if (symbol.lower() == "settings"): # Does the user want to change the settings
     settings = sybil_data_grab.modify_settings(settings)    
     symbol = input("Enter a symbol to proceed: "); check_sentinel(symbol)
 
-symbol = symbol.upper() # Formatting for plot titles and co.
-
-
 description = sybil_data_grab.background_info(symbol, API_KEY) # Display some info about the underlying
 optionType = sybil_data_grab.option_type(symbol) # Does the user want to look at call options or put options
-dateList = sybil_data_grab.get_expiry_dates(symbol, API_KEY)
+dateList = sybil_data_grab.get_expiry_dates(symbol, API_KEY) # Download a list of all the expiry dates available
 
 # Prompt the user to pick one of the expiry dates
 date = input("Select an expiry date from the list above: "); check_sentinel(date)
