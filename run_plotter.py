@@ -69,29 +69,12 @@ if (optionType == "C"):
     data_name = symbol + " $" + str(float(selectedPrice)/1000)  + " Call Data Expiring " + date
 print("Now grabbing " + data_name)
 
-##### Abstracted up to here.
 
-# trade_data should be a list with dict entries for timestamp, vwap, ohlc data.
-# trade_data = sybil_data_grab.get_trade_data(option_symbol, startDate, settings['binning'], should_use_history_endpoint)
-# sybil_data_plot_master.plot_data(trade_data, should_use_history_endpoint, data_name, settings)
-
-# Set either should_use_history_endpoint /history/ or a /timesales/ url
-if (should_use_history_endpoint):
-    url = "https://sandbox.tradier.com/v1/markets/history?symbol=" + option_symbol + "&start=" + startDate
-else:
-    url = "https://sandbox.tradier.com/v1/markets/timesales?symbol=" + option_symbol + "&interval=" + str(int(settings['binning'])) + "min&start=" + startDate
-
-
-
-rData = requests.get(url, headers=my_headers) #actually download the data
+# good data is as expected. need to verify with plot_master. 
+trade_data = sybil_data_grab.get_trade_data(option_symbol, startDate, settings['binning'], should_use_history_endpoint, API_KEY)
+sybil_data_plot_master.plot_data(trade_data, should_use_history_endpoint, data_name, settings)
 
 if (settings['shouldPrintData']):
-    print(rData.text)
-
-# parse and plot the data
-if (should_use_history_endpoint):
-    tradier_parser.parse_history_quote(rData.content.decode("utf-8"), data_name, settings)
-else: #timesales instead
-    tradier_parser.parse_timesales_quote(rData.content.decode("utf-8"), data_name, settings)
-
-
+    print(trade_data)
+    
+print("Program Reached End Of Execution."); exit()

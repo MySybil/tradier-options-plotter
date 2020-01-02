@@ -93,6 +93,28 @@ def get_start_date(history_limit):
     return start_date, should_use_history_endpoint
 
 
+def get_trade_data(option_symbol, start_date, binning, should_use_history_endpoint, api_key):
+    if(should_use_history_endpoint):
+        trade_data_response = requests.get('https://sandbox.tradier.com/v1/markets/history?',
+            params={'symbol': option_symbol, 'start': start_date},
+            headers={'Authorization': api_key, 'Accept': 'application/json'}
+        )
+        trade_data_json = trade_data_response.json()
+        trade_data = trade_data_json['history']['day']
+        #print(trade_data)
+        return(trade_data)
+    else:
+        trade_data_response = requests.get('https://sandbox.tradier.com/v1/markets/timesales?',
+            params={'symbol': option_symbol, 'start': start_date, 'interval':(str(int(binning))+"min")},
+            headers={'Authorization': api_key, 'Accept': 'application/json'}
+        )
+        trade_data_json = trade_data_response.json()
+        trade_data = trade_data_json['series']['data']
+        #for ii in range(len(trade_data)): # good.
+        #    print(trade_data[ii])
+        return(trade_data)
+
+
 # Allow the user to modify the settings for the program at runtime.
 def modify_settings(settings):
     sybil_data_ui_helper.print_sleep(3)

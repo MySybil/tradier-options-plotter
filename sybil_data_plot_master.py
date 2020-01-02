@@ -23,10 +23,12 @@ def plot_data(data, should_use_history_endpoint, data_title, settings):
     if (should_use_history_endpoint):
         plot_history(data, data_title, settings)
     else:
-        plot_timesales(data, data_title, settings)
+        print("TimeSales plotting is being updated and is temporarily unavailable. (01/02/2020).")
+        #print("Terminating Program."); exit()
+        #plot_timesales(data, data_title, settings)
     return 0
 
-# Lets get this working first and then clean the conventions after. This is completely untested.
+# So this plots the history data.
 def plot_history(data, data_title, settings):
     ohlc = [] # list of candlestick chart data
     t1 = 0 # first timestamp in the data
