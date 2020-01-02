@@ -26,7 +26,7 @@ settings = {'shouldPrintData' : False,
             'watermark' : False, 
             'branding'  : "MySybil.com",
             'grid'      : True,
-            'historyLimit' : 1,             #when we switch form /timesales to /history endpoint(days)
+            'historyLimit' : 10,             #when we switch form /timesales to /history endpoint(days)
             'binning'   : 15}               #1/5/15 for time/sales. (time/sales < 35 days.)
 
 # Start of code.
@@ -49,6 +49,10 @@ date = input("Select an expiry date from the list above: "); check_sentinel(date
 if (date not in dateList):
     print("The date: " + date + " is not valid. Terminating Program."); exit()
 
+# Format the date string for Tradier's API formatting
+format_date = date.replace("-", "") # strip out the dashes from the selected date
+format_date = format_date[2:len(format_date)] # strip the 20 off the front of 2020
+
 
 strikeList = sybil_data_grab.get_strike_list(symbol, date, API_KEY)
 selectedPrice = input("Select a strike from the list above: "); check_sentinel(selectedPrice)
@@ -56,32 +60,13 @@ if not (float(selectedPrice) in strikeList):
     print("No strike available for input price. Terminating Program."); exit()
 
 selectedPrice = '{0:08d}'.format(int(float(selectedPrice)*1000)) #format the price string for Tradier
+startDate, should_use_history_endpoint = sybil_data_grab.get_start_date(int(settings['historyLimit']))
+
+##### Abstracted up to here.
 
 
-# Prompt the user for how long of a history they are interested in
-startDate = input("Input a start date for the data range (YYYY-mm-dd): "); check_sentinel(startDate)
-
-
-# Format the date string for Tradier's API formatting
-format_date = date.replace("-", "") # strip out the dashes from the selected date
-format_date = format_date[2:len(format_date)] # strip the 20 off the front of 2019
-
-# Find out how far back the user wants to look and if it's more than 35 days, use the history endpoint insteal of the timesales endpoint
-try:
-    datenum = datetime.strptime(startDate, "%Y-%m-%d")
-except ValueError:
-        print("Invalid date format. Terminating Program."); exit()
-
-startDateTime = time.mktime(datenum.timetuple())
-nowTime = time.mktime(datetime.now().timetuple()) #seconds since the input date
-
-shouldRunHistory = False # should we use the /history/ or the /timesales/ endpoint
-if (nowTime - startDateTime > int(settings['historyLimit'])*24*60*60):
-    shouldRunHistory = True
-
-
-# Set either a /history/ or a /timesales/ url
-if (shouldRunHistory):
+# Set either should_use_history_endpoint /history/ or a /timesales/ url
+if (should_use_history_endpoint):
     url = "https://sandbox.tradier.com/v1/markets/history?symbol=" + symbol + format_date + optionType + selectedPrice + "&start=" + startDate
 else:
     url = "https://sandbox.tradier.com/v1/markets/timesales?symbol=" + symbol + format_date + optionType + selectedPrice + "&interval=" + str(int(settings['binning'])) + "min&start=" + startDate
@@ -99,7 +84,7 @@ if (settings['shouldPrintData']):
     print(rData.text)
 
 # parse and plot the data
-if (shouldRunHistory):
+if (should_use_history_endpoint):
     tradier_parser.parse_history_quote(rData.content.decode("utf-8"), data_name, settings)
 else: #timesales instead
     tradier_parser.parse_timesales_quote(rData.content.decode("utf-8"), data_name, settings)

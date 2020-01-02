@@ -7,6 +7,7 @@ import sybil_data_ui_helper
 import tradier_parser # for sentinel check.
 import requests
 import time
+from datetime import datetime
 
 # Verify that the ticker is valid and grab/print some daily trade info for the underlying.
 def background_info(ticker, api_key):
@@ -34,7 +35,7 @@ def background_info(ticker, api_key):
 def option_type(symbol):
     sybil_data_ui_helper.print_sleep(1)
     input_str = input("Type C for Calls or P for Puts: "); input_str = input_str.upper()
-    check_input_for_sentinel(input_str)
+    check_sentinel(input_str)
     if (input_str == "C"):
         print("Selected Call Options for " + symbol)
     elif (input_str == "P"):
@@ -74,6 +75,24 @@ def get_strike_list(ticker, expiry, api_key):
     
     return strikeList
 
+# Prompt the user for the earliest date in which they want to get data for, then determine whether to retrieve /history/ or /timesales/ data.
+def get_start_date(history_limit):
+    start_date = input("Input a start date for the data range (YYYY-mm-dd): "); check_sentinel(start_date)
+    try:
+        start_datenum = datetime.strptime(start_date, "%Y-%m-%d")
+    except ValueError:
+        print("Invalid date format. Terminating Program."); exit()
+
+    start_date_seconds = time.mktime(start_datenum.timetuple())
+    current_time_seconds = time.mktime(datetime.now().timetuple()) #seconds since the input date
+
+    should_use_history_endpoint = False
+    if (current_time_seconds - start_date_seconds > history_limit*24*60*60):
+        should_use_history_endpoint = True
+
+    return start_date, should_use_history_endpoint
+
+
 # Allow the user to modify the settings for the program at runtime.
 def modify_settings(settings):
     sybil_data_ui_helper.print_sleep(3)
@@ -85,7 +104,7 @@ def modify_settings(settings):
         print("Type 'done' to return to program execution.")
         print("*"); time.sleep(0.05)
         status = input("Which setting would you like to change: ")
-        tradier_parser.check_input_for_sentinel(status)
+        check_sentinel(status)
         if (status.lower() == "darkmode"):
             settings['darkMode'] = not settings['darkMode'];
         if (status.lower() == "watermark"):
@@ -98,7 +117,7 @@ def modify_settings(settings):
         # branding / historyLimit / binning need additional user inputs
         if (status.lower() == "binning"):
             new_bin = input("Please input your desired binning (1/5/15 min): ")
-            tradier_parser.check_input_for_sentinel(new_bin)
+            check_sentinel(new_bin)
             if (int(new_bin) == 1 or int(new_bin) == 5 or int(new_bin) == 15):
                 settings['binning'] = int(new_bin)
             else:
@@ -106,7 +125,7 @@ def modify_settings(settings):
         
         if (status.lower() == "historylimit"):
             new_lim = input("Please input your desired day limit to transition to daily data (<35): ")
-            tradier_parser.check_input_for_sentinel(new_lim)
+            check_sentinel(new_lim)
             try:
                 settings['historyLimit'] = int(new_lim)
             except ValueError:
@@ -114,7 +133,7 @@ def modify_settings(settings):
         
         if (status.lower() == "branding"):
             new_brand = input("Please input your desired branding: ")
-            tradier_parser.check_input_for_sentinel(new_brand)
+            check_sentinel(new_brand)
             settings['branding'] = new_brand
         
         
@@ -126,7 +145,7 @@ def modify_settings(settings):
     return settings
     
 # Check all user inputs for "exit" to see if they want to terminate the program
-def check_input_for_sentinel(input):
+def check_sentinel(input):
     if (input == "exit"):
         print("User Requested Program Termination.")
         exit()
