@@ -31,7 +31,7 @@ sybil_data_ui_helper.intro_screen(); # just some printing / instructions to intr
 symbol = input("Type 'settings' or enter a symbol to proceed: ").upper(); check_sentinel(symbol)
 if (symbol.lower() == "settings"): # Does the user want to change the settings
     settings = sybil_data_grab.modify_settings(settings)    
-    symbol = input("Enter a symbol to proceed: "); check_sentinel(symbol)
+    symbol = input("Enter a symbol to proceed: ").upper(); check_sentinel(symbol)
 
 description = sybil_data_grab.background_info(symbol, API_KEY) # Display some info about the underlying
 optionType = sybil_data_grab.option_type(symbol) # Does the user want to look at call options or put options

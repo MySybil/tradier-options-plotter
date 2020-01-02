@@ -28,41 +28,63 @@ def plot_data(data, should_use_history_endpoint, data_title, settings):
         #plot_timesales(data, data_title, settings)
     return 0
 
-# So this plots the history data.
+# Shared default plot settings between /history/ and /timesales/ plots.
+def default_plot_settings(settings):
+    plt.rcParams['figure.figsize'] = (7.9, 4.6)
+    if (settings['darkMode']):
+        plt.rcParams['savefig.facecolor']=(0.04, 0.04, 0.04)
+    fig = plt.figure()
+    ax1 = plt.subplot2grid((1,1), (0,0))
+    if (settings['darkMode']):
+        ax1.set_facecolor((0.04, 0.04, 0.04))
+        fig.set_facecolor((0.04, 0.04, 0.04))
+        ax1.tick_params(colors='white')
+        ax1.yaxis.label.set_color('white')
+
+    ax1.grid(False)
+    plt.subplots_adjust(left=0.10, bottom=0.20, right=0.95, top=0.90, wspace=0.2, hspace=0)
+    labelfont = {'fontname':'Futura', 'fontsize':10}
+    plt.ylabel("Option Price ($)", **labelfont)    
+
+    if (settings['grid']):
+        ax1.minorticks_on()
+        if (settings['darkMode']):
+            ax1.grid(which='major', color='#ffffff', linestyle='--', linewidth=0.75, alpha=0.35)
+        else:
+            ax1.grid(which='major', color='#000000', linestyle='--', linewidth=0.75, alpha=0.35)
+        ax1.grid(b=True, which='minor', color='#999999', linestyle='--', linewidth=0.5, alpha=0.15)    
+    
+    if (settings['watermark']):
+        textstr = settings['branding']
+        props = dict(boxstyle='square', facecolor='none', alpha=0, edgecolor='none')
+        brandColor = 'black'
+        if (settings['darkMode']):
+            brandColor = 'white'
+        ax1.text(0.87, 0.06, textstr, transform=ax1.transAxes, verticalalignment='top', bbox=props, **labelfont, color=brandColor)
+    
+    return plt, fig, ax1
+
+# Take in the formatted data and settings, and plot the corresponding chart.
 def plot_history(data, data_title, settings):
     ohlc = [] # list of candlestick chart data
     t1 = 0 # first timestamp in the data
-    t_last = 0; # data tracking for binning?
     
     for quote in data:
-        t_last = convert_string_to_date(quote['date'])
-        if (t1 == 0): # if this is the first data point.
-            t1 = t_last
+        t_current = convert_string_to_date(quote['date'])
+        if (t1 == 0): # if this is the first data point, save it as the first timestamp.
+            t1 = t_current
             t1diff = t1 % 24*60*60 # seconds into the day for first trade.
             t1 = t1 - t1diff
                     
-        t_last = convert_timestamp_to_binning(t_last, 24*60*60, t1)
+        t_current = convert_timestamp_to_binning(t_current, 24*60*60, t1)
         
-        quote_data = t_last, quote['open'], quote['high'], quote['low'], quote['close'], quote['volume']       
-        #append_data = t_last, quote.open, quote.high, quote.low, quote.close, quote.volume
-        
+        quote_data = t_current, quote['open'], quote['high'], quote['low'], quote['close'], quote['volume']       
         ohlc.append(quote_data)
     
-    # do the actual plotting. abstract this away once it works.
+    # If there is data, create a figure and plot it.
     if (len(ohlc)): #if there is any data
-        plt.rcParams['figure.figsize'] = (7.9, 4.6)
-        if (settings['darkMode']):
-            plt.rcParams['savefig.facecolor']=(0.04, 0.04, 0.04)
-        fig = plt.figure()
-        ax1 = plt.subplot2grid((1,1), (0,0))
-        if (settings['darkMode']):
-            ax1.set_facecolor((0.04, 0.04, 0.04))
-            fig.set_facecolor((0.04, 0.04, 0.04))
-            ax1.tick_params(colors='white')
-            ax1.yaxis.label.set_color('white')
-
+        plt, fig, ax1 = default_plot_settings(settings)
         
-        ax1.grid(False)
         candlestick_ohlc(ax1, ohlc, width=0.4, colorup='#57b859', colordown='#db3f3f')
         for label in ax1.xaxis.get_ticklabels():
             label.set_rotation(45)
@@ -72,40 +94,20 @@ def plot_history(data, data_title, settings):
         plt.binning = 24*60*60
 
         titlefont = {'fontname':'Futura', 'fontsize':11}
-        labelfont = {'fontname':'Futura', 'fontsize':10}
         tickfont = {'fontname':'Futura', 'fontsize':8}
         ax1.xaxis.set_major_locator(mticker.MaxNLocator(10))
         ax1.set_xticklabels(convert_xticks_to_dates(ax1.get_xticks(), plt.binning, plt.t1), **tickfont)
         ax1.callbacks.connect('xlim_changed', on_xlims_change) #live update the xlabels
-        
-        if (settings['grid']):
-            ax1.minorticks_on()
-            if (settings['darkMode']):
-                ax1.grid(which='major', color='#ffffff', linestyle='--', linewidth=0.75, alpha=0.35)
-            else:
-                ax1.grid(which='major', color='#000000', linestyle='--', linewidth=0.75, alpha=0.35)
-            ax1.grid(b=True, which='minor', color='#999999', linestyle='--', linewidth=0.5, alpha=0.15)
-        
-        
-        plt.ylabel("Option Price ($)", **labelfont)
+                
         title_obj = plt.title(data_title, **titlefont)
-        plt.subplots_adjust(left=0.10, bottom=0.20, right=0.95, top=0.90, wspace=0.2, hspace=0)
         if (settings['darkMode']):
             plt.setp(title_obj, color='white')
         
-        
-        if (settings['watermark']):
-            textstr = settings['branding']
-            props = dict(boxstyle='square', facecolor='none', alpha=0, edgecolor='none')
-            brandColor = 'black'
-            if (settings['darkMode']):
-                brandColor = 'white'
-            ax1.text(0.87, 0.06, textstr, transform=ax1.transAxes, verticalalignment='top', bbox=props, **labelfont, color=brandColor)
         plt.show()
     else:
         print("No option trades during period.")
-        
-    return 0
+    
+    return
     
 def plot_timesales(data, name, settings):
     return 0;
