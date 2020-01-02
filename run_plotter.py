@@ -10,6 +10,7 @@ from datetime import datetime
 import tradier_parser
 import sybil_data_ui_helper
 import sybil_data_grab
+import sybil_data_plot_master
 
 # TODO: ReadME / instructions on git for how to use/run the script
 
@@ -61,9 +62,16 @@ if not (float(selectedPrice) in strikeList):
 
 selectedPrice = '{0:08d}'.format(int(float(selectedPrice)*1000)) #format the price string for Tradier
 startDate, should_use_history_endpoint = sybil_data_grab.get_start_date(int(settings['historyLimit']))
+option_symbol = symbol + format_date + optionType + selectedPrice #full Tradier-formatted symbol for the option
+
+data_name = symbol + " $" + str(float(selectedPrice)/1000)  + " Put Data Expiring " + date
+if (optionType == "C"):
+    data_name = symbol + " $" + str(float(selectedPrice)/1000)  + " Call Data Expiring " + date
+print("Now grabbing " + data_name)
 
 ##### Abstracted up to here.
-option_symbol = symbol + format_date + optionType + selectedPrice
+
+# trade_data should be a list with dict entries for timestamp, vwap, ohlc data.
 # trade_data = sybil_data_grab.get_trade_data(option_symbol, startDate, settings['binning'], should_use_history_endpoint)
 # sybil_data_plot_master.plot_data(trade_data, should_use_history_endpoint, data_name, settings)
 
@@ -73,12 +81,6 @@ if (should_use_history_endpoint):
 else:
     url = "https://sandbox.tradier.com/v1/markets/timesales?symbol=" + option_symbol + "&interval=" + str(int(settings['binning'])) + "min&start=" + startDate
 
-data_name = "" # for plot titles
-if (optionType == "C"):
-    data_name = symbol + " $" + str(float(selectedPrice)/1000)  + " Call Data Expiring " + date
-else:
-    data_name = symbol + " $" + str(float(selectedPrice)/1000)  + " Put Data Expiring " + date
-print("Now grabbing " + data_name)
 
 
 rData = requests.get(url, headers=my_headers) #actually download the data
