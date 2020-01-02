@@ -1,10 +1,9 @@
 #sybil_data_grab.py
 # Script Created by Teddy Rowan for MySybil.com
 # Last Modified January 1, 2020
-# Description: This script handles all the data grabbing for run_plotter.py 
+# Description: This script handles all the data grabbing for driver_sybil_data.py 
 
 import sybil_data_ui_helper
-import tradier_parser # for sentinel check.
 import requests
 import time
 from datetime import datetime

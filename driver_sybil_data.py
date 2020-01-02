@@ -1,4 +1,4 @@
-# run_plotter.py ## driver_sybil_data.py
+# driver_sybil_data.py
 # Created by: Teddy Rowan @ MySybil.com
 # Last Modified: January 1, 2020
 # Description: This script is designed as a free and open-source tool to help retail investors get and analyze historic options data.
@@ -15,7 +15,6 @@ def check_sentinel(input): # Check if the user wants to exit the program everyti
 
 
 API_KEY = 'Bearer UNAGUmPNt1GPXWwWUxUGi4ekynpj' # public key.
-my_headers = {'Authorization': API_KEY} # Tradier Authorization Header
 
 # Settings can also be modified at runtime (non-persistent)
 settings = {'shouldPrintData' : False, 
