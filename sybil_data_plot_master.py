@@ -10,12 +10,6 @@ import matplotlib.ticker as mticker
 from datetime import datetime
 import time
 
-# TODO: change color of vwap line on daily candles.
-# TODO: maybe lighten the candles a little (at least in darkMode)
-# TODO: day break line color / width. 
-
-class TradierQuote():
-  symbol = "" # can't have empty classes. what is python?
 
 # Should we plot /timesales/ or /history/
 def plot_data(data, should_use_history_endpoint, data_title, settings):
@@ -108,19 +102,13 @@ def plot_history(data, data_title, settings):
 
 # Take in the formatted data and settings, and plot the corresponding time/sales chart.
 # Need to clean this up a bit, but it works now, so yay!
-def plot_timesales(data, data_title, settings):
-    vTimestamp = [] # time data for line plot
-    vVwap = [] # volume-weighted-average-price for line plot
-    
+def plot_timesales(data, data_title, settings):    
     ohlc = [] # candlestick chart data
     t1 = 0 #first timestamp
-    data_min = 1000000
-    data_max = 0
     t_current = 0;
     
     plt_binning = settings['binning'] #in minutes
     
-    # quote is a dict w/ keys: time, timestamp, price, ohlc, volume, vwap
     for quote in data:                        
         # i need to look this if-statement over a bit. not totally sure it is behaving as desired (need to look into conversions with binning / timestamp)
         if (t1 == 0):
@@ -133,40 +121,24 @@ def plot_timesales(data, data_title, settings):
         quote_data = t_current, quote['open'], quote['high'], quote['low'], quote['close'], quote['volume']
         ohlc.append(quote_data)
         
-        # Find the min/max data in the set.
-        if (quote['low'] < data_min):
-            data_min = quote['low']
-        if (quote['high'] > data_max):
-            data_max = quote['high']
-        
-        # Also save the timestamp/vwap data to plot the line
-        vVwap.append(quote['vwap'])
-        vTimestamp.append(convert_timestamp_to_binning(quote['timestamp'], plt_binning*60, t1))
-                
-        
+    # If there is data, create a figure and plot it.
     if (len(ohlc)):
         plt, fig, ax1 = default_plot_settings(settings)
-        
         
         candlestick_ohlc(ax1, ohlc, width=0.4, colorup='#57b859', colordown='#db3f3f')
         for label in ax1.xaxis.get_ticklabels():
             label.set_rotation(45)
 
-        plt.binning = plt_binning*60
+        plt.binning = plt_binning*60 #seconds to minutes * plt_binning
         plt.t1 = t1
-        
-        
-        # need to figure out the conversion from time to mdates. what does this comment mean?
+                
+        # (what does this comment mean!?!?)
+        # need to figure out the conversion from time to mdates. 
         #ax1.xaxis.set_major_formatter(mdates.DateFormatter('%Y-%m-%d'))
         ax1.xaxis.set_major_locator(mticker.MaxNLocator(10))
         tickfont = {'fontname':'Futura', 'fontsize':8}
         ax1.set_xticklabels(convert_xticks_to_dates(ax1.get_xticks(), plt.binning, plt.t1), **tickfont)
         ax1.callbacks.connect('xlim_changed', on_xlims_change) #live update the xlabels
-
-
-        plt.plot(vTimestamp, vVwap, 'b--', alpha=0.25, Linewidth=1.0)
-        plt.ylim(top=data_max*1.1)
-        plt.ylim(bottom=data_min*0.9)
 
         titlefont = {'fontname':'Futura', 'fontsize':11}
         title_obj = plt.title(data_title, **titlefont)
@@ -177,7 +149,7 @@ def plot_timesales(data, data_title, settings):
     else:
         print("No option trades during period.")
     
-    return 0;
+    return
 
 
 ####### Clean up everything below me.     

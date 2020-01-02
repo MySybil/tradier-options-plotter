@@ -8,6 +8,7 @@ import sybil_data_grab
 import sybil_data_plot_master
 
 # TODO: ReadME / instructions on git for how to use/run the script
+# TODO: add option for weekly/monthly binning on /history/ plots
 
 def check_sentinel(input): # Check if the user wants to exit the program everytime they input anything
     if (input.lower() == "exit"): print("User Requested Program Termination."); exit()
@@ -23,7 +24,7 @@ settings = {'shouldPrintData' : False,
             'branding'  : "MySybil.com",
             'grid'      : True,
             'historyLimit' : 10,             #when we switch form /timesales to /history endpoint(days)
-            'binning'   : 15}               #1/5/15 for time/sales. (time/sales < 35 days.)
+            'binning'   : 15}                #1/5/15 for time/sales. (time/sales < 35 days.)
 
 # Start of code.
 sybil_data_ui_helper.intro_screen(); # just some printing / instructions to introduce the program
