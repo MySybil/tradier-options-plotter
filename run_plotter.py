@@ -1,4 +1,4 @@
-# run_plotter.py
+# run_plotter.py ## driver_sybil_data.py
 # Created by: Teddy Rowan @ MySybil.com
 # Last Modified: January 1, 2020
 # Description: This script is designed as a free and open-source tool to help retail investors get and analyze historic options data.
@@ -63,21 +63,24 @@ selectedPrice = '{0:08d}'.format(int(float(selectedPrice)*1000)) #format the pri
 startDate, should_use_history_endpoint = sybil_data_grab.get_start_date(int(settings['historyLimit']))
 
 ##### Abstracted up to here.
-
+option_symbol = symbol + format_date + optionType + selectedPrice
+# trade_data = sybil_data_grab.get_trade_data(option_symbol, startDate, settings['binning'], should_use_history_endpoint)
+# sybil_data_plot_master.plot_data(trade_data, should_use_history_endpoint, data_name, settings)
 
 # Set either should_use_history_endpoint /history/ or a /timesales/ url
 if (should_use_history_endpoint):
-    url = "https://sandbox.tradier.com/v1/markets/history?symbol=" + symbol + format_date + optionType + selectedPrice + "&start=" + startDate
+    url = "https://sandbox.tradier.com/v1/markets/history?symbol=" + option_symbol + "&start=" + startDate
 else:
-    url = "https://sandbox.tradier.com/v1/markets/timesales?symbol=" + symbol + format_date + optionType + selectedPrice + "&interval=" + str(int(settings['binning'])) + "min&start=" + startDate
+    url = "https://sandbox.tradier.com/v1/markets/timesales?symbol=" + option_symbol + "&interval=" + str(int(settings['binning'])) + "min&start=" + startDate
 
 data_name = "" # for plot titles
 if (optionType == "C"):
-    data_name = symbol + " $" + str(float(selectedPrice)/1000)  + " Strike Call Expiring " + date
+    data_name = symbol + " $" + str(float(selectedPrice)/1000)  + " Call Data Expiring " + date
 else:
-    data_name = symbol + " $" + str(float(selectedPrice)/1000)  + " Strike Put Expiring " + date
-
+    data_name = symbol + " $" + str(float(selectedPrice)/1000)  + " Put Data Expiring " + date
 print("Now grabbing " + data_name)
+
+
 rData = requests.get(url, headers=my_headers) #actually download the data
 
 if (settings['shouldPrintData']):
