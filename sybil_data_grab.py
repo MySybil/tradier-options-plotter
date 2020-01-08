@@ -14,6 +14,8 @@ def background_info(ticker, api_key):
         params={'symbols': ticker},
         headers={'Authorization': api_key, 'Accept': 'application/json'}
     )
+    if (price_response.status_code == 401): # only need to check here, key cannot be changed after this call.
+        print("Invalid API Key. Terminating Program."); exit()
     price_json = price_response.json()
     try:
         quote = price_json['quotes']['quote']
@@ -134,7 +136,7 @@ def modify_settings(settings):
         if (status.lower() == "shouldprintdata"):
             settings['shouldPrintData'] = not settings['shouldPrintData'];
         
-        # branding / historyLimit / binning need additional user inputs
+        # Non-boolean settings modifications require additional inputs.
         if (status.lower() == "binning"):
             new_bin = input("Please input your desired binning (1/5/15 min): "); check_sentinel(new_bin)
             if (int(new_bin) == 1 or int(new_bin) == 5 or int(new_bin) == 15):
@@ -153,8 +155,10 @@ def modify_settings(settings):
             new_brand = input("Please input your desired branding: "); check_sentinel(new_brand)
             settings['branding'] = new_brand
         
-        # if (status.lower() == "api_key"):
-            # TODO
+        
+        if (status.lower() == "api_key"):
+            new_key = input("Please input an API_KEY (ie: Bearer xx...xx): "); check_sentinel(new_key)
+            settings['API_KEY'] = new_key
         
         
         sybil_data_ui_helper.print_sleep(3)

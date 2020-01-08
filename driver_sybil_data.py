@@ -9,7 +9,6 @@ import sybil_data_ui_helper
 
 # TODO: ReadME / instructions on git for how to use/run the script
 # TODO: add setting for weekly/monthly binning on /history/ plots
-# TODO: add ability to modify API_KEY @ runtime.
 
 def check_sentinel(input): # Check if the user wants to exit the program everytime they input anything
     if (input.lower() == "exit"): print("User Requested Program Termination."); exit()
