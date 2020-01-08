@@ -1,7 +1,7 @@
 #sybil_data_grab.py
 # Script Created by Teddy Rowan for MySybil.com
-# Last Modified January 1, 2020
-# Description: This script handles all the data grabbing for driver_sybil_data.py 
+# Last Modified January 8, 2020
+# Description: This script handles all the data grabbing / formatting for driver_sybil_data.py 
 
 import sybil_data_ui_helper
 import requests
@@ -19,6 +19,12 @@ def background_info(ticker, api_key):
         quote = price_json['quotes']['quote']
     except KeyError:
         print("Could not find data for symbol: (" + ticker + "). Terminating program."); exit()
+
+    print_quote_info(quote) # print information about the daily trading range.
+    return quote['description'] # return the full name of the company for plots and whatnot
+
+# Print background info about the company / daily trading range.
+def print_quote_info(quote):
     sybil_data_ui_helper.print_sleep(1)
     print("You have selected " + quote['description'] + " (" + quote['symbol'] + ").")
     print("The Daily Price Range [low/high] is: $ [" + str(quote['low']) + " / " + str(quote['high']) + "]")
@@ -27,14 +33,12 @@ def background_info(ticker, api_key):
         print("The Stock Price is UP +" + str(quote['change_percentage']) + "% on the day.")
     else:
         print("The Stock Price is DOWN " + str(quote['change_percentage']) + "% on the day.")
-        
-    return quote['description'] # return the full name of the company for plots and whatnot
+    return
 
 # Does the user want to look at call options or put options.
 def option_type(symbol):
     sybil_data_ui_helper.print_sleep(1)
-    input_str = input("Type C for Calls or P for Puts: "); input_str = input_str.upper()
-    check_sentinel(input_str)
+    input_str = input("Type C for Calls or P for Puts: ").upper(); check_sentinel(input_str)
     if (input_str == "C"):
         print("Selected Call Options for " + symbol)
     elif (input_str == "P"):
@@ -91,7 +95,7 @@ def get_start_date(history_limit):
 
     return start_date, should_use_history_endpoint
 
-
+# Get a timeseries of all the trade data.
 def get_trade_data(option_symbol, start_date, binning, should_use_history_endpoint, api_key):
     if(should_use_history_endpoint):
         trade_data_response = requests.get('https://sandbox.tradier.com/v1/markets/history?',
@@ -99,19 +103,14 @@ def get_trade_data(option_symbol, start_date, binning, should_use_history_endpoi
             headers={'Authorization': api_key, 'Accept': 'application/json'}
         )
         trade_data_json = trade_data_response.json()
-        trade_data = trade_data_json['history']['day']
-        #print(trade_data)
-        return(trade_data)
+        return(trade_data_json['history']['day'])
     else:
         trade_data_response = requests.get('https://sandbox.tradier.com/v1/markets/timesales?',
             params={'symbol': option_symbol, 'start': start_date, 'interval':(str(int(binning))+"min")},
             headers={'Authorization': api_key, 'Accept': 'application/json'}
         )
         trade_data_json = trade_data_response.json()
-        trade_data = trade_data_json['series']['data']
-        #for ii in range(len(trade_data)): # good.
-        #    print(trade_data[ii])
-        return(trade_data)
+        return (trade_data_json['series']['data'])
 
 
 # Allow the user to modify the settings for the program at runtime.
@@ -122,10 +121,10 @@ def modify_settings(settings):
     
     status = ""
     while (status.lower() != "done"):
-        print("Type 'done' to return to program execution.")
-        print("*"); time.sleep(0.05)
-        status = input("Which setting would you like to change: ")
-        check_sentinel(status)
+        print("Type 'done' to return to program execution."); print("*"); time.sleep(0.05)
+        status = input("Which setting would you like to change: "); check_sentinel(status)
+        
+        # Boolean settings just get flipped if the user wants to modify them.
         if (status.lower() == "darkmode"):
             settings['darkMode'] = not settings['darkMode'];
         if (status.lower() == "watermark"):
@@ -137,25 +136,25 @@ def modify_settings(settings):
         
         # branding / historyLimit / binning need additional user inputs
         if (status.lower() == "binning"):
-            new_bin = input("Please input your desired binning (1/5/15 min): ")
-            check_sentinel(new_bin)
+            new_bin = input("Please input your desired binning (1/5/15 min): "); check_sentinel(new_bin)
             if (int(new_bin) == 1 or int(new_bin) == 5 or int(new_bin) == 15):
                 settings['binning'] = int(new_bin)
             else:
                 print("Invalid input. Binning remains unmodified.")
         
         if (status.lower() == "historylimit"):
-            new_lim = input("Please input your desired day limit to transition to daily data (<35): ")
-            check_sentinel(new_lim)
+            new_lim = input("Please input your desired day limit to transition to daily data (<35): "); check_sentinel(new_lim)
             try:
                 settings['historyLimit'] = int(new_lim)
             except ValueError:
                 print("Invalid input. History limit remains unmodified.")        
         
         if (status.lower() == "branding"):
-            new_brand = input("Please input your desired branding: ")
-            check_sentinel(new_brand)
+            new_brand = input("Please input your desired branding: "); check_sentinel(new_brand)
             settings['branding'] = new_brand
+        
+        # if (status.lower() == "api_key"):
+            # TODO
         
         
         sybil_data_ui_helper.print_sleep(3)
