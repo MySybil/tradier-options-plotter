@@ -1,4 +1,4 @@
-# MySybil Historic Options Data
+# MySybil Historic Options Data Plotter
 
 This set of scripts aims to provide anyone who wants it free access to historic options trade data. Whether you use this simply to view option prices over time, or as a starting point to build from, my main hope is that it saves you time and provides you with a level of independence from your broker and any major websites that aim to make money off of you.
 
@@ -51,6 +51,9 @@ Enter: 2019-01-01
 
 The program should download all the data and then display a candlestick chart of the daily trade data.
 
+[60-Day Screen](https://gitlab.com/teddyrowan/python-tradier/blob/master/screens/spy_315c_12202019_60day.png)
+ || 
+[Intraday Screen](https://gitlab.com/teddyrowan/python-tradier/blob/master/screens/spy_315c_12202019_intraday_nov26.png)
 
 ## Additional Notes
 
