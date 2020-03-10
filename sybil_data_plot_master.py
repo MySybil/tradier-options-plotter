@@ -1,6 +1,6 @@
 # sybil_data_plot_master.py
 # Script Created by Teddy Rowan for MySybil.com
-# Last Modified January 1, 2020
+# Last Modified: March 10, 2020
 # Description: This script handles all the plotting for driver_sybil_data.py
 
 import matplotlib.pyplot as plt
@@ -10,6 +10,8 @@ import matplotlib.ticker as mticker
 from datetime import datetime
 import time
 
+tickfont = {'fontname':'Futura', 'fontsize':8}
+titlefont = {'fontname':'Futura', 'fontsize':11}
 
 # Should we plot /timesales/ or /history/
 def plot_data(data, should_use_history_endpoint, data_title, settings):
@@ -62,10 +64,8 @@ def plot_history(data, data_title, settings):
     
     for quote in data:
         t_current = convert_string_to_date(quote['date'])
-        if (t1 == 0): # if this is the first data point, save it as the first timestamp.
-            t1 = t_current
-            t1diff = t1 % 24*60*60 # seconds into the day for first trade.
-            t1 = t1 - t1diff
+        if (t1 == 0): # set t1 equal to midnight on the day of the first data point.
+            t1 = t_current - (t_current % 24*60*60)
                     
         t_current = convert_timestamp_to_binning(t_current, 24*60*60, t1)
         
@@ -84,8 +84,6 @@ def plot_history(data, data_title, settings):
         plt.t1 = t1
         plt.binning = 24*60*60
 
-        titlefont = {'fontname':'Futura', 'fontsize':11}
-        tickfont = {'fontname':'Futura', 'fontsize':8}
         ax1.xaxis.set_major_locator(mticker.MaxNLocator(10))
         ax1.set_xticklabels(convert_xticks_to_dates(ax1.get_xticks(), plt.binning, plt.t1), **tickfont)
         ax1.callbacks.connect('xlim_changed', on_xlims_change) #live update the xlabels
@@ -101,20 +99,16 @@ def plot_history(data, data_title, settings):
     return
 
 # Take in the formatted data and settings, and plot the corresponding time/sales chart.
-# Need to clean this up a bit, but it works now, so yay!
 def plot_timesales(data, data_title, settings):    
     ohlc = [] # candlestick chart data
-    t1 = 0 #first timestamp
+    t1 = 0 #midnight timestamp for first day in data.
     t_current = 0;
-    
     plt_binning = settings['binning'] #in minutes
     
+    # Loop through all the data and set candles for each data point
     for quote in data:                        
-        # i need to look this if-statement over a bit. not totally sure it is behaving as desired (need to look into conversions with binning / timestamp)
-        if (t1 == 0):
-            t1 = quote['timestamp']
-            t1diff = t1 % 24*60*60 # seconds into the day for first trade.
-            t1 = t1 - t1diff
+        if (t1 == 0): # set t1 equal to midnight on the day of the first data point.
+            t1 = quote['timestamp'] - (quote['timestamp'] % 24*60*60)
             
         t_current = convert_timestamp_to_binning(quote['timestamp'], plt_binning*60, t1)
         
@@ -122,7 +116,7 @@ def plot_timesales(data, data_title, settings):
         ohlc.append(quote_data)
         
     # If there is data, create a figure and plot it.
-    if (len(ohlc)):
+    if (len(ohlc)): 
         plt, fig, ax1 = default_plot_settings(settings)
         
         candlestick_ohlc(ax1, ohlc, width=0.4, colorup='#57b859', colordown='#db3f3f')
@@ -132,15 +126,10 @@ def plot_timesales(data, data_title, settings):
         plt.binning = plt_binning*60 #seconds to minutes * plt_binning
         plt.t1 = t1
                 
-        # (what does this comment mean!?!?)
-        # need to figure out the conversion from time to mdates. 
-        #ax1.xaxis.set_major_formatter(mdates.DateFormatter('%Y-%m-%d'))
         ax1.xaxis.set_major_locator(mticker.MaxNLocator(10))
-        tickfont = {'fontname':'Futura', 'fontsize':8}
         ax1.set_xticklabels(convert_xticks_to_dates(ax1.get_xticks(), plt.binning, plt.t1), **tickfont)
         ax1.callbacks.connect('xlim_changed', on_xlims_change) #live update the xlabels
 
-        titlefont = {'fontname':'Futura', 'fontsize':11}
         title_obj = plt.title(data_title, **titlefont)
         if (settings['darkMode']):
             plt.setp(title_obj, color='white')        
@@ -148,20 +137,21 @@ def plot_timesales(data, data_title, settings):
         plt.show()
     else:
         print("No option trades during period.")
-    
     return
 
-
-####### Clean up everything below me.     
+# Whenever the x-axis changes, redo the xtick labels 
 def on_xlims_change(axes):
     ax1 = plt.gca()
     ax1.set_xticklabels(convert_xticks_to_dates(ax1.get_xticks(), plt.binning, plt.t1))
 
     
-# takes in the date string and converts to seconds since 1970
+# Return the secondsSince1970 for a generic date string
 def convert_string_to_date(datestr):
     datenum = datetime.strptime(datestr, "%Y-%m-%d")
     return time.mktime(datenum.timetuple())
+
+
+####### Clean up everything below me.     
 
 # this should at least put it to 1 per then just need to scale and shit or something
 def convert_timestamp_to_binning(timestamp, binning, t0):
@@ -173,7 +163,6 @@ def convert_timestamp_to_binning(timestamp, binning, t0):
     # i need to handle daily binning different than binning when we need to deal with after-hours
     if (binning == 24*60*60):
         tadjust = tconvert
-    
     
     return tadjust # ok perfect (well perfectly awful)
         

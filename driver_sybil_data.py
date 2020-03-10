@@ -7,7 +7,6 @@ import sybil_data_grab
 import sybil_data_plot_master
 import sybil_data_ui_helper
 
-# TODO: ReadME / instructions on git for how to use/run the script
 # TODO: add setting for weekly/monthly binning on /history/ plots
 
 def check_sentinel(input): # Check if the user wants to exit the program everytime they input anything
