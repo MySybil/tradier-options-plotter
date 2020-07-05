@@ -61,7 +61,7 @@ There is an API key hard-coded into the script, it's totally cool for you to use
 
 ## Authors
 
-* **Teddy Rowan** @  MySybil.com
+* **Tyrell Olafson** @  MySybil.com
 
 ## Acknowledgments
 
