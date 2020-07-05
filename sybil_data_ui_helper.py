@@ -1,5 +1,5 @@
 #sybil_data_ui_helper()
-# Script Created by Teddy Rowan for MySybil.com
+# Author: MySybil.com
 # Last Modified January 1, 2020
 # Description: This script is just used to abstract uninteresting UI code that I don't want in the main codebase
 
@@ -13,7 +13,6 @@ def intro_screen():
     print("      Welcome To MySybil's Historic Options Data Plotter")
     print(" ")
     print("*****************************************************************")
-    print("* Created by Teddy Rowan at MySybil.com")
     print("* Type 'exit' at any time to terminate program.")
     print_sleep(11)
     

@@ -1,5 +1,5 @@
 #sybil_data_grab.py
-# Script Created by Teddy Rowan for MySybil.com
+# Author: MySybil.com
 # Last Modified January 8, 2020
 # Description: This script handles all the data grabbing / formatting for driver_sybil_data.py 
 

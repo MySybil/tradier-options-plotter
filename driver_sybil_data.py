@@ -1,5 +1,5 @@
 # driver_sybil_data.py
-# Created by: Teddy Rowan @ MySybil.com
+# Author: @ MySybil.com
 # Last Modified: January 8, 2020
 # Description: This script is designed as a free and open-source tool to help retail investors get and analyze historic options data.
 
@@ -17,11 +17,11 @@ def check_sentinel(input): # Check if the user wants to exit the program everyti
 settings = {'shouldPrintData'   : False,
             'API_KEY'           : 'Bearer UNAGUmPNt1GPXWwWUxUGi4ekynpj', #public key
             'darkMode'          : True, 
-            'watermark'         : False, 
+            'watermark'         : True, 
             'branding'          : "MySybil.com",
             'grid'              : True,
             'historyLimit'      : 10,             #when we switch form /timesales to /history endpoint(days)
-            'binning'           : 15}             #1/5/15 for time/sales. (time/sales < 35 days.)
+            'binning'           : 5}             #1/5/15 for time/sales. (time/sales < 35 days.)
 
 sybil_data_ui_helper.intro_screen(); # just some printing / instructions to introduce the program
 
@@ -55,7 +55,7 @@ option_symbol = symbol + format_date + optionType + selectedPrice #full Tradier-
 
 data_name = symbol + " $" + str(float(selectedPrice)/1000)  + " Put Data Expiring " + date
 if (optionType == "C"):
-    data_name = symbol + " $" + str(float(selectedPrice)/1000)  + " Call Data Expiring " + date
+    data_name = symbol + " $" + str(float(selectedPrice) / 1000) + " Call Data Expiring " + date
 print("Now grabbing " + data_name)
 
 

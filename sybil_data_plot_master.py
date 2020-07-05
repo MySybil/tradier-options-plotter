@@ -1,5 +1,5 @@
 # sybil_data_plot_master.py
-# Script Created by Teddy Rowan for MySybil.com
+# Author: MySybil.com
 # Last Modified: March 10, 2020
 # Description: This script handles all the plotting for driver_sybil_data.py
 
