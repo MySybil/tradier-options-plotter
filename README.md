@@ -51,9 +51,9 @@ Enter: 2019-01-01
 
 The program should download all the data and then display a candlestick chart of the daily trade data.
 
-[60-Day Screen](https://gitlab.com/teddyrowan/python-tradier/blob/master/screens/spy_315c_12202019_60day.png)
+[60-Day Screen](https://raw.githubusercontent.com/MySybil/tradier-options-plotter/master/screens/spy_315c_12202019_60day.png)
  || 
-[Intraday Screen](https://gitlab.com/teddyrowan/python-tradier/blob/master/screens/spy_315c_12202019_intraday_nov26.png)
+[Intraday Screen](https://raw.githubusercontent.com/MySybil/tradier-options-plotter/master/screens/spy_315c_12202019_intraday_nov26.png)
 
 ## Additional Notes
 
@@ -61,7 +61,7 @@ There is an API key hard-coded into the script, it's totally cool for you to use
 
 ## Authors
 
-* **Tyrell Olafson** @  MySybil.com
+* **Teddy Rowan** @  MySybil.com
 
 ## Acknowledgments
 
