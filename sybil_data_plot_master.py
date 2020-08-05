@@ -1,17 +1,16 @@
 # sybil_data_plot_master.py
-# Author: MySybil.com
-# Last Modified: March 10, 2020
+# Author: Teddy Rowan @ MySybil.com
+# Last Modified: August 5, 2020
 # Description: This script handles all the plotting for driver_sybil_data.py
 
-import matplotlib.pyplot as plt
-from mpl_finance import candlestick_ohlc
-import matplotlib.dates as mdates
-import matplotlib.ticker as mticker
 from datetime import datetime
 import time
+import mplfinance as mpf
+import pandas as pd
 
-tickfont = {'fontname':'Futura', 'fontsize':8}
-titlefont = {'fontname':'Futura', 'fontsize':11}
+# mplfinance style documentation
+# https://github.com/matplotlib/mplfinance/blob/master/examples/styles.ipynb
+
 
 # Should we plot /timesales/ or /history/
 def plot_data(data, should_use_history_endpoint, data_title, settings):
@@ -21,78 +20,60 @@ def plot_data(data, should_use_history_endpoint, data_title, settings):
         plot_timesales(data, data_title, settings)
     return 0
 
-# Shared default plot settings between /history/ and /timesales/ plots.
-def default_plot_settings(settings):
-    plt.rcParams['figure.figsize'] = (7.9, 4.6)
-    if (settings['darkMode']):
-        plt.rcParams['savefig.facecolor']=(0.04, 0.04, 0.04)
-    fig = plt.figure()
-    ax1 = plt.subplot2grid((1,1), (0,0))
-    if (settings['darkMode']):
-        ax1.set_facecolor((0.04, 0.04, 0.04))
-        fig.set_facecolor((0.04, 0.04, 0.04))
-        ax1.tick_params(colors='white')
-        ax1.yaxis.label.set_color('white')
-
-    ax1.grid(False)
-    plt.subplots_adjust(left=0.10, bottom=0.20, right=0.95, top=0.90, wspace=0.2, hspace=0)
-    labelfont = {'fontname':'Futura', 'fontsize':10}
-    plt.ylabel("Option Price ($)", **labelfont)    
-
-    if (settings['grid']):
-        ax1.minorticks_on()
-        if (settings['darkMode']):
-            ax1.grid(which='major', color='#ffffff', linestyle='--', linewidth=0.75, alpha=0.35)
-        else:
-            ax1.grid(which='major', color='#000000', linestyle='--', linewidth=0.75, alpha=0.35)
-        ax1.grid(b=True, which='minor', color='#999999', linestyle='--', linewidth=0.5, alpha=0.15)    
-    
-    if (settings['watermark']):
-        textstr = settings['branding']
-        props = dict(boxstyle='square', facecolor='none', alpha=0, edgecolor='none')
-        brandColor = 'black'
-        if (settings['darkMode']):
-            brandColor = 'white'
-        ax1.text(0.87, 0.06, textstr, transform=ax1.transAxes, verticalalignment='top', bbox=props, **labelfont, color=brandColor)
-    
-    return plt, fig, ax1
 
 # Take in the formatted data and settings, and plot the corresponding chart.
 def plot_history(data, data_title, settings):
     ohlc = [] # list of candlestick chart data
-    t1 = 0 # first timestamp in the data
+    
+    if (type(data) == type({})):
+        print("Insufficient trade data. Printing all data and terminating Program.")
+        print(data)
+        exit()
     
     for quote in data:
-        t_current = convert_string_to_date(quote['date'])
-        if (t1 == 0): # set t1 equal to midnight on the day of the first data point.
-            t1 = t_current - (t_current % 24*60*60)
-                    
-        t_current = convert_timestamp_to_binning(t_current, 24*60*60, t1)
-        
-        quote_data = t_current, quote['open'], quote['high'], quote['low'], quote['close'], quote['volume']       
-        ohlc.append(quote_data)
-    
-    # If there is data, create a figure and plot it.
+        quote_time = datetime.strptime(quote['date'], "%Y-%m-%d")
+        pandas_data = quote_time, quote['open'], quote['high'], quote['low'], quote['close'], quote['volume']
+        ohlc.append(pandas_data)
+
     if (len(ohlc)): #if there is any data
-        plt, fig, ax1 = default_plot_settings(settings)
+        df = pd.DataFrame(ohlc)
+        df.columns = ['Date', 'Open', 'High', 'Low', 'Close', 'Volume']
+        df = df.set_index(pd.DatetimeIndex(df['Date']))
+
+        ohlc_dict = {
+            'Open':'first',
+            'High':'max',
+            'Low':'min',
+            'Close':'last',
+            'Volume':'sum'
+        }
+
+        df = df.resample('1D').agg(ohlc_dict)
+        #df = df.resample('1W').agg(ohlc_dict) #for longer dated options
+
+        # Drop-weekends. Need to be careful about this if we sample by weekend.
+        for index, row in df.iterrows():
+            day_num = index.to_pydatetime().weekday()
+            if (day_num > 4): # weekend
+                df.drop(index, inplace=True)
         
-        candlestick_ohlc(ax1, ohlc, width=0.4, colorup='#57b859', colordown='#db3f3f')
-        for label in ax1.xaxis.get_ticklabels():
-            label.set_rotation(45)
-
-        # these are assigned so that we can use them when we re-grab the axes when xlims change
-        plt.t1 = t1
-        plt.binning = 24*60*60
-
-        ax1.xaxis.set_major_locator(mticker.MaxNLocator(10))
-        ax1.set_xticklabels(convert_xticks_to_dates(ax1.get_xticks(), plt.binning, plt.t1), **tickfont)
-        ax1.callbacks.connect('xlim_changed', on_xlims_change) #live update the xlabels
+        s  = mpf.make_mpf_style(base_mpf_style='yahoo', 
+                                rc={'font.size':10, 
+                                    'figure.figsize':(9.0, 9.0),
+                                    }, 
+                                y_on_right=False,
+                                gridstyle='--'
+                                )
+        
+        kwargs = dict(type='candle',volume=True)
+        #plt = mpf.plot(df,**kwargs,style='yahoo', title=data_title)
                 
-        title_obj = plt.title(data_title, **titlefont)
-        if (settings['darkMode']):
-            plt.setp(title_obj, color='white')
-        
-        plt.show()
+        mpf.plot(df, **kwargs, style=s, 
+                title=data_title, 
+                datetime_format=' %m/%d',
+                ylabel="Option Price ($)")
+        # Note: (show_nontrading = False) didn't work.. hmm.
+                        
     else:
         print("No option trades during period.")
     
@@ -100,92 +81,60 @@ def plot_history(data, data_title, settings):
 
 # Take in the formatted data and settings, and plot the corresponding time/sales chart.
 def plot_timesales(data, data_title, settings):    
-    ohlc = [] # candlestick chart data
-    t1 = 0 #midnight timestamp for first day in data.
-    t_current = 0;
-    plt_binning = settings['binning'] #in minutes
+    ohlc = [] # list of candlestick chart data
     
-    # Loop through all the data and set candles for each data point
-    for quote in data:                        
-        if (t1 == 0): # set t1 equal to midnight on the day of the first data point.
-            t1 = quote['timestamp'] - (quote['timestamp'] % 24*60*60)
-            
-        t_current = convert_timestamp_to_binning(quote['timestamp'], plt_binning*60, t1)
-        
-        quote_data = t_current, quote['open'], quote['high'], quote['low'], quote['close'], quote['volume']
-        ohlc.append(quote_data)
-        
-    # If there is data, create a figure and plot it.
+    if (type(data) == type({})):
+        print("Insufficient trade data. Printing all data and terminating Program.")
+        print(data)
+        exit()
+    
+    # Organize the data
+    for quote in data:
+        quote_time = datetime.strptime(quote['time'], "%Y-%m-%dT%H:%M:%S")
+        pandas_data = quote_time, quote['open'], quote['high'], quote['low'], quote['close'], quote['volume']
+        ohlc.append(pandas_data)
+
     if (len(ohlc)): 
-        plt, fig, ax1 = default_plot_settings(settings)
-        
-        candlestick_ohlc(ax1, ohlc, width=0.4, colorup='#57b859', colordown='#db3f3f')
-        for label in ax1.xaxis.get_ticklabels():
-            label.set_rotation(45)
+        df = pd.DataFrame(ohlc)
+        df.columns = ['Date', 'Open', 'High', 'Low', 'Close', 'Volume']
+        df = df.set_index(pd.DatetimeIndex(df['Date']))
 
-        plt.binning = plt_binning*60 #seconds to minutes * plt_binning
-        plt.t1 = t1
+        ohlc_dict = {
+            'Open':'first',
+            'High':'max',
+            'Low':'min',
+            'Close':'last',
+            'Volume':'sum'
+        }
+        df = df.resample('5min').agg(ohlc_dict)
+
+        # drop resampled data that is outside of market hours. 
+        for index, row in df.iterrows():
+            hours = index.to_pydatetime().hour
+            minutes = index.to_pydatetime().minute
+            if (hours >= 16):
+                df.drop(index, inplace=True)
+            if (hours == 9 and minutes < 30):
+                df.drop(index, inplace=True)
+            if (hours < 9):
+                df.drop(index, inplace=True)
+        
+        s  = mpf.make_mpf_style(base_mpf_style='yahoo', 
+                                rc={'font.size':10, 
+                                    'figure.figsize':(9.0, 9.0),
+                                    }, 
+                                y_on_right=False,
+                                gridstyle='--'
+                                )
+        
+        kwargs = dict(type='candle',volume=True)
+        #plt = mpf.plot(df,**kwargs,style='yahoo', title=data_title)
                 
-        ax1.xaxis.set_major_locator(mticker.MaxNLocator(10))
-        ax1.set_xticklabels(convert_xticks_to_dates(ax1.get_xticks(), plt.binning, plt.t1), **tickfont)
-        ax1.callbacks.connect('xlim_changed', on_xlims_change) #live update the xlabels
-
-        title_obj = plt.title(data_title, **titlefont)
-        if (settings['darkMode']):
-            plt.setp(title_obj, color='white')        
+        mpf.plot(df, **kwargs, style=s, 
+                title=data_title, 
+                datetime_format=' %H:%M',
+                ylabel="Option Price ($)")
         
-        plt.show()
     else:
         print("No option trades during period.")
     return
-
-# Whenever the x-axis changes, redo the xtick labels 
-def on_xlims_change(axes):
-    ax1 = plt.gca()
-    ax1.set_xticklabels(convert_xticks_to_dates(ax1.get_xticks(), plt.binning, plt.t1))
-
-    
-# Return the secondsSince1970 for a generic date string
-def convert_string_to_date(datestr):
-    datenum = datetime.strptime(datestr, "%Y-%m-%d")
-    return time.mktime(datenum.timetuple())
-
-
-####### Clean up everything below me.     
-
-# this should at least put it to 1 per then just need to scale and shit or something
-def convert_timestamp_to_binning(timestamp, binning, t0):
-    tconvert = (timestamp-t0)/binning #binning from first data point being 0
-    tdays = (int)(tconvert/(24*60*60/binning)) #how many days have passed.
-    tadjust = tconvert - tdays*(17.5*60*60/binning - 1) #remove after hours binning
-    # w/out -1 it was doubling up a data point on the day crossover. double negative. 
-
-    # i need to handle daily binning different than binning when we need to deal with after-hours
-    if (binning == 24*60*60):
-        tadjust = tconvert
-    
-    return tadjust # ok perfect (well perfectly awful)
-        
-def convert_xticks_to_dates(xticks, binning, t0):
-    output = []
-    for x in xticks:
-            date_str = datetime.fromtimestamp(convert_binning_to_timestamp(x, binning, t0))
-            if (binning < 24*60*60):
-                output.append(date_str.strftime("%m/%d, %H:%M"))
-            else:
-                output.append(date_str.strftime("%m/%d/%Y"))
-
-    return output
-
-# just need to do the opposite of convert_timestamp_to_binning    
-def convert_binning_to_timestamp(bin_number, binning, t0):
-    tdays = (int)((bin_number*binning)/(6.5*60*60 + binning)) # + binning b/c of the -1.
-    tadjust = bin_number + tdays*(17.5*60*60/binning - 1) #restored to full bin since zero-point
-    
-    # i need to handle daily binning different than binning when we need to deal with after-hours
-    if (binning == 24*60*60):
-        tadjust = bin_number
-
-    return (tadjust*binning + t0)
-        
-    
