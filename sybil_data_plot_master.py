@@ -63,7 +63,7 @@ def plot_history(data, data_title, settings):
         s  = mpf.make_mpf_style(base_mpf_style='yahoo', 
                                 rc={'font.size':10,
                                     'font.weight':'light',
-                                    'axes.edgecolor':'white',
+                                    'axes.edgecolor':'black',
                                     'figure.figsize':(8.0, 4.8)
                                     }, 
                                 y_on_right=False,
@@ -132,7 +132,7 @@ def plot_timesales(data, data_title, settings):
         s  = mpf.make_mpf_style(base_mpf_style='yahoo', 
                                 rc={'font.size':10,
                                     'font.weight':'light',
-                                    'axes.edgecolor':'white',
+                                    'axes.edgecolor':'black',
                                     'figure.figsize':(8.0, 4.8)
                                     }, 
                                 y_on_right=False,
@@ -140,10 +140,11 @@ def plot_timesales(data, data_title, settings):
                                 gridstyle=settings['gridstyle']
                                 )
         
+        
         kwargs = dict(type='candle',volume=True)  
         mpf.plot(df, **kwargs, style=s, 
                 title="\n\n" + data_title, 
-                datetime_format=' %m/%d',
+                datetime_format=' %m/%d %H:%M',
                 tight_layout=settings['tight_layout'],
                 block=True,
                 ylabel="Option Price ($)")        
