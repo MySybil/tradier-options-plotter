@@ -7,15 +7,14 @@ import time
 
 # just some printing / instructions to introduce the program
 def intro_screen():
-    print_sleep(3)
+    print_sleep(2)
     print("*****************************************************************")
     print(" ")
     print("      Welcome To MySybil's Historic Options Data Plotter")
     print(" ")
     print("*****************************************************************")
-    print("* Type 'exit' at any time to terminate program.")
-    print_sleep(11)
+    print_sleep(6)
     
 def print_sleep(times):
     for i in range(times):
-        print("*"); time.sleep(0.05)
+        print("*"); time.sleep(0.02)

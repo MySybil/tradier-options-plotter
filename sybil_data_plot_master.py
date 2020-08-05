@@ -3,16 +3,15 @@
 # Last Modified: August 5, 2020
 # Description: This script handles all the plotting for driver_sybil_data.py
 
-from datetime import datetime
 import time
-import mplfinance as mpf
+from datetime import datetime
 import pandas as pd
+import mplfinance as mpf
 
 # mplfinance style documentation
 # https://github.com/matplotlib/mplfinance/blob/master/examples/styles.ipynb
 
-
-# Should we plot /timesales/ or /history/
+# Are we plotting intraday or daily data. 
 def plot_data(data, should_use_history_endpoint, data_title, settings):
     if (should_use_history_endpoint):
         plot_history(data, data_title, settings)
@@ -21,7 +20,7 @@ def plot_data(data, should_use_history_endpoint, data_title, settings):
     return 0
 
 
-# Take in the formatted data and settings, and plot the corresponding chart.
+# Make a plot of daily or longer data
 def plot_history(data, data_title, settings):
     ohlc = [] # list of candlestick chart data
     
@@ -48,7 +47,7 @@ def plot_history(data, data_title, settings):
             'Volume':'sum'
         }
 
-        df = df.resample('1D').agg(ohlc_dict)
+        df = df.resample(settings['historyBinning']).agg(ohlc_dict)
         #df = df.resample('1W').agg(ohlc_dict) #for longer dated options
 
         # Drop-weekends. Need to be careful about this if we sample by weekend.
@@ -57,29 +56,36 @@ def plot_history(data, data_title, settings):
             if (day_num > 4): # weekend
                 df.drop(index, inplace=True)
         
+        if (settings['shouldPrintData']):
+            pd.set_option('display.max_rows', None)
+            print(df)
+        
         s  = mpf.make_mpf_style(base_mpf_style='yahoo', 
-                                rc={'font.size':10, 
-                                    'figure.figsize':(9.0, 9.0),
+                                rc={'font.size':10,
+                                    'font.weight':'light',
+                                    'axes.edgecolor':'white',
+                                    'figure.figsize':(8.0, 4.8)
                                     }, 
                                 y_on_right=False,
-                                gridstyle='--'
+                                facecolor='w',
+                                gridstyle=settings['gridstyle']
                                 )
-        
-        kwargs = dict(type='candle',volume=True)
-        #plt = mpf.plot(df,**kwargs,style='yahoo', title=data_title)
                 
+        
+        kwargs = dict(type='candle',volume=True)        
         mpf.plot(df, **kwargs, style=s, 
-                title=data_title, 
+                title="\n\n" + data_title, 
                 datetime_format=' %m/%d',
+                tight_layout=settings['tight_layout'],
+                block=True,
                 ylabel="Option Price ($)")
-        # Note: (show_nontrading = False) didn't work.. hmm.
-                        
+        # Note: (show_nontrading = False) didn't work, had to custom resample and drop.
     else:
         print("No option trades during period.")
     
     return
 
-# Take in the formatted data and settings, and plot the corresponding time/sales chart.
+# Make a candlestick plot of intraday data.
 def plot_timesales(data, data_title, settings):    
     ohlc = [] # list of candlestick chart data
     
@@ -106,7 +112,7 @@ def plot_timesales(data, data_title, settings):
             'Close':'last',
             'Volume':'sum'
         }
-        df = df.resample('5min').agg(ohlc_dict)
+        df = df.resample(settings['timesalesBinning']).agg(ohlc_dict)
 
         # drop resampled data that is outside of market hours. 
         for index, row in df.iterrows():
@@ -114,27 +120,34 @@ def plot_timesales(data, data_title, settings):
             minutes = index.to_pydatetime().minute
             if (hours >= 16):
                 df.drop(index, inplace=True)
-            if (hours == 9 and minutes < 30):
+            elif (hours == 9 and minutes < 30):
                 df.drop(index, inplace=True)
-            if (hours < 9):
+            elif (hours < 9):
                 df.drop(index, inplace=True)
+        
+        if (settings['shouldPrintData']):
+            pd.set_option('display.max_rows', None)
+            print(df)
         
         s  = mpf.make_mpf_style(base_mpf_style='yahoo', 
-                                rc={'font.size':10, 
-                                    'figure.figsize':(9.0, 9.0),
+                                rc={'font.size':10,
+                                    'font.weight':'light',
+                                    'axes.edgecolor':'white',
+                                    'figure.figsize':(8.0, 4.8)
                                     }, 
                                 y_on_right=False,
-                                gridstyle='--'
+                                facecolor='w',
+                                gridstyle=settings['gridstyle']
                                 )
         
-        kwargs = dict(type='candle',volume=True)
-        #plt = mpf.plot(df,**kwargs,style='yahoo', title=data_title)
-                
+        kwargs = dict(type='candle',volume=True)  
         mpf.plot(df, **kwargs, style=s, 
-                title=data_title, 
-                datetime_format=' %H:%M',
-                ylabel="Option Price ($)")
-        
+                title="\n\n" + data_title, 
+                datetime_format=' %m/%d',
+                tight_layout=settings['tight_layout'],
+                block=True,
+                ylabel="Option Price ($)")        
+        # Note: (show_nontrading = False) didn't work, had to custom resample and drop.
     else:
         print("No option trades during period.")
     return

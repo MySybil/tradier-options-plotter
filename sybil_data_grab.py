@@ -1,6 +1,6 @@
 #sybil_data_grab.py
 # Author: MySybil.com
-# Last Modified January 8, 2020
+# Last Modified: August 5, 2020
 # Description: This script handles all the data grabbing / formatting for driver_sybil_data.py 
 
 import sybil_data_ui_helper
@@ -15,12 +15,14 @@ def background_info(ticker, api_key):
         headers={'Authorization': api_key, 'Accept': 'application/json'}
     )
     if (price_response.status_code == 401): # only need to check here, key cannot be changed after this call.
-        print("Invalid API Key. Terminating Program."); exit()
+        print("Invalid API Key. Terminating Program.")
+        exit()
     price_json = price_response.json()
     try:
         quote = price_json['quotes']['quote']
     except KeyError:
-        print("Could not find data for symbol: (" + ticker + "). Terminating program."); exit()
+        print("Could not find data for symbol: (" + ticker + "). Terminating program.")
+        exit()
 
     print_quote_info(quote) # print information about the daily trading range.
     return quote['description'] # return the full name of the company for plots and whatnot
@@ -40,13 +42,15 @@ def print_quote_info(quote):
 # Does the user want to look at call options or put options.
 def option_type(symbol):
     sybil_data_ui_helper.print_sleep(1)
-    input_str = input("Type C for Calls or P for Puts: ").upper(); check_sentinel(input_str)
+    input_str = input("Type C for Calls or P for Puts: ").upper()
+    check_sentinel(input_str)
     if (input_str == "C"):
         print("Selected Call Options for " + symbol)
     elif (input_str == "P"):
         print("Selected Put Options for " + symbol)
     else:
-        print("Invalid option type input. Terminating program."); exit()
+        print("Invalid option type input. Terminating program.")
+        exit()
     
     return input_str
 
@@ -62,7 +66,8 @@ def get_expiry_dates(ticker, api_key):
     if (len(dates_list)):
         print(dates_list)
     else:
-        print("No options available for symbol: " +  ticker + ". Terminating Program."); exit()
+        print("No options available for symbol: " +  ticker + ". Terminating Program.")
+        exit()
     
     sybil_data_ui_helper.print_sleep(1)
     return dates_list
@@ -82,11 +87,13 @@ def get_strike_list(ticker, expiry, api_key):
 
 # Prompt the user for the earliest date in which they want to get data for, then determine whether to retrieve /history/ or /timesales/ data.
 def get_start_date(history_limit):
-    start_date = input("Input a start date for the data range (YYYY-mm-dd): "); check_sentinel(start_date)
+    start_date = input("Input a start date for the data range (YYYY-mm-dd): ")
+    check_sentinel(start_date)
     try:
         start_datenum = datetime.strptime(start_date, "%Y-%m-%d")
     except ValueError:
-        print("Invalid date format. Terminating Program."); exit()
+        print("Invalid date format. Terminating Program.")
+        exit()
 
     start_date_seconds = time.mktime(start_datenum.timetuple())
     current_time_seconds = time.mktime(datetime.now().timetuple()) #seconds since the input date
@@ -115,59 +122,6 @@ def get_trade_data(option_symbol, start_date, binning, should_use_history_endpoi
         return (trade_data_json['series']['data'])
 
 
-# Allow the user to modify the settings for the program at runtime.
-def modify_settings(settings):
-    sybil_data_ui_helper.print_sleep(3)
-    print("The following runtime settings of this program can be modified.")
-    print(settings)
-    
-    status = ""
-    while (status.lower() != "done"):
-        print("Type 'done' to return to program execution."); print("*"); time.sleep(0.05)
-        status = input("Which setting would you like to change: "); check_sentinel(status)
-        
-        # Boolean settings just get flipped if the user wants to modify them.
-        if (status.lower() == "darkmode"):
-            settings['darkMode'] = not settings['darkMode'];
-        if (status.lower() == "watermark"):
-            settings['watermark'] = not settings['watermark'];
-        if (status.lower() == "grid"):
-            settings['grid'] = not settings['grid'];
-        if (status.lower() == "shouldprintdata"):
-            settings['shouldPrintData'] = not settings['shouldPrintData'];
-        
-        # Non-boolean settings modifications require additional inputs.
-        if (status.lower() == "binning"):
-            new_bin = input("Please input your desired binning (1/5/15 min): "); check_sentinel(new_bin)
-            if (int(new_bin) == 1 or int(new_bin) == 5 or int(new_bin) == 15):
-                settings['binning'] = int(new_bin)
-            else:
-                print("Invalid input. Binning remains unmodified.")
-        
-        if (status.lower() == "historylimit"):
-            new_lim = input("Please input your desired day limit to transition to daily data (<35): "); check_sentinel(new_lim)
-            try:
-                settings['historyLimit'] = int(new_lim)
-            except ValueError:
-                print("Invalid input. History limit remains unmodified.")        
-        
-        if (status.lower() == "branding"):
-            new_brand = input("Please input your desired branding: "); check_sentinel(new_brand)
-            settings['branding'] = new_brand
-        
-        
-        if (status.lower() == "api_key"):
-            new_key = input("Please input an API_KEY (ie: Bearer xx...xx): "); check_sentinel(new_key)
-            settings['API_KEY'] = new_key
-        
-        
-        sybil_data_ui_helper.print_sleep(3)
-        print("The runtime settings are now currently:")
-        print(settings)
-        
-    sybil_data_ui_helper.print_sleep(3)
-    return settings
-    
 # Check all user inputs for "exit" to see if they want to terminate the program
 def check_sentinel(input):
     if (input.lower() == "exit"):

@@ -3,73 +3,68 @@
 # Last Modified: August 5, 2020
 # Description: This script is designed as a free and open-source tool to help retail investors get and analyze historic options data.
 
-import sybil_data_grab
-import sybil_data_plot_master
-import sybil_data_ui_helper
+import sybil_data_grab as sdg
+import sybil_data_plot_master as pm
+import sybil_data_ui_helper as sui
 
-# TODO: reimplement settings
+# TODO: intraday charts need the date for multi-day. 
+# TODO: look into setting up an external file for settings
+# BUG:  why do i need to resize the figure to get it to show properly
 
-def check_sentinel(input): # Check if the user wants to exit the program everytime they input anything
-    if (input.lower() == "exit"): 
-        print("User Requested Program Termination."); 
-        exit()
-
-# Settings can also be modified at runtime (non-persistent)
-settings = {'shouldPrintData'   : False,
-            'API_KEY'           : 'Bearer UNAGUmPNt1GPXWwWUxUGi4ekynpj', #public key
-            'darkMode'          : True,           # currently disabled
-            'watermark'         : True,           # currently disabled
-            'branding'          : "MySybil.com",  # currently disabled
-            'grid'              : True,           # currently always on
+settings = {'API_KEY'           : 'Bearer UNAGUmPNt1GPXWwWUxUGi4ekynpj', #public key
+            'shouldPrintData'   : True,           # Now prints dataframe 
             'historyLimit'      : 10,             # when to switch form /timesales to /history endpoint(days)
-            'binning'           : 1}              # currently disabled. always set to 5min
+            'gridstyle'         : '--',           # '--' / '-' / 'None'
+            'tight_layout'      : False,          # tight vs normal layout for figures
+            'historyBinning'    : '1D',           # '1D' / '7D' / etc 
+            'timesalesBinning'  : '5min',         # '1min' / '5min' / '15min'            
+            'downloadBinning'   : 1}              # binning to download (not display) intraday data. keep at 1
 
-sybil_data_ui_helper.intro_screen(); # just some printing / instructions to introduce the program
+sui.intro_screen();
+symbol = input("Enter a symbol to proceed: ").upper()
 
-symbol = input("Type 'settings' or enter a symbol to proceed: ").upper()
-check_sentinel(symbol)
-if (symbol == "SETTINGS"): # Does the user want to change the settings
-    settings = sybil_data_grab.modify_settings(settings) #settings editting superloop
-    symbol = input("Enter a symbol to proceed: ").upper() # prompt for symbol after settings optimized
-    check_sentinel(symbol) 
+description = sdg.background_info(symbol, settings['API_KEY']) 
+option_type = sdg.option_type(symbol)
+date_list   = sdg.get_expiry_dates(symbol, settings['API_KEY']) 
 
-description = sybil_data_grab.background_info(symbol, settings['API_KEY']) # Display some info about the underlying
-option_type = sybil_data_grab.option_type(symbol) # Does the user want to look at call options or put options
-dateList = sybil_data_grab.get_expiry_dates(symbol, settings['API_KEY']) # Download a list of all the expiry dates available
-
-# Prompt the user to pick one of the expiry dates
+# Prompt the user to pick one of the expiry dates and validate the data
 date = input("Select an expiry date from the list above: ")
-check_sentinel(date)
-if (date not in dateList):
+if (date not in date_list):
     print("The date: " + date + " is not valid. Terminating Program.")
     exit()
 
-# Format the date string for Tradier's API formatting
-format_date = date.replace("-", "") # strip out the dashes from the selected date
-format_date = format_date[2:len(format_date)] # strip the 20 off the front of 2020
+# Format the date string for Tradier's API formatting (strip dashes then strip 20 off the front of 2021)
+format_date = date.replace("-", "")[2:len(date.replace("-", ""))]
 
+strike_list = sdg.get_strike_list(symbol, 
+                                date, 
+                                settings['API_KEY'])
 
-strikeList = sybil_data_grab.get_strike_list(symbol, date, settings['API_KEY'])
-selectedPrice = input("Select a strike from the list above: ")
-check_sentinel(selectedPrice)
-if not (float(selectedPrice) in strikeList):
+selected_price = input("Select a strike from the list above: ")
+if not (float(selected_price) in strike_list):
     print("No strike available for input price. Terminating Program.")
     exit()
 
-selectedPrice = '{0:08d}'.format(int(float(selectedPrice)*1000)) #format the price string for Tradier
-startDate, should_use_history_endpoint = sybil_data_grab.get_start_date(int(settings['historyLimit'])) #prompt user for date range
-option_symbol = symbol + format_date + option_type + selectedPrice #full Tradier-formatted symbol for the option
-
-data_name = symbol + " $" + str(float(selectedPrice)/1000) + option_type + " (" + date + ")"
-print("Now downloading trade data for: " + data_name)
-
+# Format the price string for Tradier
+selected_price = '{0:08d}'.format(int(float(selected_price)*1000)) 
+# Prompt user for date range
+start_date, should_use_history_endpoint = sdg.get_start_date(int(settings['historyLimit']))
+# Full Tradier-formatted symbol for the option
+option_symbol = symbol + format_date + option_type + selected_price 
+# Plot title
+data_name = symbol + " $" + str(float(selected_price)/1000) + option_type + " (" + date + ")"
 
 # Download the trade data and plot it
-trade_data = sybil_data_grab.get_trade_data(option_symbol, startDate, settings['binning'], should_use_history_endpoint, settings['API_KEY'])
-sybil_data_plot_master.plot_data(trade_data, should_use_history_endpoint, data_name, settings)
+print("Now downloading trade data for: " + data_name)
+trade_data = sdg.get_trade_data(option_symbol, 
+                                start_date, 
+                                settings['downloadBinning'], 
+                                should_use_history_endpoint, 
+                                settings['API_KEY'])
 
-if (settings['shouldPrintData']):
-    print(trade_data)
+pm.plot_data(trade_data, 
+            should_use_history_endpoint, 
+            data_name, 
+            settings)
     
 print("Program Reached End Of Execution.")
-exit()
