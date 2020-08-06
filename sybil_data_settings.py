@@ -47,8 +47,15 @@ def get_settings():
         print("WARNING: Download binning interval too small for historyLimit. Increasing binning to 5min")
         settings_dict['downloadBinning'] = 5
     
-    # TODO: validate shouldPrintData
-    # TODO: validate tight_layout
+    if not (type(settings_dict['shouldPrintData']) == bool):
+        print("WARNING: Invalid input for shouldPrintData. Required <type> boolean. Setting equal True.")
+        settings_dict['shouldPrintData'] = True
+    
+    if not (type(settings_dict['tight_layout']) == bool):
+        print("WARNING: Invalid input for tight_layout. Required <type> boolean. Setting equal False.")
+        settings_dict['tight_layout'] = False
+
+
     # TODO: validate historyBinning
     # TODO: validate timesalesBinning
     # TODO: validate downloadBinning

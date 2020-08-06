@@ -1,4 +1,4 @@
-#sybil_data_grab.py
+# sybil_data_grab.py
 # Last Modified: August 5, 2020
 # Description: This script handles all the data grabbing / formatting for run_sybil_plotter.py 
 

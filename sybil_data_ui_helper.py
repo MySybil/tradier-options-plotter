@@ -1,10 +1,10 @@
-#sybil_data_ui_helper()
-# Last Modified January 1, 2020
-# Description: This script is just used to abstract uninteresting UI code that I don't want in the main codebase
+# sybil_data_ui_helper.py
+# Last Modified: August 6, 2020
+# Description: Uninteresting UI code to support run_sybil_plotter.py
 
 import time
 
-# just some printing / instructions to introduce the program
+# Introduction screen for the scripts.
 def intro_screen():
     print_sleep(2)
     print("*****************************************************************")
@@ -13,7 +13,8 @@ def intro_screen():
     print(" ")
     print("*****************************************************************")
     print_sleep(6)
-    
+
+# Insert blank lines and slowly pause to create a loading effect and guide the user.
 def print_sleep(times):
     for i in range(times):
         print("*"); time.sleep(0.02)

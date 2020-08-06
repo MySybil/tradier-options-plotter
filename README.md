@@ -67,7 +67,7 @@ Enter: 2019-01-01
 
 The program should download all the data and then display a candlestick chart of the daily trade data. Something along the lines of the figures below (the candlestick binning can be changed in the settings inside the driver file):
 
-[Historical SPY 325C](./screens/spy-intraday.png) || [SPY Intraday](./screens/spy-history.png)
+[7-Months of SPY 325C](./screens/spy-history.png) || [SPY Intraday](./screens/spy-intraday.png)
 
 ## Additional Notes
 
