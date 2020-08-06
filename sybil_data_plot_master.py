@@ -1,10 +1,9 @@
 # sybil_data_plot_master.py
-# Author: Teddy Rowan @ MySybil.com
 # Last Modified: August 5, 2020
-# Description: This script handles all the plotting for driver_sybil_data.py
+# Description: This script handles all the plotting for run_sybil_plotter.py
 
-import time
 from datetime import datetime
+import time
 import pandas as pd
 import mplfinance as mpf
 
@@ -118,13 +117,18 @@ def plot_timesales(data, data_title, settings):
         for index, row in df.iterrows():
             hours = index.to_pydatetime().hour
             minutes = index.to_pydatetime().minute
-            if (hours >= 16):
+            day_num = index.to_pydatetime().weekday()
+
+            if (day_num > 4): # weekend
+                df.drop(index, inplace=True)
+            elif (hours >= 16):
                 df.drop(index, inplace=True)
             elif (hours == 9 and minutes < 30):
                 df.drop(index, inplace=True)
             elif (hours < 9):
                 df.drop(index, inplace=True)
-        
+            
+                
         if (settings['shouldPrintData']):
             pd.set_option('display.max_rows', None)
             print(df)

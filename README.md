@@ -1,7 +1,8 @@
 # MySybil Historic Options Data Plotter
 
-This set of scripts aims to provide anyone who wants it free access to historic options trade data. Whether you use this simply to view option prices over time, or as a starting point to build from, my main hope is that it saves you time and provides you with a level of independence from your broker and any major websites that aim to make money off of you.
+This set of scripts aims to provide free access to historic options trade data for anyone that wants it. Whether you want to simply quickly view trade history, or if you want to use these scripts as a starting point to build from, the main hope is to save you time and provide you a small amount of indepence from your broker and any websites trying to make money off of you.
 
+The scripts are plug-and-play from a Python3 CLI, but if you decide to use them on an ongoing basis I do ask that you create your own account at developer.tradier.com and generate your own API token in order to alleviate any potential strain on the communal key provided. It's free, it only takes 30 seconds, and you'll never have to worry about fighting with other users around rate-limiting. 
 
 ## Getting Started
 
@@ -10,19 +11,34 @@ These instructions will get you a copy of the project up and running on your loc
 ### Prerequisites
 
 Required Python Modules:
+
 ```
+python3.7
 requests
 time
 datetime
-mpl_finance
-matplotlib
+mplfinance
+pandas
 ```
 
 ### Installation
 
-Clone the repository, make sure that you have all the dependencies installed, then run with Python3 "driver_sybil_data.py"
+Clone the repository, open your command-line interface make sure that you have all the dependencies installed:
 
-As a quick example, run the script and the first prompt should be to "Type 'settings' or enter a symbol to proceed: "
+```
+pip3 install requests
+```
+
+(repeat for any depenencies that you're missing)
+
+
+From the CLI run:
+
+```
+python3 run_sybil_plotter.py
+```
+
+As a quick example, run the script and the first prompt should be to "Enter a symbol to proceed: "
 
 ```
 Enter: SPY
@@ -49,13 +65,13 @@ You'll be prompted for the earliest trade data you want to look at:
 Enter: 2019-01-01
 ```
 
-The program should download all the data and then display a candlestick chart of the daily trade data.
+The program should download all the data and then display a candlestick chart of the daily trade data. Something along the lines of the figures below (the candlestick binning can be changed in the settings inside the driver file):
 
-[60-Day Screen](https://raw.githubusercontent.com/MySybil/tradier-options-plotter/master/screens/spy_315c_12202019_60day.png)
- || 
-[Intraday Screen](https://raw.githubusercontent.com/MySybil/tradier-options-plotter/master/screens/spy_315c_12202019_intraday_nov26.png)
+[Historical SPY 325C](./screens/spy-intraday.png) || [SPY Intraday](./screens/spy-history.png)
 
 ## Additional Notes
+
+The mplfinance library is still under development and not-totally stable. I run into issues like having to change the window size of the plots manually to get them to auto-resize. Hopefully this will be fixed in time. 
 
 There is an API key hard-coded into the script, it's totally cool for you to use this while deciding if you want to continue to use this script or not, but there is rate-limiting on it and the potential for that to become a problem. If you do plan to use this script frequently or build on-top of it, please head over to developer.tradier.com and sign up for free for an account and get your own API key.
 

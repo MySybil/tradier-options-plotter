@@ -1,25 +1,16 @@
 # closed_option_driver.py
-# Author: MySybil.com
-# Last Modified: January 2, 2020
-# Description: This script is the sister script to driver_sybil_data.py and works for options that have already expired. The catch is that you need to already know all the info about the options since we can't fetch a list of past expiry dates or strikes available on a given date.
+# Last Modified: August 5, 2020
+# Description: This script is the sister script to run_sybil_plotter.py and works for options that have already expired. The catch is that you need to already know all the info about the options since we can't fetch a list of past expiry dates or strikes available on a given date.
 
 import sybil_data_ui_helper as sui
 import sybil_data_grab as sdg
 import sybil_data_plot_master as pm
+import sybil_data_settings
 
-# TODO: add back in support for stocks the don't trade anymore. (ie: YHOO). gets caught in the background_info call
+# TODO: Support for stocks the don't trade anymore. (ie: YHOO). gets caught in the background_info call
 
-settings = {'API_KEY'           : 'Bearer UNAGUmPNt1GPXWwWUxUGi4ekynpj', #public key
-            'shouldPrintData'   : True,           # Now prints dataframe 
-            'historyLimit'      : 10,             # when to switch form /timesales to /history endpoint(days)
-            'gridstyle'         : '--',           # '--' / '-' / 'None'
-            'tight_layout'      : False,          # tight vs normal layout for figures
-            'historyBinning'    : '1D',           # '1D' / '7D' / etc 
-            'timesalesBinning'  : '5min',         # '1min' / '5min' / '15min'            
-            'downloadBinning'   : 1}              # binning to download (not display) intraday data. keep at 1
-
-# Start of code.
 sui.intro_screen(); # just some printing / instructions to introduce the program
+settings = sybil_data_settings.get_settings()
 symbol = input("Enter a symbol to proceed: ").upper()
 
 description = sdg.background_info(symbol, settings['API_KEY']) # Display some info about the underlying

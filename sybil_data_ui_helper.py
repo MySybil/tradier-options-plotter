@@ -1,5 +1,4 @@
 #sybil_data_ui_helper()
-# Author: MySybil.com
 # Last Modified January 1, 2020
 # Description: This script is just used to abstract uninteresting UI code that I don't want in the main codebase
 
