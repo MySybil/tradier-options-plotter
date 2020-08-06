@@ -1,4 +1,4 @@
-# closed_option_driver.py
+# closed_option_plotter.py
 # Last Modified: August 5, 2020
 # Description: This script is the sister script to run_sybil_plotter.py and works for options that have already expired. The catch is that you need to already know all the info about the options since we can't fetch a list of past expiry dates or strikes available on a given date.
 
