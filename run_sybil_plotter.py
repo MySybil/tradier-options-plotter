@@ -1,13 +1,16 @@
-# run_sybil_plotter.py
-# Last Modified: August 5, 2020
-# Description: This script is designed as a free and open-source tool to help retail investors get and analyze historic options data.
+"""
+run_sybil_plotter.py
+Last Modified: August 5, 2020
+Description: This script is designed as a free and open-source tool to help retail investors get 
+and analyze historic options data.
+
+BUG:  why do i need to resize the figures to get them to show properly
+"""
 
 import sybil_data_grab as sdg
 import sybil_data_plot_master as pm
 import sybil_data_ui_helper as sui
 import sybil_data_settings
-
-# BUG:  why do i need to resize the figures to get them to show properly
 
 sui.intro_screen();
 settings = sybil_data_settings.get_settings()

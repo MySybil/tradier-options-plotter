@@ -1,14 +1,17 @@
-# sybil_data_plot_master.py
-# Last Modified: August 5, 2020
-# Description: This script handles all the plotting for run_sybil_plotter.py
+"""
+sybil_data_plot_master.py
+Last Modified: August 5, 2020
+Description: This script handles all the plotting for run_sybil_plotter.py
+
+# mplfinance style documentation
+# https://github.com/matplotlib/mplfinance/blob/master/examples/styles.ipynb
+"""
 
 from datetime import datetime
 import time
 import pandas as pd
 import mplfinance as mpf
 
-# mplfinance style documentation
-# https://github.com/matplotlib/mplfinance/blob/master/examples/styles.ipynb
 
 # Are we plotting intraday or daily data. 
 def plot_data(data, should_use_history_endpoint, data_title, settings):

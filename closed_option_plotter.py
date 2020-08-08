@@ -1,13 +1,18 @@
-# closed_option_plotter.py
-# Last Modified: August 5, 2020
-# Description: This script is the sister script to run_sybil_plotter.py and works for options that have already expired. The catch is that you need to already know all the info about the options since we can't fetch a list of past expiry dates or strikes available on a given date.
+"""
+closed_option_plotter.py
+Last Modified: August 5, 2020
+Description: This script is the sister script to run_sybil_plotter.py and works for options
+ that have already expired. The catch is that you need to already know all the info about the
+ options since we can't fetch a list of past expiry dates or strikes available on a given date.
+
+TODO: Support for stocks the don't trade anymore. (ie: YHOO). gets caught in the background_info call
+"""
 
 import sybil_data_ui_helper as sui
 import sybil_data_grab as sdg
 import sybil_data_plot_master as pm
 import sybil_data_settings
 
-# TODO: Support for stocks the don't trade anymore. (ie: YHOO). gets caught in the background_info call
 
 sui.intro_screen(); # just some printing / instructions to introduce the program
 settings = sybil_data_settings.get_settings()

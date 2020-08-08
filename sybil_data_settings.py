@@ -1,8 +1,10 @@
-# sybil_data_settings.py
-# Last Modified: August 6, 2020
-# Description: This script handles the run-time settings for MySybil's tradier-options-plotter. Modify them here and they will apply to bother run_sybil_plotter.py and closed_option_plotter.py
+"""
+sybil_data_settings.py
+Last Modified: August 6, 2020
+Description: This script handles the run-time settings for MySybil's tradier-options-plotter. 
+Modify them here and they will apply to bother run_sybil_plotter.py and closed_option_plotter.py
+"""
 
-# Runtime settings and explanations.
 def get_settings():
     settings_dict = {'API_KEY'          : 'Bearer UNAGUmPNt1GPXWwWUxUGi4ekynpj',
                     # Communal API key, use to demo the scripts but please get your own for continued use. 
@@ -28,7 +30,7 @@ def get_settings():
                     # '1D' or '7D' or '3D' or etc. Untested support for 1W / 1M / etc.
                     # The data binning for non-intraday plots.
                     
-                    'timesalesBinning'  : '5min',
+                    'timesalesBinning'  : '15min',
                     # '1min' or '5min' or '15min' or '60min'.
                     # The data binning for intraday plots.
                     
