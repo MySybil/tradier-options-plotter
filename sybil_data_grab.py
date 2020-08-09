@@ -9,9 +9,11 @@ import requests
 import time
 from datetime import datetime
 
+root_url = 'https://sandbox.tradier.com/v1/markets'
+
 # Verify that the ticker is valid and grab/print some daily trade info for the underlying.
 def background_info(ticker, api_key):
-    price_response = requests.get('https://sandbox.tradier.com/v1/markets/quotes',
+    price_response = requests.get(root_url + '/quotes',
         params={'symbols': ticker},
         headers={'Authorization': api_key, 'Accept': 'application/json'}
     )
@@ -43,7 +45,7 @@ def print_quote_info(quote):
 # Does the user want to look at call options or put options.
 def option_type(symbol):
     sybil_data_ui_helper.print_sleep(1)
-    input_str = input("Type C for Calls or P for Puts: ").upper()
+    input_str = input("Select calls [c] or puts [p]: ").upper()
     check_sentinel(input_str)
     if (input_str == "C"):
         print("Selected Call Options for " + symbol)
@@ -57,7 +59,7 @@ def option_type(symbol):
 
 # Download and print a list of all available expiry dates for options for the symbol
 def get_expiry_dates(ticker, api_key):
-    dates_response = requests.get('https://sandbox.tradier.com/v1/markets/options/expirations?',
+    dates_response = requests.get(root_url + '/options/expirations?',
         params={'symbol': ticker},
         headers={'Authorization': api_key, 'Accept': 'application/json'}
     )
@@ -75,7 +77,7 @@ def get_expiry_dates(ticker, api_key):
 
 # Download and print a list of all available strikes for the expiry date.
 def get_strike_list(ticker, expiry, api_key):
-    strike_list_response = requests.get('https://sandbox.tradier.com/v1/markets/options/strikes?',
+    strike_list_response = requests.get(root_url + '/options/strikes?',
         params={'symbol': ticker, 'expiration': expiry},
         headers={'Authorization': api_key, 'Accept': 'application/json'}
     )
@@ -108,14 +110,14 @@ def get_start_date(history_limit):
 # Get a timeseries of all the trade data.
 def get_trade_data(option_symbol, start_date, binning, should_use_history_endpoint, api_key):
     if(should_use_history_endpoint):
-        trade_data_response = requests.get('https://sandbox.tradier.com/v1/markets/history?',
+        trade_data_response = requests.get(root_url + '/history?',
             params={'symbol': option_symbol, 'start': start_date},
             headers={'Authorization': api_key, 'Accept': 'application/json'}
         )
         trade_data_json = trade_data_response.json()
         return(trade_data_json['history']['day'])
     else:
-        trade_data_response = requests.get('https://sandbox.tradier.com/v1/markets/timesales?',
+        trade_data_response = requests.get(root_url + '/timesales?',
             params={'symbol': option_symbol, 'start': start_date, 'interval':(str(int(binning))+"min")},
             headers={'Authorization': api_key, 'Accept': 'application/json'}
         )

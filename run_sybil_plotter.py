@@ -20,14 +20,13 @@ description = sdg.background_info(symbol, settings['API_KEY'])
 option_type = sdg.option_type(symbol)
 date_list   = sdg.get_expiry_dates(symbol, settings['API_KEY']) 
 
-# Prompt the user to pick one of the expiry dates and validate the data
 date = input("Select an expiry date from the list above: ")
 if (date not in date_list):
     print("The date: " + date + " is not valid. Terminating Program.")
     exit()
 
-# Format the date string for Tradier's API formatting (strip dashes then strip 20 off the front of 2021)
 format_date = date.replace("-", "")[2:len(date.replace("-", ""))]
+# Format the date string for Tradier's API formatting (strip dashes then strip 20 off the front of 2021)
 
 strike_list = sdg.get_strike_list(symbol, 
                                 date, 
@@ -38,16 +37,18 @@ if not (float(selected_price) in strike_list):
     print("No strike available for input price. Terminating Program.")
     exit()
 
-# Format the price string for Tradier
 selected_price = '{0:08d}'.format(int(float(selected_price)*1000)) 
-# Prompt user for date range
-start_date, should_use_history_endpoint = sdg.get_start_date(int(settings['historyLimit']))
-# Full Tradier-formatted symbol for the option
-option_symbol = symbol + format_date + option_type + selected_price 
-# Plot title
-data_name = symbol + " $" + str(float(selected_price)/1000) + option_type + " (" + date + ")"
+# Format the price string for Tradier
 
-# Download the trade data and plot it
+start_date, should_use_history_endpoint = sdg.get_start_date(int(settings['historyLimit']))
+# Prompt user for date range and figure out which data type they're looking for.
+
+option_symbol = symbol + format_date + option_type + selected_price 
+# Full Tradier-formatted symbol for the option
+
+data_name = symbol + " $" + str(float(selected_price)/1000) + option_type + " (" + date + ")"
+# Plot title
+
 print("Now downloading trade data for: " + data_name)
 trade_data = sdg.get_trade_data(option_symbol, 
                                 start_date, 
