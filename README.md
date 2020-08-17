@@ -9,14 +9,13 @@ The scripts are plug-and-play from a Python3 CLI, but if you decide to use them 
 These instructions will get you a copy of the project up and running on your local machine.
 
 ### Dependencies
-
 ```
 requests
 time
 datetime
-~~mplfinance~~
 pandas
 ```
+~~mplfinance~~
 
 Note: this package is currently running a custom version of mplfinance with additional personalization options for plots. 
 
@@ -72,20 +71,20 @@ Example Data Output (Daily data):
 
 ```
 
-            			Open  High   Low  Close  Volume 
-			Date                                       
-			2020-06-18  0.25  0.25  0.25   0.25       5
-			2020-06-19  0.30  0.30  0.24   0.28      46
-			2020-06-22  0.34  0.35  0.28   0.28      43
-			2020-06-23  0.39  0.39  0.26   0.28      41
-			2020-06-24  0.25  0.27  0.21   0.25      70
-			2020-06-25  0.19  0.19  0.14   0.15      26
-			...
-			...
-			2020-08-11  1.46  1.57  0.56   0.70   10252
-			2020-08-12  0.89  2.02  0.64   1.83   12431
-			2020-08-13  1.96  2.44  1.28   1.33   10453
-			2020-08-14  1.28  1.83  0.78   0.85   13137
+	    Open  High   Low  Close  Volume 
+Date                                       
+2020-06-18  0.25  0.25  0.25   0.25       5
+2020-06-19  0.30  0.30  0.24   0.28      46
+2020-06-22  0.34  0.35  0.28   0.28      43
+2020-06-23  0.39  0.39  0.26   0.28      41
+2020-06-24  0.25  0.27  0.21   0.25      70
+2020-06-25  0.19  0.19  0.14   0.15      26
+...
+...
+2020-08-11  1.46  1.57  0.56   0.70   10252
+2020-08-12  0.89  2.02  0.64   1.83   12431
+2020-08-13  1.96  2.44  1.28   1.33   10453
+2020-08-14  1.28  1.83  0.78   0.85   13137
 ```
 
 ## Additional Notes
