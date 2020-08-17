@@ -30,11 +30,11 @@ def get_settings():
                     # '1D' or '7D' or '3D' or etc. Untested support for 1W / 1M / etc.
                     # The data binning for non-intraday plots.
                     
-                    'timesalesBinning'  : '15min',
+                    'timesalesBinning'  : '5min',
                     # '1min' or '5min' or '15min' or '60min'.
                     # The data binning for intraday plots.
                     
-                    'downloadBinning'   : 1
+                    'downloadBinning'   : 5
                     # '1' or '5' or '15' (minutes)
                     # The binning to download intraday data (not to plot, the data is resampled to your choosing later).
                     # Keep this at 1 (minute) unless you're downloading intraday data going back further than 20 days or stressing the API.

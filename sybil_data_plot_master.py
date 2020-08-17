@@ -1,6 +1,6 @@
 """
 sybil_data_plot_master.py
-Last Modified: August 5, 2020
+Last Modified: August 16, 2020
 Description: This script handles all the plotting for run_sybil_plotter.py
 
 # mplfinance style documentation
@@ -76,7 +76,7 @@ def plot_history(data, data_title, settings):
         
         kwargs = dict(type='candle',volume=True)        
         mpf.plot(df, **kwargs, style=s, 
-                title="\n\n" + data_title, 
+                title=dict(title="\n\n" + data_title, weight='regular', size=11),                
                 datetime_format=' %m/%d',
                 tight_layout=settings['tight_layout'],
                 block=True,
@@ -150,7 +150,7 @@ def plot_timesales(data, data_title, settings):
         
         kwargs = dict(type='candle',volume=True)  
         mpf.plot(df, **kwargs, style=s, 
-                title="\n\n" + data_title, 
+                title=dict(title="\n\n" + data_title, weight='regular', size=11),               
                 datetime_format=' %m/%d %H:%M',
                 tight_layout=settings['tight_layout'],
                 block=True,

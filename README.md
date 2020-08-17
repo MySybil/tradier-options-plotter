@@ -8,25 +8,24 @@ The scripts are plug-and-play from a Python3 CLI, but if you decide to use them 
 
 These instructions will get you a copy of the project up and running on your local machine.
 
-### Prerequisites
-
-Required Python Modules:
+### Dependencies
 
 ```
-python3.7
 requests
 time
 datetime
-mplfinance
+~~mplfinance~~
 pandas
 ```
+
+Note: this package is currently running a custom version of mplfinance with additional personalization options for plots. 
 
 ### Installation
 
 Clone the repository, open your command-line interface make sure that you have all the dependencies installed:
 
 ```
-pip3 install requests
+pip install requests
 ```
 
 (repeat for any depenencies that you're missing)
@@ -67,13 +66,33 @@ Enter: 2019-01-01
 
 The program should download all the data and then display a candlestick chart of the daily trade data. Something along the lines of the figures below (the candlestick binning can be changed in the settings inside the driver file):
 
-[7-Months of SPY 325C](./screens/spy-history.png) || [SPY Intraday](./screens/spy-intraday.png)
+[SPY Intraday](./screens/spy-intraday.png) || [7-Months of SPY 325C](./screens/spy-history.png)
+
+Example Data Output (Daily data):
+
+```
+
+            			Open  High   Low  Close  Volume 
+			Date                                       
+			2020-06-18  0.25  0.25  0.25   0.25       5
+			2020-06-19  0.30  0.30  0.24   0.28      46
+			2020-06-22  0.34  0.35  0.28   0.28      43
+			2020-06-23  0.39  0.39  0.26   0.28      41
+			2020-06-24  0.25  0.27  0.21   0.25      70
+			2020-06-25  0.19  0.19  0.14   0.15      26
+			...
+			...
+			2020-08-11  1.46  1.57  0.56   0.70   10252
+			2020-08-12  0.89  2.02  0.64   1.83   12431
+			2020-08-13  1.96  2.44  1.28   1.33   10453
+			2020-08-14  1.28  1.83  0.78   0.85   13137
+```
 
 ## Additional Notes
 
-The mplfinance library is still under development and not-totally stable. I run into issues like having to change the window size of the plots manually to get them to auto-resize. Hopefully this will be fixed in time. 
-
 There is an API key hard-coded into the script, it's totally cool for you to use this while deciding if you want to continue to use this script or not, but there is rate-limiting on it and the potential for that to become a problem. If you do plan to use this script frequently or build on-top of it, please head over to developer.tradier.com and sign up for free for an account and get your own API key.
+
+The mplfinance library is still under development and not-totally stable. I run into issues like having to change the window size of the plots manually to get them to auto-resize. These scripts will include a custom version of the package when required.
 
 ## Authors
 
