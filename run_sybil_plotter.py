@@ -29,8 +29,8 @@ format_date = date.replace("-", "")[2:len(date.replace("-", ""))]
 # Format the date string for Tradier's API formatting (strip dashes then strip 20 off the front of 2021)
 
 strike_list = sdg.get_strike_list(symbol, 
-                                date, 
-                                settings['API_KEY'])
+                                  date, 
+                                  settings['API_KEY'])
 
 selected_price = input("Select a strike from the list above: ")
 if not (float(selected_price) in strike_list):
@@ -57,8 +57,8 @@ trade_data = sdg.get_trade_data(option_symbol,
                                 settings['API_KEY'])
 
 pm.plot_data(trade_data, 
-            should_use_history_endpoint, 
-            data_name, 
-            settings)
+             should_use_history_endpoint, 
+             data_name, 
+             settings)
     
 print("Program Reached End Of Execution.")

@@ -12,7 +12,7 @@ import time
 import pandas as pd
 import mplfinance as mpf
 
-# Are we plotting intraday or daily data. 
+# Are we plotting intraday or daily data?
 def plot_data(data, should_use_history_endpoint, data_title, settings):
     if (should_use_history_endpoint):
         plot_history(data, data_title, settings)
@@ -25,13 +25,13 @@ def plot_data(data, should_use_history_endpoint, data_title, settings):
 def plot_history(data, data_title, settings):
     check_data_validity(data)
     
-    ohlc = [] # list of candlestick chart data
+    ohlc = []
     for quote in data:
         quote_time = datetime.strptime(quote['date'], "%Y-%m-%d")
         pandas_data = quote_time, quote['open'], quote['high'], quote['low'], quote['close'], quote['volume']
         ohlc.append(pandas_data)
 
-    if (len(ohlc)): #if there is any data
+    if (len(ohlc)):
         df = pd.DataFrame(ohlc)
         df.columns = ['Date', 'Open', 'High', 'Low', 'Close', 'Volume']
         df = df.set_index(pd.DatetimeIndex(df['Date']))
@@ -45,13 +45,8 @@ def plot_history(data, data_title, settings):
         }
 
         df = df.resample(settings['historyBinning']).agg(ohlc_dict)
-
-        # Drop-weekends. Need to be careful about this if we resample with weekly data.
-        for index, row in df.iterrows():
-            day_num = index.to_pydatetime().weekday()
-            if (day_num > 4): # weekend
-                df.drop(index, inplace=True)
-        
+        df = drop_weekends(df)
+                
         print_data(df, settings)        
         s = standard_style(settings)        
         
@@ -62,7 +57,6 @@ def plot_history(data, data_title, settings):
                 tight_layout=settings['tight_layout'],
                 block=True,
                 ylabel="Option Price ($)")
-                #returnfig=True
     else:
         print("No option trades during period.")
     
@@ -73,8 +67,7 @@ def plot_history(data, data_title, settings):
 def plot_timesales(data, data_title, settings):    
     check_data_validity(data)
 
-    ohlc = [] # list of candlestick chart data    
-    # Organize the data
+    ohlc = []
     for quote in data:
         quote_time = datetime.strptime(quote['time'], "%Y-%m-%dT%H:%M:%S")
         pandas_data = quote_time, quote['open'], quote['high'], quote['low'], quote['close'], quote['volume']
@@ -105,9 +98,9 @@ def plot_timesales(data, data_title, settings):
                 tight_layout=settings['tight_layout'],
                 block=True,
                 ylabel="Option Price ($)")        
-        # Note: (show_nontrading = False) didn't work, had to custom resample and drop.
     else:
         print("No option trades during period.")
+        
     return
 
 
@@ -124,7 +117,17 @@ def check_data_validity(source):
         print("Insufficient trade data. Printing all data and terminating Program.")
         print(source)
         exit()
+
+
+# Drop-weekends from resampled data. Need to be careful about this if we resample to weekly/monthly.
+def drop_weekends(dataframe):
+    for index, row in dataframe.iterrows():
+        day_num = index.to_pydatetime().weekday()
+        if (day_num > 4): # weekend
+            dataframe.drop(index, inplace=True)
     
+    return dataframe
+
 
 # Drop resampled periods for timesales data that falls outside of trading hours
 def drop_nonmarket_periods(dataframe):
@@ -143,6 +146,7 @@ def drop_nonmarket_periods(dataframe):
             dataframe.drop(index, inplace=True)
     
     return dataframe
+    
     
 # Standardized plot style between the two plot types
 def standard_style(settings):
