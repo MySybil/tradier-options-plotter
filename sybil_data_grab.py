@@ -4,10 +4,10 @@ Last Modified: August 5, 2020
 Description: This script handles all the data grabbing / formatting for run_sybil_plotter.py 
 """
 
-import sybil_data_ui_helper
-import requests
-import time
 from datetime import datetime
+import requests
+import sybil_data_ui_helper as sui
+import time
 
 root_url = 'https://sandbox.tradier.com/v1/markets'
 
@@ -32,7 +32,7 @@ def background_info(ticker, api_key):
 
 # Print background info about the company / daily trading range.
 def print_quote_info(quote):
-    sybil_data_ui_helper.print_sleep(1)
+    sui.print_sleep(1)
     print("You have selected " + quote['description'] + " (" + quote['symbol'] + ").")
     print("The Daily Price Range [low/high] is: $ [" + str(quote['low']) + " / " + str(quote['high']) + "]")
     print("The Last Trade Price was: $" + str(quote['last']) + " and Today's Volume is: " + '{:,.0f}'.format(quote['volume']))
@@ -44,7 +44,7 @@ def print_quote_info(quote):
 
 # Does the user want to look at call options or put options.
 def option_type(symbol):
-    sybil_data_ui_helper.print_sleep(1)
+    sui.print_sleep(1)
     input_str = input("Select calls [c] or puts [p]: ").upper()
     check_sentinel(input_str)
     if (input_str == "C"):
@@ -72,7 +72,7 @@ def get_expiry_dates(ticker, api_key):
         print("No options available for symbol: " +  ticker + ". Terminating Program.")
         exit()
     
-    sybil_data_ui_helper.print_sleep(1)
+    sui.print_sleep(1)
     return dates_list
 
 # Download and print a list of all available strikes for the expiry date.

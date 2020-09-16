@@ -18,4 +18,5 @@ def intro_screen():
 # Insert blank lines and slowly pause to create a loading effect and guide the user.
 def print_sleep(times):
     for i in range(times):
-        print("*"); time.sleep(0.02)
+        print("*")
+        time.sleep(0.02)
