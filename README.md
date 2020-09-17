@@ -10,25 +10,13 @@ These instructions will get you a copy of the project up and running on your loc
 
 ### Dependencies
 ```
-requests
-time
-datetime
 pandas
+requests
 ```
-~~mplfinance~~
 
 Note: this package is currently running a custom version of mplfinance with additional personalization options for plots. 
 
-### Installation
-
-Clone the repository, open your command-line interface make sure that you have all the dependencies installed:
-
-```
-pip install requests
-```
-
-(repeat for any depenencies that you're missing)
-
+### Run Example
 
 From the CLI run:
 
@@ -65,7 +53,11 @@ Enter: 2019-01-01
 
 The program should download all the data and then display a candlestick chart of the daily trade data. Something along the lines of the figures below (the candlestick binning can be changed in the settings inside the driver file):
 
-[SPY Intraday](./screens/spy-intraday.png) || [7-Months of SPY 325C](./screens/spy-history.png)
+SPY Intraday: 
+![SPY Intraday](./screens/spy-intraday.png)
+
+12-Months of SPY 325C (7D binning):
+![7-Months of SPY 325C](./screens/spy-history.png)
 
 Example Data Output (Daily data):
 
