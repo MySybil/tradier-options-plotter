@@ -1,8 +1,8 @@
-# MySybil Historic Options Data Plotter
+# MySybil's Historic Options Data Plotter
 
-This set of scripts aims to provide free access to historic options trade data for anyone that wants it. Whether you want to simply quickly view trade history, or if you want to use these scripts as a starting point to build from, the main hope is to save you time and provide you a small amount of indepence from your broker and any websites trying to make money off of you.
+This set of scripts aims to provide free access to historic options trade data for anyone that wants it. Whether you want to simply quickly view trade history, or if you want to use these scripts as a starting point to build from, the main hope is to save you time and provide you a small amount of independence from your broker and any websites trying to make money off of you.
 
-The scripts are plug-and-play from a Python3 CLI, but if you decide to use them on an ongoing basis I do ask that you create your own account at developer.tradier.com and generate your own API token in order to alleviate any potential strain on the communal key provided. It's free, it only takes 30 seconds, and you'll never have to worry about fighting with other users around rate-limiting. 
+The scripts are plug-and-play from a Python3 CLI, but if you decide to use them on an ongoing basis then you should create your own account at developer.tradier.com and generate your own API token in order to alleviate any potential strain on the communal key provided. It's free, it only takes 30 seconds, and you'll never have to worry about fighting with other users around rate-limiting. 
 
 ## Getting Started
 
@@ -72,6 +72,7 @@ Date
 2020-06-24  0.25  0.27  0.21   0.25      70
 2020-06-25  0.19  0.19  0.14   0.15      26
 ...
+... Output truncated for README
 ...
 2020-08-11  1.46  1.57  0.56   0.70   10252
 2020-08-12  0.89  2.02  0.64   1.83   12431
@@ -81,9 +82,9 @@ Date
 
 ## Additional Notes
 
-There is an API key hard-coded into the script, it's totally cool for you to use this while deciding if you want to continue to use this script or not, but there is rate-limiting on it and the potential for that to become a problem. If you do plan to use this script frequently or build on-top of it, please head over to developer.tradier.com and sign up for free for an account and get your own API key.
+There is an API key hard-coded into the script and it's totally cool for you to use this while deciding if you want to continue to use this script or not, but there is rate-limiting on it and the potential for that to become a problem. If you do plan to use this script frequently or build on-top of it, please head over to developer.tradier.com and sign up for free for an account and get your own API key.
 
-The mplfinance library is still under development and not-totally stable. I run into issues like having to change the window size of the plots manually to get them to auto-resize. These scripts will include a custom version of the package when required.
+The mplfinance library is still under development and not-totally stable. I run into issues like having to change the window size of the plots manually to get them to auto-resize.
 
 ## Authors
 
