@@ -1,5 +1,5 @@
 """
-sybil_data_plot_master.py
+tp_plot_manager.py
 Last Modified: August 16, 2020
 Description: This script handles all the plotting for run_sybil_plotter.py
 

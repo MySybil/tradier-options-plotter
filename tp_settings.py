@@ -1,8 +1,8 @@
 """
-sybil_data_settings.py
+tp_settings.py
 Last Modified: August 6, 2020
 Description: This script handles the run-time settings for MySybil's tradier-options-plotter. 
-Modify them here and they will apply to bother run_sybil_plotter.py and closed_option_plotter.py
+Modify them here and they will apply to bother run_sybil_plotter.py and closed_option_driver.py
 """
 
 def get_settings():

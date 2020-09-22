@@ -1,5 +1,5 @@
 """
-sybil_data_ui_helper.py
+tp_ui_manager.py
 Last Modified: August 6, 2020
 Description: Uninteresting UI code to support run_sybil_plotter.py
 
