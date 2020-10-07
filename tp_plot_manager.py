@@ -11,29 +11,79 @@ from datetime import datetime
 import time
 import pandas as pd
 import mplfinance as mpf
+from mysybil_greeks import OptionAnalysis
 
 # Are we plotting intraday or daily data?
-def plot_data(data, should_use_history_endpoint, data_title, settings):
+def plot_data(data, underlying_data, should_use_history_endpoint, data_title, settings):
     if (should_use_history_endpoint):
-        plot_history(data, data_title, settings)
+        plot_history(data, 
+                     underlying_data, 
+                     data_title, 
+                     settings)
     else:
-        plot_timesales(data, data_title, settings)
+        # Not yet implemented underyling_data grab for timesales
+        plot_timesales(data, 
+                       data_title, 
+                       settings)
     return 0
 
 
 # Make a plot of daily or longer data
-def plot_history(data, data_title, settings):
+def plot_history(data, underlying_data, data_title, settings):
     check_data_validity(data)
+    
+    
+    # okay for this we can avoid the double loop all we need to do is deal with the underlying data first
+    # and then we can use that to calculate the IV before we create the ohlc list 
     
     ohlc = []
     for quote in data:
         quote_time = datetime.strptime(quote['date'], "%Y-%m-%d")
-        pandas_data = quote_time, quote['open'], quote['high'], quote['low'], quote['close'], quote['volume']
+        pandas_data = quote_time, quote['date'], quote['open'], quote['high'], quote['low'], quote['close'], quote['volume']
         ohlc.append(pandas_data)
 
+    # ohlc for the underlying symbol. will use this to calculate IV and also plot that. 
+    ohlc_underlying = []
+    for quote in underlying_data:
+        quote_time = datetime.strptime(quote['date'], "%Y-%m-%d")
+        pandas_data = quote_time, quote['date'], quote['open'], quote['high'], quote['low'], quote['close'], quote['volume']
+        ohlc_underlying.append(pandas_data)
+
+    ohlc_expanded = []
+    # ohlc is a list of tuples, because tuples are immutable my temp workaround is to make a new list of tuples with
+    # an added entry for the implied volatility then to override the original list with the new list. 
+
+    # traverse the data and match up the options trade data with the underlying data and then calculate the IV and
+    # add it to the tuple. 
+    for sample in ohlc:
+        for underlying in ohlc_underlying:
+            if (sample[0] == underlying[0]):
+                # let's just deal with closing values for now. 
+                
+                trade_date = sample[1][5:] + '-' + sample[1][:4] # invert MM-DD-YYYY to YYYY-MM-DD
+                expiry_date = settings['expiry'][5:] + '-' + settings['expiry'][:4] # invert MM-DD-YYYY to YYYY-MM-DD
+                
+                rfr = 0.002 # hardcoded for now.
+                blank_tte = 0
+                sparta = OptionAnalysis(underlying[-2], float(settings['strike']), blank_tte, 0, sample[-2], rfr, True)
+                
+                time_to_expiry = sparta.get_market_year_fraction(trade_date, expiry_date, -1*390) # using close data
+                sparta.tte = time_to_expiry
+                
+                iv = sparta.get_implied_volatility(100)
+                sample = sample + (iv,)
+                ohlc_expanded.append(sample)
+                break
+
+
+    ohlc = ohlc_expanded
+    # Replace it with the remade list of tuples w/ an added IV term.
+    
+    
     if (len(ohlc)):
         df = pd.DataFrame(ohlc)
-        df.columns = ['Date', 'Open', 'High', 'Low', 'Close', 'Volume']
+        print(df)
+        df.columns = ['Date', 'DateStr', 'Open', 'High', 'Low', 'Close', 'Volume', 'IV']
         df = df.set_index(pd.DatetimeIndex(df['Date']))
 
         ohlc_dict = {
@@ -41,7 +91,8 @@ def plot_history(data, data_title, settings):
             'High':'max',
             'Low':'min',
             'Close':'last',
-            'Volume':'sum'
+            'Volume':'sum',
+            'IV':'last'
         }
 
         df = df.resample(settings['historyBinning']).agg(ohlc_dict)
