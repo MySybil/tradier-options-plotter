@@ -1,6 +1,6 @@
 """
 tp_settings.py
-Last Modified: August 6, 2020
+Last Modified: October 6, 2020
 Description: This script handles the run-time settings for MySybil's tradier-options-plotter. 
 Modify them here and they will apply to bother run_sybil_plotter.py and closed_option_driver.py
 """
@@ -30,11 +30,11 @@ def get_settings():
                     # '1D' or '7D' or '3D' or etc. Untested support for 1W / 1M / etc.
                     # The data binning for non-intraday plots.
                     
-                    'timesalesBinning'  : '15min',
+                    'timesalesBinning'  : '5min',
                     # '1min' or '5min' or '15min' or '60min'.
                     # The data binning for intraday plots.
                     
-                    'downloadBinning'   : 15,
+                    'downloadBinning'   : 5,
                     # '1' or '5' or '15' (minutes)
                     # The binning to download intraday data (not to plot, the data is resampled to your choosing later).
                     # Keep this at 1 (minute) unless you're downloading intraday data going back further than 20 days or stressing the API.

@@ -1,6 +1,6 @@
 """
 run_sybil_plotter.py
-Last Modified: Sep 25, 2020
+Last Modified: October 7, 2020
 Description: This script is designed as a free and open-source tool to help retail investors get 
 and analyze historic options data.
 

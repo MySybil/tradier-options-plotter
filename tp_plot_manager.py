@@ -1,16 +1,14 @@
 """
 tp_plot_manager.py
-Last Modified: October 6, 2020
+Last Modified: October 7, 2020
 Description: This script handles all the plotting for run_sybil_plotter.py
 
 # mplfinance style documentation
 # https://github.com/matplotlib/mplfinance/blob/master/examples/styles.ipynb
 """
 
-# TimeSales plots.
-# TODO: fix x-ticks to display time. 
-# TODO: need to fix out of marker hours for multi-day
-
+# TODO: for IV plots, would like to go OHLC w/ open/max/min/closing. diff theme ofc. 
+# TODO: adjust tick_period based on the amount of data/binning
 
 from datetime import datetime
 import time
@@ -19,6 +17,8 @@ import mplfinance as mpf
 
 from mysybil_greeks import OptionAnalysis
 import matplotlib.pyplot as plt
+import numpy as np
+
 
 # Are we plotting intraday or daily data?
 def plot_data(data, underlying_data, should_use_history_endpoint, data_title, settings):
@@ -130,8 +130,8 @@ def plot_timesales(data, underlying_data, data_title, settings):
     ohlc = []
     for quote in data:
         quote_time = datetime.strptime(quote['time'], "%Y-%m-%dT%H:%M:%S")
+        iv = 0
         
-        # TODO: Run through the underlying data to calculate the volatility of the options.
         for underlying in ohlc_underlying:
             if (quote_time == underlying[0]):
                 trade_date = invert_date(quote['time'][:10])
@@ -142,9 +142,10 @@ def plot_timesales(data, underlying_data, data_title, settings):
                 # Initialize the OptionAnalysis data [-2] is 'close'
                 
                 adj_time = ((16-float(quote['time'][11:13]))*60 - float(quote['time'][14:16]))
-                adj_time = (adj_time - 390*2) - int(settings['timesalesBinning'][:-3])
+                adj_time = (adj_time - 390*1) - int(settings['timesalesBinning'][:-3])
                 # Adjust the time for intraday minutes.
-                # Neede to subtract binning b/c we're dealing with closes.
+                # Need to subtract binning b/c we're dealing with closes.
+                # *2 seems to fit better w/ online data. I need to think about *1 vs *2
                 
                 time_to_expiry = sparta.get_market_year_fraction(trade_date, expiry_date, adj_time)
                 # Find the year fraction of time remaining only looking at market minutes. (dates inclusive, so -390 (1day))
@@ -153,7 +154,6 @@ def plot_timesales(data, underlying_data, data_title, settings):
                 iv = sparta.get_implied_volatility()
                 break
                 
-
         pandas_data = quote_time, quote['open'], quote['high'], quote['low'], quote['close'], quote['volume'], round(iv*100,2)
         ohlc.append(pandas_data)
 
@@ -176,7 +176,15 @@ def plot_timesales(data, underlying_data, data_title, settings):
         print_data(df, settings)        
 
         plt.rcParams['figure.figsize'] = (8.0, 4.8)
-        df.plot(y='IV (%)', use_index=True, marker='o', markersize=4, linestyle='--', linewidth=0.75)
+        ax = df.plot(y='IV (%)', use_index=False, marker='o', markersize=4, linestyle='--', linewidth=0.75)
+        #ax = df.plot(y='IV (%)', use_index=False, marker='s', markersize=3, linewidth=0)
+                
+        tick_period = 6
+        # tick_period needs to adjust based on the binning. 
+        ax.set_xticks(np.arange(len(df.index)/tick_period)*tick_period)
+        ax.set_xticklabels(df.index[::tick_period])
+        # Set the ticklabels as the index names. 
+                
         plt.subplots_adjust(left=0.09, bottom=0.16, right=0.96, top=0.92, wspace=0.2, hspace=0)
         plt.ylabel('Implied Volatility (%)')
         plt.title('Implied Volatility for ' + data_title)
@@ -185,8 +193,8 @@ def plot_timesales(data, underlying_data, data_title, settings):
         plt.grid(b=True,which='minor', color='#111111', linestyle='--', linewidth=0.50, alpha=0.3, zorder=0)
         plt.gca().xaxis.grid(which='both') # horizontal lines only #ax = plt.gca()
         # TODO: fix x-ticks to display time. 
-        # TODO: need to fix out of marker hours for multi-day
         # Super basic plot of the implied volatility over time. 
+
 
 
 
