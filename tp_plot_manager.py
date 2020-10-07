@@ -32,58 +32,41 @@ def plot_data(data, underlying_data, should_use_history_endpoint, data_title, se
 def plot_history(data, underlying_data, data_title, settings):
     check_data_validity(data)
     
-    
-    # okay for this we can avoid the double loop all we need to do is deal with the underlying data first
-    # and then we can use that to calculate the IV before we create the ohlc list 
-    
-    ohlc = []
-    for quote in data:
-        quote_time = datetime.strptime(quote['date'], "%Y-%m-%d")
-        pandas_data = quote_time, quote['date'], quote['open'], quote['high'], quote['low'], quote['close'], quote['volume']
-        ohlc.append(pandas_data)
-
-    # ohlc for the underlying symbol. will use this to calculate IV and also plot that. 
+    # ohlc for the underlying symbol. will use this to calculate IV
     ohlc_underlying = []
     for quote in underlying_data:
         quote_time = datetime.strptime(quote['date'], "%Y-%m-%d")
         pandas_data = quote_time, quote['date'], quote['open'], quote['high'], quote['low'], quote['close'], quote['volume']
         ohlc_underlying.append(pandas_data)
-
-    ohlc_expanded = []
-    # ohlc is a list of tuples, because tuples are immutable my temp workaround is to make a new list of tuples with
-    # an added entry for the implied volatility then to override the original list with the new list. 
-
-    # traverse the data and match up the options trade data with the underlying data and then calculate the IV and
-    # add it to the tuple. 
-    for sample in ohlc:
+    
+    ohlc = []
+    for quote in data:
+        quote_time = datetime.strptime(quote['date'], "%Y-%m-%d")
+        iv = 0
+        
+        # Traverse the underlying data until we find the matching time period
         for underlying in ohlc_underlying:
-            if (sample[0] == underlying[0]):
-                # let's just deal with closing values for now. 
+            if (quote_time == underlying[0]):
+                trade_date = invert_date(quote['date'])
+                expiry_date = invert_date(settings['expiry'])
+        
+                blank_tte = 0 # need something to initialize the class
+                sparta = OptionAnalysis(underlying[-2], float(settings['strike']), blank_tte, 0, quote['close'], settings['rfr'], settings['type'] == 'C')
+                # Initialize the OptionAnalysis data [-2] is 'close'
                 
-                trade_date = sample[1][5:] + '-' + sample[1][:4] # invert MM-DD-YYYY to YYYY-MM-DD
-                expiry_date = settings['expiry'][5:] + '-' + settings['expiry'][:4] # invert MM-DD-YYYY to YYYY-MM-DD
+                time_to_expiry = sparta.get_market_year_fraction(trade_date, expiry_date, -1*390)
+                # Find the year fraction of time remaining only looking at market minutes. (dates inclusive, so -390 (1day))
                 
-                rfr = 0.002 # hardcoded for now.
-                blank_tte = 0
-                sparta = OptionAnalysis(underlying[-2], float(settings['strike']), blank_tte, 0, sample[-2], rfr, True)
-                
-                time_to_expiry = sparta.get_market_year_fraction(trade_date, expiry_date, -1*390) # using close data
                 sparta.tte = time_to_expiry
-                
-                iv = sparta.get_implied_volatility(100)
-                sample = sample + (iv,)
-                ohlc_expanded.append(sample)
+                iv = sparta.get_implied_volatility()
                 break
+        
+        pandas_data = quote_time, quote['open'], quote['high'], quote['low'], quote['close'], quote['volume'], round(iv*100,2)
+        ohlc.append(pandas_data)
 
-
-    ohlc = ohlc_expanded
-    # Replace it with the remade list of tuples w/ an added IV term.
-    
-    
     if (len(ohlc)):
         df = pd.DataFrame(ohlc)
-        print(df)
-        df.columns = ['Date', 'DateStr', 'Open', 'High', 'Low', 'Close', 'Volume', 'IV']
+        df.columns = ['Date', 'Open', 'High', 'Low', 'Close', 'Volume', 'IV (%)']
         df = df.set_index(pd.DatetimeIndex(df['Date']))
 
         ohlc_dict = {
@@ -92,7 +75,7 @@ def plot_history(data, underlying_data, data_title, settings):
             'Low':'min',
             'Close':'last',
             'Volume':'sum',
-            'IV':'last'
+            'IV (%)':'last'
         }
 
         df = df.resample(settings['historyBinning']).agg(ohlc_dict)
@@ -101,6 +84,9 @@ def plot_history(data, underlying_data, data_title, settings):
         print_data(df, settings)        
         s = standard_style(settings)        
         
+        #df.plot(y='IV (%)', use_index=True)
+        # Super basic plot of the implied volatility over time. 
+        
         kwargs = dict(type='candle', volume=True)        
         mpf.plot(df, **kwargs, style=s, 
                 title=dict(title="\n\n" + data_title, weight='regular', size=11),                
@@ -108,6 +94,9 @@ def plot_history(data, underlying_data, data_title, settings):
                 tight_layout=settings['tight_layout'],
                 block=True,
                 ylabel="Option Price ($)")
+                
+        
+                
     else:
         print("No option trades during period.")
     
@@ -161,6 +150,11 @@ def print_data(dataframe, settings):
         pd.set_option('display.max_rows', None)
         print(dataframe)
 
+
+# Swap a date string from (MM-DD-YYYY) to (YYYY-MM-DD)
+def invert_date(date_str):
+    return date_str[5:] + '-' + date_str[:4]
+    
 
 # If there's only one trade in then it returns a dictionary instead of a list of dict
 def check_data_validity(source):

@@ -34,10 +34,14 @@ def get_settings():
                     # '1min' or '5min' or '15min' or '60min'.
                     # The data binning for intraday plots.
                     
-                    'downloadBinning'   : 5
+                    'downloadBinning'   : 5,
                     # '1' or '5' or '15' (minutes)
                     # The binning to download intraday data (not to plot, the data is resampled to your choosing later).
                     # Keep this at 1 (minute) unless you're downloading intraday data going back further than 20 days or stressing the API.
+                    
+                    'rfr'               : 0.002
+                    # Float in the 0.001 to 0.05 range depending on treasury rates and interval time.
+                    # The risk-free-rate for dealing with options in decimal. 
                 }
     
     # Validate the settings
