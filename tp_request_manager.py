@@ -134,7 +134,12 @@ def get_underlying_data(symbol, start_date, binning, should_use_history_endpoint
         trade_data_json = trade_data_response.json()
         return(trade_data_json['history']['day'])
     else:
-        print("only setup for history endpoint rn.")
+        trade_data_response = requests.get(root_url + '/timesales?',
+            params={'symbol': symbol, 'start': start_date, 'interval':(str(int(binning))+"min")},
+            headers={'Authorization': api_key, 'Accept': 'application/json'}
+        )
+        trade_data_json = trade_data_response.json()
+        return (trade_data_json['series']['data'])
 
 # Check all user inputs for "exit" to see if they want to terminate the program
 def check_sentinel(input):
