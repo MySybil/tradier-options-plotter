@@ -92,7 +92,12 @@ class OptionAnalysis:
         return mins/(252*390)
 
     def get_implied_volatility(self, max_iter=100):
-        """Guess the implied volatility."""        
+        """Guess the implied volatility."""      
+        if self.tte <= 0:
+            print(f"Warning: Time to expiry is negative "
+                  + f"for strike {self.strike}. Returning NaN...")
+            return float('NaN')
+          
         known_min = 0
         known_max = 10.0
         iv_guess = (

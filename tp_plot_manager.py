@@ -7,8 +7,14 @@ Description: This script handles all the plotting for run_sybil_plotter.py
 # https://github.com/matplotlib/mplfinance/blob/master/examples/styles.ipynb
 """
 
+# TODO: make timesales ticks auto-updating on zoom. (try candles first)
+# I need to change this into a convert xticks to xticklabel type thing.
+
 # TODO: for IV plots, would like to go OHLC w/ open/max/min/closing. diff theme ofc. 
-# TODO: adjust tick_period based on the amount of data/binning
+# TODO: add a moving average to this. 
+
+# TODO: abstract the volatility plots
+# TODO: get rid of seconds values in x-ticks in timesales plots
 
 from datetime import datetime
 import time
@@ -128,6 +134,7 @@ def plot_timesales(data, underlying_data, data_title, settings):
         ohlc_underlying.append(pandas_data)
 
     ohlc = []
+    ohlc_iv = []
     for quote in data:
         quote_time = datetime.strptime(quote['time'], "%Y-%m-%dT%H:%M:%S")
         iv = 0
@@ -152,10 +159,33 @@ def plot_timesales(data, underlying_data, data_title, settings):
                 
                 sparta.tte = time_to_expiry
                 iv = sparta.get_implied_volatility()
+                
+                # Default is Close-IV
+                iv_close = sparta.get_implied_volatility()
+                
+                # Open-IV
+                sparta.up = underlying[2]
+                sparta.op = quote['open']
+                iv_open = sparta.get_implied_volatility()
+                
+                # Max IV (for calls: low underlying, high option)
+                sparta.up = underlying[4]
+                sparta.op = quote['high']
+                iv_high = sparta.get_implied_volatility()
+                
+                # Min IV
+                sparta.up = underlying[3]
+                sparta.op = quote['low']
+                iv_low = sparta.get_implied_volatility()
+                
+                
                 break
                 
-        pandas_data = quote_time, quote['open'], quote['high'], quote['low'], quote['close'], quote['volume'], round(iv*100,2)
+        pandas_data = quote_time, quote['open'], quote['high'], quote['low'], quote['close'], quote['volume'], round(iv*100,2)#, iv_close, iv_open, iv_high, iv_low
         ohlc.append(pandas_data)
+
+        pandas_iv_data = quote_time, round(iv_open*100,2), round(iv_high*100,2), round(iv_low*100,2), round(iv_close*100,2), quote['volume']
+        ohlc_iv.append(pandas_iv_data)
 
     if (len(ohlc)): 
         df = pd.DataFrame(ohlc)
@@ -170,33 +200,35 @@ def plot_timesales(data, underlying_data, data_title, settings):
             'Volume':'sum',
             'IV (%)':'last'
         }
+        
 
         df = df.resample(settings['timesalesBinning']).agg(ohlc_dict)
         df = drop_nonmarket_periods(df)
         print_data(df, settings)        
 
+        """ # Scatterplot style implied-volatility plot
         plt.rcParams['figure.figsize'] = (8.0, 4.8)
-        ax = df.plot(y='IV (%)', use_index=False, marker='o', markersize=4, linestyle='--', linewidth=0.75)
-        #ax = df.plot(y='IV (%)', use_index=False, marker='s', markersize=3, linewidth=0)
+        ax = df.plot(y='IV (%)', use_index=False, marker='s', markersize=3, linestyle='--', linewidth=0.5, alpha=0.75)
                 
-        tick_period = 6
+        labelfont = {'fontname':'DejaVu Sans', 'fontsize':9, 'weight':'light'}
+        titlefont = {'fontname':'DejaVu Sans', 'fontsize':11, 'weight':'light'}
+        
+        tick_period = int(len(df.index)/7)
         # tick_period needs to adjust based on the binning. 
         ax.set_xticks(np.arange(len(df.index)/tick_period)*tick_period)
-        ax.set_xticklabels(df.index[::tick_period])
+        ax.set_xticklabels(df.index[::tick_period], **labelfont)
         # Set the ticklabels as the index names. 
-                
-        plt.subplots_adjust(left=0.09, bottom=0.16, right=0.96, top=0.92, wspace=0.2, hspace=0)
-        plt.ylabel('Implied Volatility (%)')
-        plt.title('Implied Volatility for ' + data_title)
+        ax.callbacks.connect('xlim_changed', on_xlims_change) #live update the xlabels        
+        
+        plt.subplots_adjust(left=0.13, bottom=0.21, right=0.95, top=0.92, wspace=0.2, hspace=0)
+        plt.ylabel('Implied Volatility (%)', **labelfont)
+        plt.title('Implied Volatility for ' + data_title, **titlefont)
         plt.grid(which='major', color='#151515', linestyle='-', linewidth=0.50, alpha=0.75, zorder=1)    
         plt.minorticks_on()
         plt.grid(b=True,which='minor', color='#111111', linestyle='--', linewidth=0.50, alpha=0.3, zorder=0)
         plt.gca().xaxis.grid(which='both') # horizontal lines only #ax = plt.gca()
-        # TODO: fix x-ticks to display time. 
         # Super basic plot of the implied volatility over time. 
-
-
-
+        """
 
         s = standard_style(settings)                
         kwargs = dict(type='candle',volume=True)  
@@ -206,9 +238,37 @@ def plot_timesales(data, underlying_data, data_title, settings):
                 tight_layout=settings['tight_layout'],
                 block=True,
                 ylabel="Option Price ($)")        
+                        
     else:
         print("No option trades during period.")
+        return
+    
+    # Candlestick-style implied volatility plot
+    if (len(ohlc_iv)):
+        df_iv = pd.DataFrame(ohlc_iv)
+        df_iv.columns = ['Date', 'Open', 'High', 'Low', 'Close', 'Volume']
+        df_iv = df_iv.set_index(pd.DatetimeIndex(df_iv['Date']))
         
+        ohlc_iv_dict = {
+            'Open':'first',
+            'High':'max',
+            'Low':'min',
+            'Close':'last',
+            'Volume':'sum'
+        }
+        
+        df_iv = df_iv.resample(settings['timesalesBinning']).agg(ohlc_iv_dict)
+        df_iv = drop_nonmarket_periods(df_iv)    
+        
+        s = standard_style(settings) #updae this to more neutral style                
+        kwargs = dict(type='candle',volume=False)  
+        mpf.plot(df_iv, **kwargs, style=s, 
+                title=dict(title="\n\nImplied Volatility for " + data_title, weight='regular', size=11),               
+                datetime_format=' %m/%d %H:%M',
+                tight_layout=settings['tight_layout'],
+                block=True,
+                ylabel="Implied Volatility (%)")        
+    
     return
 
 
@@ -222,6 +282,23 @@ def print_data(dataframe, settings):
 # Swap a date string from (MM-DD-YYYY) to (YYYY-MM-DD)
 def invert_date(date_str):
     return date_str[5:] + '-' + date_str[:4]
+
+# Whenever the plot is panned/zoomed, update the tick labels.
+def on_xlims_change(axes):
+    print("Dummy real-time update of xticklabels ()")
+    ax1 = plt.gca()
+    #print(ax1.get_xticks()) # [  0.  55. 110. 165. 220. 275. 330. 385.]
+    # these are constant when pan/zooming. looks like i fucked them up earlier. 
+    # if i remove set_xticks then they change properly but then the orig labels are fckd
+    
+    #ax1 = plt.gca()
+    ##ax1.set_xticklabels(convert_xticks_to_dates(ax1.get_xticks(), ax.binning, plt.t1))
+    #ax1.set_xticklabels(ax1.df.index[::ax1.tick_period])#, **labelfont)
+    
+    # need to do some sort of get_xticks. then convert. need to pass in the dataframe.
+    #ax.tick_period = int(len(df.index)/7)
+    #ax.datastore = df
+    
     
 
 # If there's only one trade in then it returns a dictionary instead of a list of dict
@@ -240,7 +317,6 @@ def drop_weekends(dataframe):
             dataframe.drop(index, inplace=True)
     
     return dataframe
-
 
 # Drop resampled periods for timesales data that falls outside of trading hours
 def drop_nonmarket_periods(dataframe):
