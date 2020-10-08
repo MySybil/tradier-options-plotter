@@ -7,14 +7,17 @@ Description: This script handles all the plotting for run_sybil_plotter.py
 # https://github.com/matplotlib/mplfinance/blob/master/examples/styles.ipynb
 """
 
+# Simple implied volatility plots
+# TODO: get rid of seconds values in x-ticks in timesales plots
 # TODO: make timesales ticks auto-updating on zoom. (try candles first)
 # I need to change this into a convert xticks to xticklabel type thing.
 
-# TODO: for IV plots, would like to go OHLC w/ open/max/min/closing. diff theme ofc. 
-# TODO: add a moving average to this. 
+# OHLC Volatility plots
+# TODO: make the OHLC volatility plots less busy.
+# TODO: add the OHLC IV plots to the history data.
 
-# TODO: abstract the volatility plots
-# TODO: get rid of seconds values in x-ticks in timesales plots
+# General
+# TODO: abstract the adj_time calculation from plot_timesales()
 
 from datetime import datetime
 import time
@@ -72,6 +75,8 @@ def plot_history(data, underlying_data, data_title, settings):
                 
                 sparta.tte = time_to_expiry
                 iv = sparta.get_implied_volatility()
+                # TODO: update this to encorporate the OHLC IV plots
+                
                 break
         
         pandas_data = quote_time, quote['open'], quote['high'], quote['low'], quote['close'], quote['volume'], round(iv*100,2)
@@ -93,21 +98,13 @@ def plot_history(data, underlying_data, data_title, settings):
 
         df = df.resample(settings['historyBinning']).agg(ohlc_dict)
         df = drop_weekends(df)
-                
         print_data(df, settings)        
-        s = standard_style(settings)        
-        
-        plt.rcParams['figure.figsize'] = (8.0, 4.8)
-        df.plot(y='IV (%)', use_index=True, marker='o', markersize=4, linestyle='--', linewidth=0.75)
-        plt.subplots_adjust(left=0.09, bottom=0.16, right=0.96, top=0.92, wspace=0.2, hspace=0)
-        plt.ylabel('Implied Volatility (%)')
-        plt.title('Implied Volatility for ' + data_title)
-        plt.grid(which='major', color='#151515', linestyle='-', linewidth=0.50, alpha=0.75, zorder=1)    
-        plt.minorticks_on()
-        plt.grid(b=True,which='minor', color='#111111', linestyle='--', linewidth=0.50, alpha=0.3, zorder=0)
-        plt.gca().xaxis.grid(which='both') # horizontal lines only #ax = plt.gca()
-        # Super basic plot of the implied volatility over time. 
-        
+        # Resample and print the data
+
+        volatility_scatterplot(df, data_title)
+        # Scatterplot of the implied volatility over time. 
+
+        s = standard_style(settings)                
         kwargs = dict(type='candle', volume=True)        
         mpf.plot(df, **kwargs, style=s, 
                 title=dict(title="\n\n" + data_title, weight='regular', size=11),                
@@ -155,37 +152,22 @@ def plot_timesales(data, underlying_data, data_title, settings):
                 # *2 seems to fit better w/ online data. I need to think about *1 vs *2
                 
                 time_to_expiry = sparta.get_market_year_fraction(trade_date, expiry_date, adj_time)
-                # Find the year fraction of time remaining only looking at market minutes. (dates inclusive, so -390 (1day))
-                
                 sparta.tte = time_to_expiry
-                iv = sparta.get_implied_volatility()
-                
-                # Default is Close-IV
-                iv_close = sparta.get_implied_volatility()
-                
-                # Open-IV
-                sparta.up = underlying[2]
-                sparta.op = quote['open']
-                iv_open = sparta.get_implied_volatility()
-                
-                # Max IV (for calls: low underlying, high option)
-                sparta.up = underlying[4]
-                sparta.op = quote['high']
-                iv_high = sparta.get_implied_volatility()
-                
-                # Min IV
-                sparta.up = underlying[3]
-                sparta.op = quote['low']
-                iv_low = sparta.get_implied_volatility()
-                
+                # Find the year fraction of time remaining only looking at market minutes. (dates inclusive, so -390 (1day))
+
+                iv_open, iv_high, iv_low, iv_close = calculate_volatility_ohlc(sparta, quote, underlying)
+                # Calculate the volatility range for ohlc IV charts.
                 
                 break
+                # Found corresponding data, no need to look further
                 
-        pandas_data = quote_time, quote['open'], quote['high'], quote['low'], quote['close'], quote['volume'], round(iv*100,2)#, iv_close, iv_open, iv_high, iv_low
+        pandas_data = quote_time, quote['open'], quote['high'], quote['low'], quote['close'], quote['volume'], round(iv_close*100,2)
         ohlc.append(pandas_data)
+        # Store the OHLC trade data
 
         pandas_iv_data = quote_time, round(iv_open*100,2), round(iv_high*100,2), round(iv_low*100,2), round(iv_close*100,2), quote['volume']
         ohlc_iv.append(pandas_iv_data)
+        # Store the OHLC implied volatility data
 
     if (len(ohlc)): 
         df = pd.DataFrame(ohlc)
@@ -200,35 +182,14 @@ def plot_timesales(data, underlying_data, data_title, settings):
             'Volume':'sum',
             'IV (%)':'last'
         }
-        
 
         df = df.resample(settings['timesalesBinning']).agg(ohlc_dict)
         df = drop_nonmarket_periods(df)
         print_data(df, settings)        
+        # Resample and print the data
 
-        """ # Scatterplot style implied-volatility plot
-        plt.rcParams['figure.figsize'] = (8.0, 4.8)
-        ax = df.plot(y='IV (%)', use_index=False, marker='s', markersize=3, linestyle='--', linewidth=0.5, alpha=0.75)
-                
-        labelfont = {'fontname':'DejaVu Sans', 'fontsize':9, 'weight':'light'}
-        titlefont = {'fontname':'DejaVu Sans', 'fontsize':11, 'weight':'light'}
-        
-        tick_period = int(len(df.index)/7)
-        # tick_period needs to adjust based on the binning. 
-        ax.set_xticks(np.arange(len(df.index)/tick_period)*tick_period)
-        ax.set_xticklabels(df.index[::tick_period], **labelfont)
-        # Set the ticklabels as the index names. 
-        ax.callbacks.connect('xlim_changed', on_xlims_change) #live update the xlabels        
-        
-        plt.subplots_adjust(left=0.13, bottom=0.21, right=0.95, top=0.92, wspace=0.2, hspace=0)
-        plt.ylabel('Implied Volatility (%)', **labelfont)
-        plt.title('Implied Volatility for ' + data_title, **titlefont)
-        plt.grid(which='major', color='#151515', linestyle='-', linewidth=0.50, alpha=0.75, zorder=1)    
-        plt.minorticks_on()
-        plt.grid(b=True,which='minor', color='#111111', linestyle='--', linewidth=0.50, alpha=0.3, zorder=0)
-        plt.gca().xaxis.grid(which='both') # horizontal lines only #ax = plt.gca()
+        volatility_scatterplot(df, data_title)
         # Super basic plot of the implied volatility over time. 
-        """
 
         s = standard_style(settings)                
         kwargs = dict(type='candle',volume=True)  
@@ -236,7 +197,7 @@ def plot_timesales(data, underlying_data, data_title, settings):
                 title=dict(title="\n\n" + data_title, weight='regular', size=11),               
                 datetime_format=' %m/%d %H:%M',
                 tight_layout=settings['tight_layout'],
-                block=True,
+                block=False, #False
                 ylabel="Option Price ($)")        
                         
     else:
@@ -259,10 +220,14 @@ def plot_timesales(data, underlying_data, data_title, settings):
         
         df_iv = df_iv.resample(settings['timesalesBinning']).agg(ohlc_iv_dict)
         df_iv = drop_nonmarket_periods(df_iv)    
+        # Resample the volatility data.
         
-        s = standard_style(settings) #updae this to more neutral style                
-        kwargs = dict(type='candle',volume=False)  
-        mpf.plot(df_iv, **kwargs, style=s, 
+        s = volatility_style(settings)
+        #kwargs = dict(type='candle',volume=False)  
+        kwargs = dict(type='ohlc_bars',volume=False)  
+        
+        mpf.plot(df_iv, **kwargs, mav=5,
+        #mpf.plot(df_iv, **kwargs, style=s, mav=5,
                 title=dict(title="\n\nImplied Volatility for " + data_title, weight='regular', size=11),               
                 datetime_format=' %m/%d %H:%M',
                 tight_layout=settings['tight_layout'],
@@ -278,10 +243,75 @@ def print_data(dataframe, settings):
         pd.set_option('display.max_rows', None)
         print(dataframe)
 
+# A simple scatterplot of the volatility data using only the 'close' datapoints
+def volatility_scatterplot(my_df, title_str):
+    plt.rcParams['figure.figsize'] = (8.0, 4.8)
+    ax = my_df.plot(y='IV (%)', use_index=False, marker='s', markersize=3, linestyle='--', linewidth=0.5, alpha=0.75)
+    
+    labelfont = {'fontname':'DejaVu Sans', 'fontsize':9, 'weight':'light'}
+    titlefont = {'fontname':'DejaVu Sans', 'fontsize':11, 'weight':'light'}
+    
+    tick_period = int(len(my_df.index)/7)
+    # ajust the tick_period so we have a consistent amount of ticklabels on the plot
+    
+    ax.set_xticks(np.arange(len(my_df.index)/tick_period)*tick_period)
+    ax.set_xticklabels(my_df.index[::tick_period], **labelfont)
+    # Set the ticklabels as the index names. 
+    
+    ax.callbacks.connect('xlim_changed', on_xlims_change)
+    #live update the xlabels TODO: implement this.
+    
+    plt.subplots_adjust(left=0.13, bottom=0.21, right=0.95, top=0.92, wspace=0.2, hspace=0)
+    plt.ylabel('Implied Volatility (%)', **labelfont)
+    plt.title('Implied Volatility for ' + title_str, **titlefont)
+    plt.grid(which='major', color='#151515', linestyle='-', linewidth=0.50, alpha=0.75, zorder=1)    
+    plt.minorticks_on()
+    plt.grid(b=True,which='minor', color='#111111', linestyle='--', linewidth=0.50, alpha=0.3, zorder=0)
+    
+    plt.gca().xaxis.grid(which='both') 
+    # horizontal lines only #ax = plt.gca()
+
+
+
+# Calculate all the volatilities for the OHLC plot
+def calculate_volatility_ohlc(option_data, quote_data, underlying_data):
+    # Close-IV (Default)
+    iv_close = option_data.get_implied_volatility()
+    
+    # Open-IV
+    option_data.up = underlying_data[2]
+    option_data.op = quote_data['open']
+    iv_open = option_data.get_implied_volatility()
+    
+    # Max-IV
+    if (option_data.is_call):
+        option_data.up = underlying_data[4] #lowest underlying price
+        # Max Call IV: low underlying price, high option price
+    else:
+        option_data.up = underlying_data[3] # highest underlying price
+        # Max Put IV: high underlying price, high option price
+    
+    option_data.op = quote_data['high']
+    iv_high = option_data.get_implied_volatility()
+
+    # Min-IV
+    if (option_data.is_call):
+        option_data.up = underlying_data[3] #highest underlying price
+        # Min Call IV: high underlying price, low option price
+    else:
+        option_data.up = underlying_data[4] #lowest underlying price
+        # Min Put IV: low underlying price, low option price
+    
+    option_data.op = quote_data['low']
+    iv_low = option_data.get_implied_volatility()
+
+    return iv_open, iv_high, iv_low, iv_close
+
 
 # Swap a date string from (MM-DD-YYYY) to (YYYY-MM-DD)
 def invert_date(date_str):
     return date_str[5:] + '-' + date_str[:4]
+
 
 # Whenever the plot is panned/zoomed, update the tick labels.
 def on_xlims_change(axes):
@@ -298,7 +328,6 @@ def on_xlims_change(axes):
     # need to do some sort of get_xticks. then convert. need to pass in the dataframe.
     #ax.tick_period = int(len(df.index)/7)
     #ax.datastore = df
-    
     
 
 # If there's only one trade in then it returns a dictionary instead of a list of dict
@@ -337,7 +366,7 @@ def drop_nonmarket_periods(dataframe):
     return dataframe
     
     
-# Standardized plot style between the two plot types
+# Standardized plot style between timesales and history trading plots
 def standard_style(settings):
     return mpf.make_mpf_style(base_mpf_style='yahoo', 
                               rc={'font.size':10,
@@ -349,3 +378,19 @@ def standard_style(settings):
                               facecolor='w',
                               gridstyle=settings['gridstyle']
                               )
+
+
+# Standardized plot style for the OHLC volatility plots
+# https://github.com/matplotlib/mplfinance/tree/6cffdf1df8de3f3a7e8095ead68be00161688f2b/src/mplfinance/_styledata
+def volatility_style(settings):
+    return mpf.make_mpf_style(base_mpf_style='mike', 
+                              rc={'font.size':10,
+                                  'font.weight':'light',
+                                  #'axes.edgecolor':'black',
+                                  'figure.figsize':(8.0, 4.8)
+                                  }, 
+                              y_on_right=False,
+                              #facecolor='w',
+                              gridstyle='None'#settings['gridstyle']
+                              )
+
