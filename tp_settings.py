@@ -1,9 +1,16 @@
 """
 tp_settings.py
-Last Modified: October 6, 2020
+Last Modified: October 8, 2020
 Description: This script handles the run-time settings for MySybil's tradier-options-plotter. 
 Modify them here and they will apply to bother run_sybil_plotter.py and closed_option_driver.py
 """
+# TODO: add settings for volatility plots and other greeks.
+
+# TODO: validate historyBinning
+# TODO: validate timesalesBinning
+# TODO: validate downloadBinning
+# TODO: validate rfr
+
 
 def get_settings():
     settings_dict = {'API_KEY'          : 'Bearer UNAGUmPNt1GPXWwWUxUGi4ekynpj',
@@ -14,7 +21,7 @@ def get_settings():
                     # True/False
                     # Do you want the data logged to the command line right before it is plotted?
 
-                    'historyLimit'      : 10,
+                    'historyLimit'      : 19,
                     # Integer from 1 to 40
                     # The crossover limit (in days) between intraday versus daily data. 
 
@@ -30,7 +37,7 @@ def get_settings():
                     # '1D' or '7D' or '3D' or etc. Untested support for 1W / 1M / etc.
                     # The data binning for non-intraday plots.
                     
-                    'timesalesBinning'  : '1min',
+                    'timesalesBinning'  : '5min',
                     # '1min' or '5min' or '15min' or '60min'.
                     # The data binning for intraday plots.
                     
@@ -61,9 +68,5 @@ def get_settings():
         print("WARNING: Invalid input for tight_layout. Required <type> boolean. Setting equal False.")
         settings_dict['tight_layout'] = False
 
-
-    # TODO: validate historyBinning
-    # TODO: validate timesalesBinning
-    # TODO: validate downloadBinning
     
     return settings_dict

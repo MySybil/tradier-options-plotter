@@ -1,33 +1,29 @@
 """
 tp_plot_manager.py
-Last Modified: October 7, 2020
+Last Modified: October 8, 2020
 Description: This script handles all the plotting for run_sybil_plotter.py
 
 # mplfinance style documentation
 # https://github.com/matplotlib/mplfinance/blob/master/examples/styles.ipynb
 """
 
-# Simple implied volatility plots
+# General
+# TODO: abstract the adj_time calculation from plot_timesales()
+# TODO: clean up the volatility OHLC figures. 
+
+# Scatterplot implied volatility
 # TODO: get rid of seconds values in x-ticks in timesales plots
 # TODO: make timesales ticks auto-updating on zoom. (try candles first)
 # I need to change this into a convert xticks to xticklabel type thing.
 
-# OHLC Volatility plots
-# TODO: make the OHLC volatility plots less busy.
-# TODO: add the OHLC IV plots to the history data.
-
-# General
-# TODO: abstract the adj_time calculation from plot_timesales()
-
 from datetime import datetime
-import time
-import pandas as pd
+import matplotlib.pyplot as plt
 import mplfinance as mpf
+import numpy as np
+import pandas as pd
+import time
 
 from mysybil_greeks import OptionAnalysis
-import matplotlib.pyplot as plt
-import numpy as np
-
 
 # Are we plotting intraday or daily data?
 def plot_data(data, underlying_data, should_use_history_endpoint, data_title, settings):
@@ -56,6 +52,7 @@ def plot_history(data, underlying_data, data_title, settings):
         ohlc_underlying.append(pandas_data)
     
     ohlc = []
+    ohlc_iv = []
     for quote in data:
         quote_time = datetime.strptime(quote['date'], "%Y-%m-%d")
         iv = 0
@@ -71,16 +68,20 @@ def plot_history(data, underlying_data, data_title, settings):
                 # Initialize the OptionAnalysis data [-2] is 'close'
                 
                 time_to_expiry = sparta.get_market_year_fraction(trade_date, expiry_date, -1*390)
-                # Find the year fraction of time remaining only looking at market minutes. (dates inclusive, so -390 (1day))
-                
                 sparta.tte = time_to_expiry
-                iv = sparta.get_implied_volatility()
-                # TODO: update this to encorporate the OHLC IV plots
-                
+                # Find the year fraction of time remaining only looking at market minutes. (dates inclusive, so -390 (1day))
+
+
+                iv_open, iv_high, iv_low, iv_close = calculate_volatility_ohlc(sparta, quote, underlying)
                 break
         
-        pandas_data = quote_time, quote['open'], quote['high'], quote['low'], quote['close'], quote['volume'], round(iv*100,2)
+        pandas_data = quote_time, quote['open'], quote['high'], quote['low'], quote['close'], quote['volume'], round(iv_close*100,2)
         ohlc.append(pandas_data)
+        # Store the OHLC trade data
+
+        pandas_iv_data = quote_time, round(iv_open*100,2), round(iv_high*100,2), round(iv_low*100,2), round(iv_close*100,2), quote['volume']
+        ohlc_iv.append(pandas_iv_data)
+        # Store the OHLC implied volatility data
 
     if (len(ohlc)):
         df = pd.DataFrame(ohlc)
@@ -101,7 +102,7 @@ def plot_history(data, underlying_data, data_title, settings):
         print_data(df, settings)        
         # Resample and print the data
 
-        volatility_scatterplot(df, data_title)
+        #volatility_scatterplot(df, data_title)
         # Scatterplot of the implied volatility over time. 
 
         s = standard_style(settings)                
@@ -110,11 +111,40 @@ def plot_history(data, underlying_data, data_title, settings):
                 title=dict(title="\n\n" + data_title, weight='regular', size=11),                
                 datetime_format=' %m/%d',
                 tight_layout=settings['tight_layout'],
-                block=True,
+                block=False,
                 ylabel="Option Price ($)")
                 
     else:
         print("No option trades during period.")
+        return
+    
+    # Candlestick-style implied volatility plot
+    if (len(ohlc_iv)):
+        df_iv = pd.DataFrame(ohlc_iv)
+        df_iv.columns = ['Date', 'Open', 'High', 'Low', 'Close', 'Volume']
+        df_iv = df_iv.set_index(pd.DatetimeIndex(df_iv['Date']))
+        
+        ohlc_iv_dict = {
+            'Open':'first',
+            'High':'max',
+            'Low':'min',
+            'Close':'last',
+            'Volume':'sum'
+        }
+        
+        df_iv = df_iv.resample(settings['historyBinning']).agg(ohlc_iv_dict)
+        df_iv = drop_weekends(df_iv)    
+        # Resample the volatility data.
+        
+        s = volatility_style(settings)
+        kwargs = dict(type='candle',volume=False)  
+        mpf.plot(df_iv, **kwargs, style=s, 
+                #mav=3,
+                title=dict(title="\n\nImplied Volatility for " + data_title, weight='regular', size=11),               
+                datetime_format=' %m/%d',
+                tight_layout=settings['tight_layout'],
+                block=True,
+                ylabel="Implied Volatility (%)")        
     
     return
 
@@ -188,7 +218,7 @@ def plot_timesales(data, underlying_data, data_title, settings):
         print_data(df, settings)        
         # Resample and print the data
 
-        volatility_scatterplot(df, data_title)
+        #volatility_scatterplot(df, data_title)
         # Super basic plot of the implied volatility over time. 
 
         s = standard_style(settings)                
@@ -223,11 +253,9 @@ def plot_timesales(data, underlying_data, data_title, settings):
         # Resample the volatility data.
         
         s = volatility_style(settings)
-        #kwargs = dict(type='candle',volume=False)  
-        kwargs = dict(type='ohlc_bars',volume=False)  
-        
-        mpf.plot(df_iv, **kwargs, mav=5,
-        #mpf.plot(df_iv, **kwargs, style=s, mav=5,
+        kwargs = dict(type='candle',volume=False)  
+        mpf.plot(df_iv, **kwargs, style=s, 
+                #mav=3,
                 title=dict(title="\n\nImplied Volatility for " + data_title, weight='regular', size=11),               
                 datetime_format=' %m/%d %H:%M',
                 tight_layout=settings['tight_layout'],
@@ -369,7 +397,7 @@ def drop_nonmarket_periods(dataframe):
 # Standardized plot style between timesales and history trading plots
 def standard_style(settings):
     return mpf.make_mpf_style(base_mpf_style='yahoo', 
-                              rc={'font.size':10,
+                              rc={'font.size':9,
                                   'font.weight':'light',
                                   'axes.edgecolor':'black',
                                   'figure.figsize':(8.0, 4.8)
@@ -383,14 +411,23 @@ def standard_style(settings):
 # Standardized plot style for the OHLC volatility plots
 # https://github.com/matplotlib/mplfinance/tree/6cffdf1df8de3f3a7e8095ead68be00161688f2b/src/mplfinance/_styledata
 def volatility_style(settings):
-    return mpf.make_mpf_style(base_mpf_style='mike', 
-                              rc={'font.size':10,
+    return mpf.make_mpf_style(base_mpf_style='yahoo',
+                              marketcolors = {'candle': {'up': 'b', 'down': 'b'},
+                                              'edge': {'up': 'b', 'down': 'b'},
+                                              'wick': {'up': '#7777ff', 'down': '#7777ff'},
+                                              'ohlc': {'up': 'k', 'down': 'k'},
+                                              'volume': {'up': '#1f77b4', 'down': '#1f77b4'},
+                                              'vcedge': {'up': '#1f77b4', 'down': '#1f77b4'},
+                                              'vcdopcod': False,
+                                              'alpha': 0.75
+                                              },
+                              rc={'font.size':9,
                                   'font.weight':'light',
                                   #'axes.edgecolor':'black',
                                   'figure.figsize':(8.0, 4.8)
-                                  }, 
-                              y_on_right=False,
-                              #facecolor='w',
-                              gridstyle='None'#settings['gridstyle']
+                                  },
+                              y_on_right = False,
+                              mavcolors = ['#000000'],
+                              gridstyle = '--',
+                              facecolor = 'w'
                               )
-
