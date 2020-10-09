@@ -61,18 +61,22 @@ Enter: 2019-01-01
 
 The program should download all the data and then display a candlestick chart of the daily trade data. Something along the lines of the figures below (the candlestick binning can be changed in the settings inside the driver file):
 
-12-Months of SPY 325C (7D binning):
+SPY Intraday: 
 
-![7-Months of SPY 325C](./screens/spy-history.png)
+![SPY Intraday](./screens/spy-trade.png)
 
-MSFT Intraday: 
+SPY Implied Volatility: 
 
-![MSFT Intraday](./screens/msft-trade.png)
+![SPY Volatility](./screens/spy-volatility.png)
 
-MSFT Implied Volatility: 
 
-![MSFT Volatility](./screens/msft-volatility.png)
+4-Months of QQQ 275C (1D binning):
 
+![4-Months of QQQ 275C](./screens/qqq-trade.png)
+
+QQQ Implied Volatility:
+
+![QQQ 275C Implied Volatility](./screens/qqq-volatility.png)
 
 
 Example Data Output (Daily data):
@@ -106,6 +110,8 @@ Date
 2020-10-08  22.00  22.15  14.00  15.57    1524   40.36
 
 ```
+
+* Note: the Implied Volatility data that is printed is the 'close' data point. See the note below. 
 
 ### Implied Volatility
 
