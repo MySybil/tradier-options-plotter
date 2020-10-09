@@ -113,6 +113,7 @@ So what's the deal with the volatility charts? What it comes down to is that to 
 
 To account for this, the script calculates four volatility values for every interval: the opening value (for daily data this would assume that the first option trade is at 9:30 AM), the closing value (this would assume the last option trade is at 4:00 PM), the highest possible volatility, and the lowest possible volatility value. The script then displays this in candles using a traditional OHLC framework. For one-minute intervals the wicks are very small, for daily intervals they are very large. 
 
+**The wick DOES NOT imply that the there was a trade with that implied volatitlity - only that it is possible that there COULD HAVE BEEN.**
 
 NVDA Daily Volatility: 
 
