@@ -17,14 +17,17 @@ tpu.intro_screen(); # just some printing / instructions to introduce the program
 settings    = tps.get_settings()
 symbol      = input("Enter a symbol to proceed: ").upper()
 option_type = input("Select calls [c] or puts [p]: ").upper()
+settings['type'] = option_type
 
 # Prompt the user to pick one of the expiry dates (no list display due to prior expiry)
 date = input("Input the expiry date of the options in [YYYY-mm-dd]: ")
+settings['expiry'] = date
 
 # Format the date string for Tradier's API formatting (strip dashes then strip 20 off the front of 2021)
 format_date = date.replace("-", "")[2:len(date.replace("-", ""))]
 
 selected_price = input("Input the strike price of the option: ")
+settings['strike'] = selected_price
 
 # Format the price string for Tradier
 selected_price = '{0:08d}'.format(int(float(selected_price)*1000)) 
@@ -43,7 +46,16 @@ trade_data = trm.get_trade_data(option_symbol,
                                 should_use_history_endpoint, 
                                 settings['API_KEY'])
 
+# Let's get data on the underlying and then match it up and calculate the IV at every point.
+underlying_data = trm.get_underlying_data(symbol,
+                                          start_date, 
+                                          settings['downloadBinning'], 
+                                          should_use_history_endpoint, 
+                                          settings['API_KEY'])
+
+
 tpm.plot_data(trade_data, 
+             underlying_data,
              should_use_history_endpoint, 
              data_name, 
              settings)
