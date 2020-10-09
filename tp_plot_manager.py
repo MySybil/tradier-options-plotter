@@ -137,7 +137,8 @@ def plot_history(data, underlying_data, data_title, settings):
         # Resample the volatility data.
         
         s = volatility_style(settings)
-        kwargs = dict(type='candle',volume=False)  
+        kwargs = dict(type='candle',volume=False)
+        #kwargs = dict(type='ohlc_bars',volume=False)  
         mpf.plot(df_iv, **kwargs, style=s, 
                 #mav=3,
                 title=dict(title="\n\nImplied Volatility for " + data_title, weight='regular', size=11),               
@@ -415,7 +416,7 @@ def volatility_style(settings):
                               marketcolors = {'candle': {'up': 'b', 'down': 'b'},
                                               'edge': {'up': 'b', 'down': 'b'},
                                               'wick': {'up': '#7777ff', 'down': '#7777ff'},
-                                              'ohlc': {'up': 'k', 'down': 'k'},
+                                              'ohlc': {'up': 'b', 'down': 'b'},
                                               'volume': {'up': '#1f77b4', 'down': '#1f77b4'},
                                               'vcedge': {'up': '#1f77b4', 'down': '#1f77b4'},
                                               'vcdopcod': False,
