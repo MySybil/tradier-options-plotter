@@ -4,6 +4,9 @@ Last Modified: October 6, 2020
 Description: This script handles all the data grabbing / formatting for run_sybil_plotter.py 
 """
 
+# TODO: get_underlying_data() should only grab history data up until the option expiry date. 
+# TODO: investigate error in grabbing underlying data. See line 137. 
+
 from datetime import datetime
 import requests
 import tp_ui_manager as tpu #formerly sui
@@ -132,6 +135,10 @@ def get_underlying_data(symbol, start_date, binning, should_use_history_endpoint
             headers={'Authorization': api_key, 'Accept': 'application/json'}
         )
         trade_data_json = trade_data_response.json()
+        # TODO: handle no data error. YHOO 40C 2017-01-20 w/ start 2016-12-01:
+        #print(trade_data_response) # <Response [200]>
+        #print(trade_data_json) # {'history': None}
+        # return line errors. 
         return(trade_data_json['history']['day'])
     else:
         trade_data_response = requests.get(root_url + '/timesales?',

@@ -38,6 +38,9 @@ option_symbol = symbol + format_date + option_type + selected_price
 # Plot title
 data_name = symbol + " $" + str(float(selected_price)/1000) + option_type + " (" + date + ")"
 
+split_ratio = input("Enter the size of the stock split [0 if no split]: ")
+# Was there a stock split between the period of the option data and now. 
+
 # Download the trade data and plot it
 print("Now downloading trade data for: " + data_name)
 trade_data = trm.get_trade_data(option_symbol, 
@@ -53,6 +56,9 @@ underlying_data = trm.get_underlying_data(symbol,
                                           should_use_history_endpoint, 
                                           settings['API_KEY'])
 
+# If there was a stock split, adjust the share price to account and keep IV calculation accurate. 
+underlying_data = tpu.stock_split_adjustment(float(split_ratio),
+                                             underlying_data)
 
 tpm.plot_data(trade_data, 
              underlying_data,
