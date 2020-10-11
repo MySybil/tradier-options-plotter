@@ -1,11 +1,12 @@
 """
 tp_request_manager.py
-Last Modified: October 6, 2020
+Last Modified: October 11, 2020
 Description: This script handles all the data grabbing / formatting for run_sybil_plotter.py 
 """
 
 # TODO: get_underlying_data() should only grab history data up until the option expiry date. 
-# TODO: investigate error in grabbing underlying data. See line 137. 
+# TODO: investigate error in grabbing underlying data. See line 146. 
+            # I need to validate the data. See line 128
 
 from datetime import datetime
 import requests
@@ -118,6 +119,13 @@ def get_trade_data(option_symbol, start_date, binning, should_use_history_endpoi
             headers={'Authorization': api_key, 'Accept': 'application/json'}
         )
         trade_data_json = trade_data_response.json()
+        #print(trade_data_json)
+        # SPY, C, 2016-12-30, 210, 2016-01-01
+        # ValueError: Data for column "Open" must be ALL float or int.
+        #{'date': '2016-06-03', 'open': 8.55, 'high': 8.55, 'low': 8.09, 'close': 8.41, 'volume': 82}, 
+        #{'date': '2016-06-07', 'open': 'NaN', 'high': 'NaN', 'low': 'NaN', 'close': 9.3, 'volume': 0}, 
+        #{'date': '2016-06-08', 'open': 9.65, 'high': 9.65, 'low': 9.65, 'close': 9.65, 'volume': 3}, 
+        # TODO: okay, so it looks like I need to validate the data. damn. 
         return(trade_data_json['history']['day'])
     else:
         trade_data_response = requests.get(root_url + '/timesales?',

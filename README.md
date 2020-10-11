@@ -63,20 +63,19 @@ The program should download all the data and then display a candlestick chart of
 
 SPY Intraday: 
 
-![SPY Intraday](./screens/spy-trade.png)
+![SPY Intraday](./screens/spy-345c-trade.png)
 
-SPY Implied Volatility: 
+SPY Intrady Implied Volatility: 
 
-![SPY Volatility](./screens/spy-volatility.png)
+![SPY Volatility](./screens/spy-345c-volatility.png)
 
+60 Days of SPY Price History:
 
-4-Months of QQQ 275C (1D binning):
+![SPY 60D](./screens/spy-350c-trade-60d.png)
 
-![4-Months of QQQ 275C](./screens/qqq-trade.png)
+A Full Year of SPY Implied Volatility:
 
-QQQ Implied Volatility:
-
-![QQQ 275C Implied Volatility](./screens/qqq-volatility.png)
+![SPY Year Volatility](./screens/spy-350c-vol-year.png)
 
 
 Example Data Output (Daily data):
@@ -121,9 +120,9 @@ To account for this, the script calculates four volatility values for every inte
 
 **The wick DOES NOT imply that the there was a trade with that implied volatitlity - only that it is possible that there COULD HAVE BEEN.**
 
-NVDA Daily Volatility: 
+SPY Multi-Year Daily Volatility: 
 
-![NVDA Volatility](./screens/nvda-volatility.png)
+![SPY Longterm Volatility](./screens/spy-longterm.png)
 
 
 

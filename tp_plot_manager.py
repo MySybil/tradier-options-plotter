@@ -139,7 +139,7 @@ def plot_history(data, underlying_data, data_title, settings):
         s = volatility_style(settings)
         kwargs = dict(type='candle',volume=False)
         mpf.plot(df_iv, **kwargs, style=s, 
-                mav=2,
+                mav=3,
                 title=dict(title="\n\nImplied Volatility for " + data_title, weight='regular', size=11),               
                 datetime_format=' %m/%d',
                 tight_layout=settings['tight_layout'],
@@ -229,7 +229,7 @@ def plot_timesales(data, underlying_data, data_title, settings):
                 tight_layout=settings['tight_layout'],
                 block=False, #False
                 ylabel="Option Price ($)")        
-                        
+             
     else:
         print("No option trades during period.")
         return
@@ -255,7 +255,7 @@ def plot_timesales(data, underlying_data, data_title, settings):
         s = volatility_style(settings)
         kwargs = dict(type='candle',volume=False)  
         mpf.plot(df_iv, **kwargs, style=s, 
-                mav=5,
+                mav=3,
                 title=dict(title="\n\nImplied Volatility for " + data_title, weight='regular', size=11),               
                 datetime_format=' %m/%d %H:%M',
                 tight_layout=settings['tight_layout'],
@@ -412,14 +412,17 @@ def standard_style(settings):
 # https://github.com/matplotlib/mplfinance/tree/6cffdf1df8de3f3a7e8095ead68be00161688f2b/src/mplfinance/_styledata
 def volatility_style(settings):
     return mpf.make_mpf_style(base_mpf_style='yahoo',
-                              marketcolors = {'candle': {'up': '#5555ff', 'down': '#5555ff'},
-                                              'edge': {'up': '#5555ff', 'down': '#5555ff'},
+                              marketcolors = {#'candle': {'up': '#5555ff', 'down': '#5555ff'},
+                                              #'edge': {'up': '#5555ff', 'down': '#5555ff'},
+                                              'candle': {'up': '#55ccaa', 'down': '#cc55aa'},
+                                              'edge': {'up': '#55ccaa', 'down': '#cc55aa'},
                                               'wick': {'up': '#bbbbff', 'down': '#bbbbff'},
                                               'ohlc': {'up': '#5555ff', 'down': '#5555ff'},
                                               'volume': {'up': '#1f77b4', 'down': '#1f77b4'},
                                               'vcedge': {'up': '#1f77b4', 'down': '#1f77b4'},
                                               'vcdopcod': False,
-                                              'alpha': 0.50
+                                              'alpha': 0.75
+                                              #'alpha': 0.50
                                               },
                               rc={'font.size':9,
                                   'font.weight':'light',
