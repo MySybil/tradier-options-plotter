@@ -42,6 +42,7 @@ class OptionAnalysis:
     self.is_call : bool
     self.tol : float
     """
+        
     def __init__(self, underlying_price, strike, time_to_expiry, dividend_yield,
                  opt_price, risk_free_rate, is_call, tolerance=1E-3):
         self.up = underlying_price
@@ -76,7 +77,7 @@ class OptionAnalysis:
             )
         return opt_val
 
-    def get_market_year_fraction(self, start_date, end_date, adjustment):
+    def get_market_year_fraction(start_date, end_date, adjustment):
         """Calculate the year fraction until the expiry date of an option in trading minutes.
       
         Parameters

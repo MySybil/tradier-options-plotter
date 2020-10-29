@@ -63,15 +63,12 @@ def plot_history(data, underlying_data, data_title, settings):
                 trade_date = invert_date(quote['date'])
                 expiry_date = invert_date(settings['expiry'])
         
-                blank_tte = 0 # need something to initialize the class
-                sparta = OptionAnalysis(underlying[-2], float(settings['strike']), blank_tte, 0, quote['close'], settings['rfr'], settings['type'] == 'C')
+                time_to_expiry = OptionAnalysis.get_market_year_fraction(trade_date, expiry_date, -1*390)
+                # Find the year fraction of time remaining only looking at market minutes. (dates inclusive, so -390 (1day))
+                
+                sparta = OptionAnalysis(underlying[-2], float(settings['strike']), time_to_expiry, 0, quote['close'], settings['rfr'], settings['type'] == 'C')
                 # Initialize the OptionAnalysis data [-2] is 'close'
                 
-                time_to_expiry = sparta.get_market_year_fraction(trade_date, expiry_date, -1*390)
-                sparta.tte = time_to_expiry
-                # Find the year fraction of time remaining only looking at market minutes. (dates inclusive, so -390 (1day))
-
-
                 iv_open, iv_high, iv_low, iv_close = calculate_volatility_ohlc(sparta, quote, underlying)
                 break
         
@@ -170,21 +167,19 @@ def plot_timesales(data, underlying_data, data_title, settings):
             if (quote_time == underlying[0]):
                 trade_date = invert_date(quote['time'][:10])
                 expiry_date = invert_date(settings['expiry'])
-                
-                blank_tte = 0 # need something to initialize the class
-                sparta = OptionAnalysis(underlying[-2], float(settings['strike']), blank_tte, 0, quote['close'], settings['rfr'], settings['type'] == 'C')
-                # Initialize the OptionAnalysis data [-2] is 'close'
-                
+                                
                 adj_time = ((16-float(quote['time'][11:13]))*60 - float(quote['time'][14:16]))
                 adj_time = (adj_time - 390*1) - int(settings['timesalesBinning'][:-3])
                 # Adjust the time for intraday minutes.
                 # Need to subtract binning b/c we're dealing with closes.
                 # *2 seems to fit better w/ online data. I need to think about *1 vs *2
                 
-                time_to_expiry = sparta.get_market_year_fraction(trade_date, expiry_date, adj_time)
-                sparta.tte = time_to_expiry
+                time_to_expiry = OptionAnalysis.get_market_year_fraction(trade_date, expiry_date, adj_time)
                 # Find the year fraction of time remaining only looking at market minutes. (dates inclusive, so -390 (1day))
 
+                sparta = OptionAnalysis(underlying[-2], float(settings['strike']), time_to_expiry, 0, quote['close'], settings['rfr'], settings['type'] == 'C')
+                # Initialize the OptionAnalysis data [-2] is 'close'
+                
                 iv_open, iv_high, iv_low, iv_close = calculate_volatility_ohlc(sparta, quote, underlying)
                 # Calculate the volatility range for ohlc IV charts.
                 
