@@ -59,6 +59,7 @@ def plot_history(data, underlying_data, data_title, settings):
         
         # Traverse the underlying data until we find the matching time period
         for underlying in ohlc_underlying:
+            iv_close = 0
             if (quote_time == underlying[0]):
                 trade_date = invert_date(quote['date'])
                 expiry_date = invert_date(settings['expiry'])
@@ -76,9 +77,10 @@ def plot_history(data, underlying_data, data_title, settings):
         ohlc.append(pandas_data)
         # Store the OHLC trade data
 
-        pandas_iv_data = quote_time, round(iv_open*100,2), round(iv_high*100,2), round(iv_low*100,2), round(iv_close*100,2), quote['volume']
-        ohlc_iv.append(pandas_iv_data)
-        # Store the OHLC implied volatility data
+        if (iv_close):
+            pandas_iv_data = quote_time, round(iv_open*100,2), round(iv_high*100,2), round(iv_low*100,2), round(iv_close*100,2), quote['volume']
+            ohlc_iv.append(pandas_iv_data)
+            # Store the OHLC implied volatility data
 
     if (len(ohlc)):
         df = pd.DataFrame(ohlc)
@@ -164,6 +166,7 @@ def plot_timesales(data, underlying_data, data_title, settings):
         iv = 0
         
         for underlying in ohlc_underlying:
+            iv_close = 0
             if (quote_time == underlying[0]):
                 trade_date = invert_date(quote['time'][:10])
                 expiry_date = invert_date(settings['expiry'])
@@ -185,14 +188,16 @@ def plot_timesales(data, underlying_data, data_title, settings):
                 
                 break
                 # Found corresponding data, no need to look further
-                
+            
+        
         pandas_data = quote_time, quote['open'], quote['high'], quote['low'], quote['close'], quote['volume'], round(iv_close*100,2)
         ohlc.append(pandas_data)
         # Store the OHLC trade data
-
-        pandas_iv_data = quote_time, round(iv_open*100,2), round(iv_high*100,2), round(iv_low*100,2), round(iv_close*100,2), quote['volume']
-        ohlc_iv.append(pandas_iv_data)
-        # Store the OHLC implied volatility data
+        
+        if (iv_close):
+            pandas_iv_data = quote_time, round(iv_open*100,2), round(iv_high*100,2), round(iv_low*100,2), round(iv_close*100,2), quote['volume']
+            ohlc_iv.append(pandas_iv_data)
+            # Store the OHLC implied volatility data
 
     if (len(ohlc)): 
         df = pd.DataFrame(ohlc)
