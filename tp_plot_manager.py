@@ -108,7 +108,7 @@ def plot_history(data, underlying_data, data_title, settings):
         kwargs = dict(type='candle', volume=True)        
         mpf.plot(df, **kwargs, style=s, 
                 title=dict(title="\n\n" + data_title, weight='regular', size=11),                
-                datetime_format=' %m/%d',
+                datetime_format=' %m/%d/%Y',
                 tight_layout=settings['tight_layout'],
                 block=False,
                 ylabel="Option Price ($)")
@@ -140,7 +140,7 @@ def plot_history(data, underlying_data, data_title, settings):
         mpf.plot(df_iv, **kwargs, style=s, 
                 mav=3,
                 title=dict(title="\n\nImplied Volatility for " + data_title, weight='regular', size=11),               
-                datetime_format=' %m/%d',
+                datetime_format=' %m/%d/%Y',
                 tight_layout=settings['tight_layout'],
                 block=True,
                 ylabel="Implied Volatility (%)")        
