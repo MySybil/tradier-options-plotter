@@ -126,7 +126,12 @@ def get_trade_data(option_symbol, start_date, binning, should_use_history_endpoi
         #{'date': '2016-06-07', 'open': 'NaN', 'high': 'NaN', 'low': 'NaN', 'close': 9.3, 'volume': 0}, 
         #{'date': '2016-06-08', 'open': 9.65, 'high': 9.65, 'low': 9.65, 'close': 9.65, 'volume': 3}, 
         # TODO: okay, so it looks like I need to validate the data. damn. 
-        return(trade_data_json['history']['day'])
+        try:
+            return(trade_data_json['history']['day'])
+        except TypeError:
+            print(trade_data_json)
+            print('TypeError. No options data in tp_request_manager.get_trade_data(). Terminating.')
+            exit()
     else:
         trade_data_response = requests.get(root_url + '/timesales?',
             params={'symbol': option_symbol, 'start': start_date, 'interval':(str(int(binning))+"min")},
