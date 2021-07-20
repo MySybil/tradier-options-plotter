@@ -15,14 +15,13 @@ These instructions will get you a copy of the project up and running on your loc
 ### Dependencies
 ```
 matplotlib
+mplfinance
 numpy
 pandas
 requests
 scipy
 trading_calendars
 ```
-
-Note: this package is currently running a custom version of mplfinance with additional personalization options for plots. 
 
 ### Run Example
 

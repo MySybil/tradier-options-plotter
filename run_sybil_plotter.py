@@ -3,8 +3,6 @@ run_sybil_plotter.py
 Last Modified: October 7, 2020
 Description: This script is designed as a free and open-source tool to help retail investors get 
 and analyze historic options data.
-
-BUG:  why do i need to resize the figures to get them to show properly
 """
 
 import tp_plot_manager as tpm #formerly pm

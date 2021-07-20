@@ -426,7 +426,7 @@ def volatility_style(settings):
                                               },
                               rc={'font.size':9,
                                   'font.weight':'light',
-                                  #'axes.edgecolor':'black',
+                                  'axes.edgecolor':'black',
                                   'figure.figsize':(8.0, 4.8)
                                   },
                               y_on_right = False,
