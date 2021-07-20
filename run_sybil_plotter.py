@@ -5,10 +5,10 @@ Description: This script is designed as a free and open-source tool to help reta
 and analyze historic options data.
 """
 
-import tp_plot_manager as tpm #formerly pm
-import tp_request_manager as trm #formerly sdg
+import tp_plot_manager as tpm 
+import tp_request_manager as trm
 import tp_settings as tps
-import tp_ui_manager as tpu # formerly sui
+import tp_ui_manager as tpu
 
 
 tpu.intro_screen();

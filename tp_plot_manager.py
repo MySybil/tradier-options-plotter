@@ -111,6 +111,7 @@ def plot_history(data, underlying_data, data_title, settings):
                 datetime_format=' %m/%d/%Y',
                 tight_layout=settings['tight_layout'],
                 block=False,
+                scale_padding = 0.7,
                 ylabel="Option Price ($)")
                 
     else:
@@ -143,6 +144,7 @@ def plot_history(data, underlying_data, data_title, settings):
                 datetime_format=' %m/%d/%Y',
                 tight_layout=settings['tight_layout'],
                 block=True,
+                scale_padding = 0.7,
                 ylabel="Implied Volatility (%)")        
     
     return
@@ -228,6 +230,7 @@ def plot_timesales(data, underlying_data, data_title, settings):
                 datetime_format=' %m/%d %H:%M',
                 tight_layout=settings['tight_layout'],
                 block=False, #False
+                scale_padding = 0.7,
                 ylabel="Option Price ($)")        
              
     else:
@@ -260,6 +263,7 @@ def plot_timesales(data, underlying_data, data_title, settings):
                 datetime_format=' %m/%d %H:%M',
                 tight_layout=settings['tight_layout'],
                 block=True,
+                scale_padding = 0.7,
                 ylabel="Implied Volatility (%)")        
     
     return
