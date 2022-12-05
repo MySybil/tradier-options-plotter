@@ -20,7 +20,7 @@ numpy
 pandas
 requests
 scipy
-trading_calendars
+exchange_calendars: https://github.com/gerrymanoim/exchange_calendars
 ```
 
 ### Run Example
@@ -34,7 +34,7 @@ python3 run_sybil_plotter.py
 As a quick example, run the script and the first prompt should be to "Enter a symbol to proceed: "
 
 ```
-Enter: SPY
+Enter: MSFT
 ```
 
 You'll be prompted to enter either calls or puts.
@@ -45,17 +45,17 @@ Select call options by entering: C
 
 The script will download a list of all available options dates and prompt you to enter one.
 ```
-Enter: 2021-01-15
+Enter: 2024-01-19
 ```
 
 You'll be prompted to select a strike.
 ```
-Enter: 325
+Enter: 250
 ```
 
 You'll be prompted for the earliest trade data you want to look at:
 ```
-Enter: 2019-01-01
+Enter: 2022-01-01
 ```
 
 The program should download all the data and then display a candlestick chart of the daily trade data. Something along the lines of the figures below (the candlestick binning can be changed in the settings inside the driver file):

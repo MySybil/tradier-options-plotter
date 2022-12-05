@@ -5,7 +5,7 @@
 
 import math
 from scipy.stats import norm
-from trading_calendars import get_calendar 
+from exchange_calendars import get_calendar 
 
 class OptionAnalysis:
     """
